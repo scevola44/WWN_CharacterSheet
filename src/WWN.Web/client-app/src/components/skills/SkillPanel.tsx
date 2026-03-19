@@ -2,9 +2,10 @@ import { SectionCard } from '../layout/SectionCard';
 import { characterApi } from '../../api/characterApi';
 import type { CharacterDetail } from '../../types/character';
 
-export function SkillPanel({ character, onUpdate }: {
+export function SkillPanel({ character, onUpdate, isEditing }: {
   character: CharacterDetail;
   onUpdate: (c: CharacterDetail) => void;
+  isEditing: boolean;
 }) {
   const handleRankChange = async (skillName: string, delta: number) => {
     const skill = character.skills.find(s =>
@@ -25,9 +26,9 @@ export function SkillPanel({ character, onUpdate }: {
             <div key={skill.id} className="skill-row">
               <span className="name">{display}</span>
               <span>
-                <button className="sm secondary" onClick={() => handleRankChange(skill.name, -1)}>-</button>
+                {isEditing && <button className="sm secondary" onClick={() => handleRankChange(skill.name, -1)}>-</button>}
                 <span className="rank">{skill.level}</span>
-                <button className="sm secondary" onClick={() => handleRankChange(skill.name, 1)}>+</button>
+                {isEditing && <button className="sm secondary" onClick={() => handleRankChange(skill.name, 1)}>+</button>}
               </span>
             </div>
           );

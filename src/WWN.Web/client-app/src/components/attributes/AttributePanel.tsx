@@ -1,13 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { SectionCard } from '../layout/SectionCard';
 import { characterApi } from '../../api/characterApi';
 import type { CharacterDetail } from '../../types/character';
 
 function formatMod(m: number) { return m >= 0 ? `+${m}` : `${m}`; }
 
-export function AttributePanel({ character, onUpdate }: {
+export function AttributePanel({ character, onUpdate, isEditing }: {
   character: CharacterDetail;
   onUpdate: (c: CharacterDetail) => void;
+  isEditing: boolean;
 }) {
   const [editing, setEditing] = useState<string | null>(null);
   const [editVal, setEditVal] = useState('');
@@ -21,16 +22,28 @@ export function AttributePanel({ character, onUpdate }: {
     setEditing(null);
   };
 
+  useEffect(() => {
+    if (!isEditing) setEditing(null);
+  }, [isEditing]);
+
+  const handleClick = (attr: { name: string; score: number }) => {
+    if (!isEditing) return;
+    setEditing(attr.name);
+    setEditVal(String(attr.score));
+  };
+
   return (
     <SectionCard title="Attributes">
       <div className="attr-grid">
         {character.attributes.map(attr => (
-          <div key={attr.name} className="attr-box" onClick={() => {
-            setEditing(attr.name);
-            setEditVal(String(attr.score));
-          }}>
+          <div
+            key={attr.name}
+            className="attr-box"
+            onClick={() => handleClick(attr)}
+            style={isEditing ? undefined : { cursor: 'default' }}
+          >
             <div className="label">{attr.name.substring(0, 3)}</div>
-            {editing === attr.name ? (
+            {isEditing && editing === attr.name ? (
               <input
                 type="number"
                 value={editVal}

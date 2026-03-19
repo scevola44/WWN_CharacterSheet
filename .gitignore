@@ -18,6 +18,7 @@ obj/
 node_modules/
 dist/
 .vite/
+wwwroot/assets/
 
 ## IDE
 .vs/
