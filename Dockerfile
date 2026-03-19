@@ -16,15 +16,14 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS dotnet-builder
 
 WORKDIR /src
 
-# Copy solution and project files
-COPY WWN_CharacterSheet.sln .
+# Copy project files for dependency restore
 COPY src/WWN.Domain/WWN.Domain.csproj ./src/WWN.Domain/
 COPY src/WWN.Application/WWN.Application.csproj ./src/WWN.Application/
 COPY src/WWN.Infrastructure/WWN.Infrastructure.csproj ./src/WWN.Infrastructure/
 COPY src/WWN.Web/WWN.Web.csproj ./src/WWN.Web/
 
-# Restore dependencies
-RUN dotnet restore WWN_CharacterSheet.sln
+# Restore dependencies (web project only — excludes test projects not needed for production)
+RUN dotnet restore src/WWN.Web/WWN.Web.csproj
 
 # Copy source code
 COPY src ./src
