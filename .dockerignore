@@ -1,0 +1,50 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE and editors
+.vscode
+.idea
+*.swp
+*.swo
+*.swn
+*.vim
+.DS_Store
+
+# Build and dependency directories
+bin/
+obj/
+.next/
+dist/
+build/
+node_modules/
+src/WWN.Web/client-app/node_modules/
+src/WWN.Web/client-app/dist/
+
+# Package managers
+package-lock.json
+npm-debug.log*
+yarn-error.log*
+
+# Test files
+tests/
+
+# Docker
+.dockerignore
+Dockerfile
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.circleci/
+
+# Documentation
+*.md
+docs/
+README.md
+
+# Environment files
+.env
+.env.local
+.env.*.local
