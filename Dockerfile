@@ -29,7 +29,7 @@ RUN dotnet restore src/WWN.Web/WWN.Web.csproj
 COPY src ./src
 
 # Copy built frontend assets into wwwroot
-COPY --from=frontend-builder /src/WWN.Web/client-app/dist ./src/WWN.Web/wwwroot
+COPY --from=frontend-builder /src/WWN.Web/wwwroot ./src/WWN.Web/wwwroot
 
 # Build and publish
 RUN dotnet publish src/WWN.Web/WWN.Web.csproj \
