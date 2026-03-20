@@ -53,7 +53,7 @@ public class CharacterService
             kvp => kvp.Value);
 
         var character = Character.Create(req.Name, charClass, scores,
-            req.Background, req.Origin, partialA, partialB);
+            req.Background, req.Origin, partialA, partialB, req.MaxHitPoints);
 
         await _repo.AddAsync(character, ct);
         return character.Id;

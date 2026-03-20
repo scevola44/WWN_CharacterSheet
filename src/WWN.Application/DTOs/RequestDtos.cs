@@ -9,6 +9,7 @@ public record CreateCharacterRequest
     public string? PartialClassA { get; init; }
     public string? PartialClassB { get; init; }
     public Dictionary<string, int> Attributes { get; init; } = new();
+    public int MaxHitPoints { get; init; } = 1;
 }
 
 public record UpdateAttributeRequest

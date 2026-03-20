@@ -45,7 +45,8 @@ public class Character
     public static Character Create(string name, CharacterClass charClass,
         Dictionary<AttributeName, int> scores,
         string? background = null, string? origin = null,
-        PartialClass? partialA = null, PartialClass? partialB = null)
+        PartialClass? partialA = null, PartialClass? partialB = null,
+        int maxHitPoints = 1)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Character name is required.", nameof(name));
@@ -66,8 +67,8 @@ public class Character
             Background = background,
             Origin = origin,
             Level = 1,
-            MaxHitPoints = 1,
-            CurrentHitPoints = 1,
+            MaxHitPoints = maxHitPoints < 1 ? 1 : maxHitPoints,
+            CurrentHitPoints = maxHitPoints < 1 ? 1 : maxHitPoints,
             ExperiencePoints = 0
         };
 

@@ -18,6 +18,7 @@ export function CharacterCreatePage() {
   const [scores, setScores] = useState<Record<string, number>>(
     Object.fromEntries(ATTRIBUTES.map(a => [a, 10]))
   );
+  const [maxHitPoints, setMaxHitPoints] = useState(6);
   const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -32,6 +33,7 @@ export function CharacterCreatePage() {
         origin: origin || undefined,
         partialClassA: charClass === 'Adventurer' ? partialA : undefined,
         partialClassB: charClass === 'Adventurer' ? partialB : undefined,
+        maxHitPoints,
       };
       const id = await characterApi.create(req);
       navigate(`/character/${id}`);
@@ -82,6 +84,16 @@ export function CharacterCreatePage() {
               </div>
             </div>
           )}
+          <div className="form-group">
+            <label>Max Hit Points *</label>
+            <input
+              type="number"
+              min={1}
+              value={maxHitPoints}
+              onChange={e => setMaxHitPoints(+e.target.value)}
+              required
+            />
+          </div>
         </div>
 
         <div className="section-card">
