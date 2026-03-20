@@ -46,8 +46,8 @@ WORKDIR /app
 COPY --from=dotnet-builder /app/publish .
 
 # Set environment variables
-ENV ASPNETCORE_URLS=http://+:8080
+ENV ASPNETCORE_URLS=http://+:5000
 
-EXPOSE 8080
+EXPOSE 5000
 
 ENTRYPOINT ["dotnet", "WWN.Web.dll"]
