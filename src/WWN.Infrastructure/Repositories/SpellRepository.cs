@@ -30,6 +30,12 @@ public class SpellRepository : ISpellRepository
         await _db.SaveChangesAsync(ct);
     }
 
+    public async Task UpdateAsync(Spell spell, CancellationToken ct = default)
+    {
+        _db.Spells.Update(spell);
+        await _db.SaveChangesAsync(ct);
+    }
+
     public async Task DeleteAsync(Guid id, CancellationToken ct = default)
     {
         var spell = await _db.Spells.FindAsync(new object[] { id }, ct);

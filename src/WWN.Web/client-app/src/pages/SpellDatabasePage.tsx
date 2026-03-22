@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { Spell, CreateSpellRequest } from '../types/spell';
+import type { Spell, CreateSpellRequest, UpdateSpellRequest } from '../types/spell';
 import { spellsApi } from '../api/spellApi';
 
 export function SpellDatabasePage() {
@@ -7,15 +7,14 @@ export function SpellDatabasePage() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [filterLevel, setFilterLevel] = useState<number | 'all'>('all');
-  const [filterSchool, setFilterSchool] = useState<string>('');
+  const [editingSpellId, setEditingSpellId] = useState<string | null>(null);
   const [form, setForm] = useState<CreateSpellRequest>({
     name: '',
     spellLevel: 1,
     description: '',
-    school: '',
-    duration: '',
-    range: '',
+    summary: '',
   });
+  const [editForm, setEditForm] = useState<UpdateSpellRequest | null>(null);
 
   useEffect(() => {
     refreshSpells();
@@ -38,15 +37,40 @@ export function SpellDatabasePage() {
       name: form.name,
       spellLevel: form.spellLevel,
       description: form.description,
-      school: form.school || undefined,
-      duration: form.duration || undefined,
-      range: form.range || undefined,
+      summary: form.summary || undefined,
     };
 
     await spellsApi.create(req);
-    setForm({ name: '', spellLevel: 1, description: '', school: '', duration: '', range: '' });
+    setForm({ name: '', spellLevel: 1, description: '', summary: '' });
     setShowForm(false);
     refreshSpells();
+  };
+
+  const handleEditStart = (spell: Spell) => {
+    setEditingSpellId(spell.id);
+    setEditForm({
+      name: spell.name,
+      spellLevel: spell.spellLevel,
+      description: spell.description,
+      summary: spell.summary || undefined,
+    });
+  };
+
+  const handleEditSave = async (id: string) => {
+    if (!editForm || !editForm.name.trim() || !editForm.description.trim()) {
+      alert('Name and description are required');
+      return;
+    }
+
+    await spellsApi.update(id, editForm);
+    setEditingSpellId(null);
+    setEditForm(null);
+    refreshSpells();
+  };
+
+  const handleEditCancel = () => {
+    setEditingSpellId(null);
+    setEditForm(null);
   };
 
   const handleDelete = async (id: string) => {
@@ -56,10 +80,8 @@ export function SpellDatabasePage() {
     }
   };
 
-  const schools = [...new Set(spells.map(s => s.school).filter(Boolean))].sort();
   const filteredSpells = spells.filter(s => {
     if (filterLevel !== 'all' && s.spellLevel !== filterLevel) return false;
-    if (filterSchool && s.school !== filterSchool) return false;
     return true;
   });
 
@@ -91,12 +113,12 @@ export function SpellDatabasePage() {
               </select>
             </div>
             <div className="form-group" style={{ flex: 1 }}>
-              <label>School</label>
+              <label>Summary</label>
               <input
                 type="text"
-                value={form.school || ''}
-                onChange={e => setForm({ ...form, school: e.target.value })}
-                placeholder="e.g., Evocation"
+                value={form.summary || ''}
+                onChange={e => setForm({ ...form, summary: e.target.value })}
+                placeholder="Brief summary for listing"
               />
             </div>
           </div>
@@ -111,26 +133,6 @@ export function SpellDatabasePage() {
             />
           </div>
 
-          <div className="form-group">
-            <label>Duration</label>
-            <input
-              type="text"
-              value={form.duration || ''}
-              onChange={e => setForm({ ...form, duration: e.target.value })}
-              placeholder="e.g., 1 hour"
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Range</label>
-            <input
-              type="text"
-              value={form.range || ''}
-              onChange={e => setForm({ ...form, range: e.target.value })}
-              placeholder="e.g., 60 feet"
-            />
-          </div>
-
           <div style={{ display: 'flex', gap: '0.5rem' }}>
             <button onClick={handleAddSpell}>Add Spell</button>
             <button className="secondary" onClick={() => setShowForm(false)}>Cancel</button>
@@ -138,21 +140,12 @@ export function SpellDatabasePage() {
         </div>
       )}
 
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
-        <div>
-          <label>Filter by Level</label>
-          <select value={filterLevel} onChange={e => setFilterLevel(e.target.value === 'all' ? 'all' : parseInt(e.target.value))}>
-            <option value="all">All Levels</option>
-            {[1, 2, 3, 4, 5, 6].map(l => <option key={l} value={l}>Level {l}</option>)}
-          </select>
-        </div>
-        <div>
-          <label>Filter by School</label>
-          <select value={filterSchool ?? ''} onChange={e => setFilterSchool(e.target.value)}>
-            <option value="">All Schools</option>
-            {schools.map(s => <option key={s ?? ''} value={s ?? ''}>{s}</option>)}
-          </select>
-        </div>
+      <div>
+        <label>Filter by Level</label>
+        <select value={filterLevel} onChange={e => setFilterLevel(e.target.value === 'all' ? 'all' : parseInt(e.target.value))}>
+          <option value="all">All Levels</option>
+          {[1, 2, 3, 4, 5, 6].map(l => <option key={l} value={l}>Level {l}</option>)}
+        </select>
       </div>
 
       {loading ? (
@@ -162,24 +155,70 @@ export function SpellDatabasePage() {
           No spells yet. Add one to get started!
         </div>
       ) : (
-        <div style={{ display: 'grid', gap: '1rem' }}>
+        <div style={{ display: 'grid', gap: '1rem', marginTop: '1.5rem' }}>
           {filteredSpells.map(spell => (
             <div key={spell.id} style={{ background: 'var(--bg-card)', padding: '1rem', borderRadius: '0.5rem', border: '1px solid var(--border)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
+              {editingSpellId === spell.id && editForm ? (
                 <div>
-                  <h3 style={{ margin: 0 }}>
-                    {spell.name}
-                    {spell.school && <span style={{ fontSize: '0.75rem', marginLeft: '0.5rem', color: 'var(--primary)' }}>({spell.school})</span>}
-                  </h3>
-                  <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-                    Level {spell.spellLevel}
-                    {spell.range && ` | Range: ${spell.range}`}
-                    {spell.duration && ` | Duration: ${spell.duration}`}
+                  <h3 style={{ margin: '0 0 1rem 0' }}>Edit Spell</h3>
+                  <div className="form-group">
+                    <label>Name *</label>
+                    <input
+                      type="text"
+                      value={editForm.name}
+                      onChange={e => setEditForm({ ...editForm, name: e.target.value })}
+                    />
+                  </div>
+                  <div className="form-row">
+                    <div className="form-group" style={{ flex: 1 }}>
+                      <label>Level *</label>
+                      <select value={editForm.spellLevel} onChange={e => setEditForm({ ...editForm, spellLevel: parseInt(e.target.value) })}>
+                        {[1, 2, 3, 4, 5, 6].map(l => <option key={l} value={l}>Level {l}</option>)}
+                      </select>
+                    </div>
+                    <div className="form-group" style={{ flex: 1 }}>
+                      <label>Summary</label>
+                      <input
+                        type="text"
+                        value={editForm.summary || ''}
+                        onChange={e => setEditForm({ ...editForm, summary: e.target.value })}
+                        placeholder="Brief summary"
+                      />
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <label>Description *</label>
+                    <textarea
+                      value={editForm.description}
+                      onChange={e => setEditForm({ ...editForm, description: e.target.value })}
+                      rows={4}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button onClick={() => handleEditSave(spell.id)}>Save</button>
+                    <button className="secondary" onClick={handleEditCancel}>Cancel</button>
                   </div>
                 </div>
-                <button className="sm danger" onClick={() => handleDelete(spell.id)}>Delete</button>
-              </div>
-              <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>{spell.description}</p>
+              ) : (
+                <>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
+                    <div>
+                      <h3 style={{ margin: 0 }}>{spell.name}</h3>
+                      <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Level {spell.spellLevel}</div>
+                      {spell.summary && (
+                        <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+                          {spell.summary}
+                        </div>
+                      )}
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <button className="sm" onClick={() => handleEditStart(spell)}>Edit</button>
+                      <button className="sm danger" onClick={() => handleDelete(spell.id)}>Delete</button>
+                    </div>
+                  </div>
+                  <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>{spell.description}</p>
+                </>
+              )}
             </div>
           ))}
         </div>

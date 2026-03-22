@@ -94,9 +94,7 @@ public record SpellDto
     public string Name { get; init; } = string.Empty;
     public int SpellLevel { get; init; }
     public string Description { get; init; } = string.Empty;
-    public string? School { get; init; }
-    public string? Duration { get; init; }
-    public string? Range { get; init; }
+    public string? Summary { get; init; }
 }
 
 public record KnownSpellDto

@@ -14,10 +14,22 @@ public static class SpellEndpoints
             return Results.Ok(spells);
         });
 
+        spellGroup.MapGet("/{id:guid}", async (Guid id, SpellService svc, CancellationToken ct) =>
+        {
+            var spell = await svc.GetSpellAsync(id, ct);
+            return spell is not null ? Results.Ok(spell) : Results.NotFound();
+        });
+
         spellGroup.MapPost("/", async (CreateSpellRequest req, SpellService svc, CancellationToken ct) =>
         {
             var dto = await svc.CreateSpellAsync(req, ct);
             return Results.Created($"/api/spells/{dto.Id}", dto);
+        });
+
+        spellGroup.MapPut("/{id:guid}", async (Guid id, UpdateSpellRequest req, SpellService svc, CancellationToken ct) =>
+        {
+            var dto = await svc.UpdateSpellAsync(id, req, ct);
+            return dto is not null ? Results.Ok(dto) : Results.NotFound();
         });
 
         spellGroup.MapDelete("/{id:guid}", async (Guid id, SpellService svc, CancellationToken ct) =>

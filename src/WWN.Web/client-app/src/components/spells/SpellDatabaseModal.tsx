@@ -11,7 +11,6 @@ export function SpellDatabaseModal({ character, onLearn, onClose }: {
   const [spells, setSpells] = useState<Spell[]>([]);
   const [filteredSpells, setFilteredSpells] = useState<Spell[]>([]);
   const [filterLevel, setFilterLevel] = useState<number | 'all'>('all');
-  const [filterSchool, setFilterSchool] = useState<string>('');
   const [searchName, setSearchName] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -27,17 +26,12 @@ export function SpellDatabaseModal({ character, onLearn, onClose }: {
     if (filterLevel !== 'all') {
       filtered = filtered.filter(s => s.spellLevel === filterLevel);
     }
-    if (filterSchool) {
-      filtered = filtered.filter(s => s.school === filterSchool);
-    }
     if (searchName) {
       filtered = filtered.filter(s => s.name.toLowerCase().includes(searchName.toLowerCase()));
     }
 
     setFilteredSpells(filtered);
-  }, [spells, filterLevel, filterSchool, searchName, knownSpellIds]);
-
-  const schools = [...new Set(spells.map(s => s.school).filter(Boolean))].sort();
+  }, [spells, filterLevel, searchName, knownSpellIds]);
 
   const handleLearn = async (spellId: string) => {
     await spellsApi.learnSpell(character.id, spellId);
@@ -62,21 +56,12 @@ export function SpellDatabaseModal({ character, onLearn, onClose }: {
           />
         </div>
 
-        <div className="form-row">
-          <div className="form-group" style={{ flex: 1 }}>
-            <label>Level</label>
-            <select value={filterLevel} onChange={e => setFilterLevel(e.target.value === 'all' ? 'all' : parseInt(e.target.value))}>
-              <option value="all">All Levels</option>
-              {[1, 2, 3, 4, 5, 6].map(l => <option key={l} value={l}>Level {l}</option>)}
-            </select>
-          </div>
-          <div className="form-group" style={{ flex: 1 }}>
-            <label>School</label>
-            <select value={filterSchool ?? ''} onChange={e => setFilterSchool(e.target.value)}>
-              <option value="">All Schools</option>
-              {schools.map(s => <option key={s ?? ''} value={s ?? ''}>{s}</option>)}
-            </select>
-          </div>
+        <div className="form-group">
+          <label>Level</label>
+          <select value={filterLevel} onChange={e => setFilterLevel(e.target.value === 'all' ? 'all' : parseInt(e.target.value))}>
+            <option value="all">All Levels</option>
+            {[1, 2, 3, 4, 5, 6].map(l => <option key={l} value={l}>Level {l}</option>)}
+          </select>
         </div>
 
         {loading ? (
@@ -91,9 +76,13 @@ export function SpellDatabaseModal({ character, onLearn, onClose }: {
                   <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: 'bold' }}>
                       {spell.name}
-                      {spell.school && <span style={{ fontSize: '0.75rem', marginLeft: '0.5rem', color: 'var(--text-muted)' }}>({spell.school})</span>}
                     </div>
                     <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Level {spell.spellLevel}</div>
+                    {spell.summary && (
+                      <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+                        {spell.summary}
+                      </div>
+                    )}
                     <div style={{ fontSize: '0.875rem', marginTop: '0.25rem' }}>{spell.description}</div>
                   </div>
                   <button className="sm" onClick={() => handleLearn(spell.id)} style={{ marginLeft: '0.5rem' }}>Learn</button>

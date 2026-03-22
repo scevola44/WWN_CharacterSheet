@@ -27,8 +27,19 @@ public class SpellService
 
     public async Task<SpellDto> CreateSpellAsync(CreateSpellRequest req, CancellationToken ct = default)
     {
-        var spell = new Spell(req.Name, req.SpellLevel, req.Description, req.School, req.Duration, req.Range);
+        var spell = new Spell(req.Name, req.SpellLevel, req.Description, req.Summary);
         await _repo.AddAsync(spell, ct);
+        return MapToDto(spell);
+    }
+
+    public async Task<SpellDto?> UpdateSpellAsync(Guid id, UpdateSpellRequest req, CancellationToken ct = default)
+    {
+        var spell = await _repo.GetByIdAsync(id, ct);
+        if (spell is null)
+            return null;
+
+        spell.Update(req.Name, req.SpellLevel, req.Summary, req.Description);
+        await _repo.UpdateAsync(spell, ct);
         return MapToDto(spell);
     }
 
@@ -45,9 +56,7 @@ public class SpellService
             Name = spell.Name,
             SpellLevel = spell.SpellLevel,
             Description = spell.Description,
-            School = spell.School,
-            Duration = spell.Duration,
-            Range = spell.Range
+            Summary = spell.Summary
         };
     }
 }
@@ -57,7 +66,13 @@ public record CreateSpellRequest
     public string Name { get; init; } = string.Empty;
     public int SpellLevel { get; init; }
     public string Description { get; init; } = string.Empty;
-    public string? School { get; init; }
-    public string? Duration { get; init; }
-    public string? Range { get; init; }
+    public string? Summary { get; init; }
+}
+
+public record UpdateSpellRequest
+{
+    public string Name { get; init; } = string.Empty;
+    public int SpellLevel { get; init; }
+    public string Description { get; init; } = string.Empty;
+    public string? Summary { get; init; }
 }

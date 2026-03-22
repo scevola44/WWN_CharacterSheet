@@ -42,9 +42,7 @@ public class CharacterSpellService
                 Name = spell.Name,
                 SpellLevel = spell.SpellLevel,
                 Description = spell.Description,
-                School = spell.School,
-                Duration = spell.Duration,
-                Range = spell.Range
+                Summary = spell.Summary
             }
         };
     }

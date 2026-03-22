@@ -259,9 +259,7 @@ public class CharacterService
                     Name = k.Spell.Name,
                     SpellLevel = k.Spell.SpellLevel,
                     Description = k.Spell.Description,
-                    School = k.Spell.School,
-                    Duration = k.Spell.Duration,
-                    Range = k.Spell.Range
+                    Summary = k.Spell.Summary
                 }
             }).ToList(),
             SpellSlots = GetSpellSlotsInfo(c),

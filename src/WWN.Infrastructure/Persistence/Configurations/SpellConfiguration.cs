@@ -13,8 +13,6 @@ public class SpellConfiguration : IEntityTypeConfiguration<Spell>
         builder.Property(s => s.Name).HasMaxLength(200).IsRequired();
         builder.Property(s => s.SpellLevel).IsRequired();
         builder.Property(s => s.Description).IsRequired();
-        builder.Property(s => s.School).HasMaxLength(100);
-        builder.Property(s => s.Duration).HasMaxLength(200);
-        builder.Property(s => s.Range).HasMaxLength(200);
+        builder.Property(s => s.Summary).HasMaxLength(500);
     }
 }

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { Spell, KnownSpell, CreateSpellRequest, UseSpellSlotRequest } from '../types/spell';
+import type { Spell, KnownSpell, CreateSpellRequest, UpdateSpellRequest, UseSpellSlotRequest } from '../types/spell';
 import type { CharacterDetail } from '../types/character';
 
 const spellApi = axios.create({ baseURL: '/api/spells' });
@@ -9,8 +9,13 @@ export const spellsApi = {
   // Spell catalog
   list: () => spellApi.get<Spell[]>('/').then(r => r.data),
 
+  get: (id: string) => spellApi.get<Spell>(`/${id}`).then(r => r.data),
+
   create: (req: CreateSpellRequest) =>
     spellApi.post<Spell>('/', req).then(r => r.data),
+
+  update: (id: string, req: UpdateSpellRequest) =>
+    spellApi.put<Spell>(`/${id}`, req).then(r => r.data),
 
   delete: (id: string) => spellApi.delete(`/${id}`),
 

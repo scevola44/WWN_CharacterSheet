@@ -3,9 +3,7 @@ export interface Spell {
   name: string;
   spellLevel: number;
   description: string;
-  school: string | null;
-  duration: string | null;
-  range: string | null;
+  summary: string | null;
 }
 
 export interface KnownSpell {
@@ -18,9 +16,14 @@ export interface CreateSpellRequest {
   name: string;
   spellLevel: number;
   description: string;
-  school?: string;
-  duration?: string;
-  range?: string;
+  summary?: string;
+}
+
+export interface UpdateSpellRequest {
+  name: string;
+  spellLevel: number;
+  description: string;
+  summary?: string;
 }
 
 export interface SpellSlots {
