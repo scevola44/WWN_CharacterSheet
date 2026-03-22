@@ -9,8 +9,8 @@ public class Item
     public string Name { get; protected set; } = string.Empty;
     public string? Description { get; protected set; }
     public int Encumbrance { get; protected set; }
-    public ItemSlotType SlotType { get; set; }
-    public int Quantity { get; set; }
+    public ItemSlotType SlotType { get; internal set; }
+    public int Quantity { get; internal set; }
 
     public Item(string name, int encumbrance, ItemSlotType slotType = ItemSlotType.Stowed,
         int quantity = 1, string? description = null)

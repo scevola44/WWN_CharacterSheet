@@ -27,7 +27,7 @@ public class Character
     public int ExperiencePoints { get; private set; }
 
     // Notes
-    public string? Notes { get; set; }
+    public string? Notes { get; private set; }
 
     // Collections
     private readonly List<CharacterAttribute> _attributes = new();
@@ -205,6 +205,13 @@ public class Character
         item.SlotType = ItemSlotType.Readied;
     }
 
+    public void ChangeItemSlot(Guid itemId, ItemSlotType slot)
+    {
+        var item = _inventory.FirstOrDefault(i => i.Id == itemId)
+            ?? throw new InvalidOperationException("Item not found.");
+        item.SlotType = slot;
+    }
+
     // Query helpers
     public Weapon? GetEquippedWeapon()
     {
@@ -242,6 +249,7 @@ public class Character
         Name = name;
     }
 
+    public void SetNotes(string? notes) => Notes = notes;
     public void SetBackground(string? background) => Background = background;
     public void SetOrigin(string? origin) => Origin = origin;
 
@@ -267,7 +275,8 @@ public class Character
         if (spellLevel < 1 || spellLevel > 6)
             throw new ArgumentOutOfRangeException(nameof(spellLevel), "Spell level must be 1-6.");
 
-        // Clone the array before mutating so EF Core's change tracker detects the change
+        // EF Core's change tracker uses reference equality for arrays — mutating in place
+        // won't trigger an update. Cloning forces a new reference so the change is persisted.
         var copy = (int[])SpellSlotsUsed.Clone();
         copy[spellLevel - 1]++;
         SpellSlotsUsed = copy;

@@ -177,9 +177,7 @@ public class CharacterService
     {
         var character = await GetOrThrow(charId, ct);
         var slot = Enum.Parse<ItemSlotType>(slotType, true);
-        var item = character.Inventory.FirstOrDefault(i => i.Id == itemId)
-            ?? throw new InvalidOperationException("Item not found.");
-        item.SlotType = slot;
+        character.ChangeItemSlot(itemId, slot);
         await _repo.UpdateAsync(character, ct);
         return MapToDetailDto(character);
     }
@@ -188,7 +186,7 @@ public class CharacterService
         CancellationToken ct = default)
     {
         var character = await GetOrThrow(charId, ct);
-        character.Notes = notes;
+        character.SetNotes(notes);
         await _repo.UpdateAsync(character, ct);
         return MapToDetailDto(character);
     }
