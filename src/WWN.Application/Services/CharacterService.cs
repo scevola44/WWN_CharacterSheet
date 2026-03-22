@@ -29,7 +29,7 @@ public class CharacterService
 
     public async Task<IReadOnlyList<CharacterSummaryDto>> ListCharactersAsync(CancellationToken ct = default)
     {
-        var characters = await _repo.GetAllAsync(ct);
+        var characters = await _repo.GetAllSummariesAsync(ct);
         return characters.Select(c => new CharacterSummaryDto
         {
             Id = c.Id,

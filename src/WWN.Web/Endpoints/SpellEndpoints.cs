@@ -1,3 +1,4 @@
+using WWN.Application.DTOs;
 using WWN.Application.Services;
 
 namespace WWN.Web.Endpoints;
@@ -74,9 +75,4 @@ public static class SpellEndpoints
             return Results.Ok(dto);
         });
     }
-}
-
-public record UseSpellSlotRequest
-{
-    public int SpellLevel { get; init; }
 }

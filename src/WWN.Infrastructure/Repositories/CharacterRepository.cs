@@ -38,6 +38,13 @@ public class CharacterRepository : ICharacterRepository
             .ToListAsync(ct);
     }
 
+    public async Task<IReadOnlyList<Character>> GetAllSummariesAsync(CancellationToken ct = default)
+    {
+        return await _db.Characters
+            .AsNoTracking()
+            .ToListAsync(ct);
+    }
+
     public async Task AddAsync(Character character, CancellationToken ct = default)
     {
         await _db.Characters.AddAsync(character, ct);

@@ -60,19 +60,3 @@ public class SpellService
         };
     }
 }
-
-public record CreateSpellRequest
-{
-    public string Name { get; init; } = string.Empty;
-    public int SpellLevel { get; init; }
-    public string Description { get; init; } = string.Empty;
-    public string? Summary { get; init; }
-}
-
-public record UpdateSpellRequest
-{
-    public string Name { get; init; } = string.Empty;
-    public int SpellLevel { get; init; }
-    public string Description { get; init; } = string.Empty;
-    public string? Summary { get; init; }
-}

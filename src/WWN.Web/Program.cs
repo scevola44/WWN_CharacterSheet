@@ -4,6 +4,7 @@ using WWN.Domain.Interfaces;
 using WWN.Infrastructure.Persistence;
 using WWN.Infrastructure.Repositories;
 using WWN.Web.Endpoints;
+using WWN.Web.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,7 +19,7 @@ builder.Services.AddScoped<ISpellRepository, SpellRepository>();
 builder.Services.AddScoped<CharacterService>();
 builder.Services.AddScoped<SpellService>();
 builder.Services.AddScoped<CharacterSpellService>();
-builder.Services.AddScoped<CharacterSheetCalculator>();
+builder.Services.AddSingleton<CharacterSheetCalculator>();
 
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
@@ -37,6 +38,7 @@ using (var scope = app.Services.CreateScope())
     await db.Database.EnsureCreatedAsync();
 }
 
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseCors();
 
 if (app.Environment.IsDevelopment())
