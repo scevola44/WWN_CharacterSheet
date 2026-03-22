@@ -82,17 +82,4 @@ public static class SpellSlotCalculator
         return slots;
     }
 
-    /// <summary>
-    /// Calculate spell slots for an Adventurer with a Partial Mage class.
-    /// </summary>
-    public static int[] CalculateSlotsForPartialMage(int level, int intModifier)
-    {
-        if (level < 1 || level > 10)
-            throw new ArgumentOutOfRangeException(nameof(level), "Character level must be 1-10.");
-
-        var slots = (int[])PartialMageSlotTable[level - 1].Clone();
-
-        // Partial Mages don't get INT modifier bonus to 1st-level slots
-        return slots;
-    }
 }

@@ -48,7 +48,7 @@ public class SpellService
         await _repo.DeleteAsync(id, ct);
     }
 
-    private SpellDto MapToDto(Spell spell)
+    internal static SpellDto MapToDto(Spell spell)
     {
         return new SpellDto
         {

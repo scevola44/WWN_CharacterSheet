@@ -19,22 +19,8 @@ public class CharacterSpellService
 
     public async Task<KnownSpellDto> LearnSpellAsync(Guid charId, Guid spellId, CancellationToken ct = default)
     {
-        // Load spell first and extract its data for the DTO
         var spell = await GetSpellOrThrow(spellId, ct);
-        var spellDto = new SpellDto
-        {
-            Id = spell.Id,
-            Name = spell.Name,
-            SpellLevel = spell.SpellLevel,
-            Description = spell.Description,
-            Summary = spell.Summary
-        };
-
-        // Now load character - this uses a fresh context/query
         var character = await GetCharacterOrThrow(charId, ct);
-
-        if (character.Spellbook.Any(s => s.SpellId == spellId))
-            throw new InvalidOperationException("Character already knows this spell.");
 
         var knownSpell = new KnownSpell(spellId);
         character.LearnSpell(knownSpell);
@@ -44,7 +30,7 @@ public class CharacterSpellService
         {
             Id = knownSpell.Id,
             SpellId = spellId,
-            Spell = spellDto
+            Spell = SpellService.MapToDto(spell)
         };
     }
 
@@ -60,8 +46,7 @@ public class CharacterSpellService
         var character = await GetCharacterOrThrow(charId, ct);
         character.UseSpellSlot(spellLevel);
         await _charRepo.UpdateAsync(character, ct);
-        return await _charService.GetCharacterAsync(charId, ct)
-            ?? throw new KeyNotFoundException($"Character {charId} not found.");
+        return _charService.MapToDetailDto(character);
     }
 
     public async Task<CharacterDetailDto> RestoreSpellSlotsAsync(Guid charId, CancellationToken ct = default)
@@ -69,8 +54,7 @@ public class CharacterSpellService
         var character = await GetCharacterOrThrow(charId, ct);
         character.RestoreAllSpellSlots();
         await _charRepo.UpdateAsync(character, ct);
-        return await _charService.GetCharacterAsync(charId, ct)
-            ?? throw new KeyNotFoundException($"Character {charId} not found.");
+        return _charService.MapToDetailDto(character);
     }
 
     private async Task<Domain.Aggregates.Character> GetCharacterOrThrow(Guid id, CancellationToken ct)

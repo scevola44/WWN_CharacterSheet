@@ -202,7 +202,7 @@ public class CharacterService
             ?? throw new KeyNotFoundException($"Character {id} not found.");
     }
 
-    private CharacterDetailDto MapToDetailDto(Character c)
+    internal CharacterDetailDto MapToDetailDto(Character c)
     {
         var derived = _calc.Calculate(c);
         return new CharacterDetailDto
@@ -251,14 +251,7 @@ public class CharacterService
             {
                 Id = k.Id,
                 SpellId = k.SpellId,
-                Spell = new SpellDto
-                {
-                    Id = k.Spell.Id,
-                    Name = k.Spell.Name,
-                    SpellLevel = k.Spell.SpellLevel,
-                    Description = k.Spell.Description,
-                    Summary = k.Spell.Summary
-                }
+                Spell = SpellService.MapToDto(k.Spell)
             }).ToList(),
             SpellSlots = GetSpellSlotsInfo(c),
             DerivedStats = derived
@@ -271,16 +264,8 @@ public class CharacterService
             return null;
 
         var intModifier = c.GetAttribute(AttributeName.Intelligence).Modifier;
-
-        int[] available;
-        if (c.Class == CharacterClass.Mage)
-        {
-            available = SpellSlotCalculator.CalculateSlots(CharacterClass.Mage, c.Level, intModifier);
-        }
-        else
-        {
-            available = SpellSlotCalculator.CalculateSlotsForPartialMage(c.Level, intModifier);
-        }
+        var effectiveClass = c.Class == CharacterClass.Mage ? CharacterClass.Mage : CharacterClass.Adventurer;
+        var available = SpellSlotCalculator.CalculateSlots(effectiveClass, c.Level, intModifier);
 
         return new SpellSlotInfoDto
         {
