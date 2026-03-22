@@ -1,4 +1,6 @@
 using WWN.Application.DTOs;
+using WWN.Application.Factories;
+using WWN.Application.Helpers;
 using WWN.Domain.Aggregates;
 using WWN.Domain.Entities;
 using WWN.Domain.Enums;
@@ -41,16 +43,16 @@ public class CharacterService
 
     public async Task<Guid> CreateCharacterAsync(CreateCharacterRequest req, CancellationToken ct = default)
     {
-        var charClass = Enum.Parse<CharacterClass>(req.Class, true);
+        var charClass = EnumParser.Parse<CharacterClass>(req.Class, nameof(req.Class));
         PartialClass? partialA = req.PartialClassA is not null
-            ? Enum.Parse<PartialClass>(req.PartialClassA, true)
+            ? EnumParser.Parse<PartialClass>(req.PartialClassA, nameof(req.PartialClassA))
             : null;
         PartialClass? partialB = req.PartialClassB is not null
-            ? Enum.Parse<PartialClass>(req.PartialClassB, true)
+            ? EnumParser.Parse<PartialClass>(req.PartialClassB, nameof(req.PartialClassB))
             : null;
 
         var scores = req.Attributes.ToDictionary(
-            kvp => Enum.Parse<AttributeName>(kvp.Key, true),
+            kvp => EnumParser.Parse<AttributeName>(kvp.Key, nameof(req.Attributes)),
             kvp => kvp.Value);
 
         var character = Character.Create(req.Name, charClass, scores,
@@ -64,7 +66,7 @@ public class CharacterService
         CancellationToken ct = default)
     {
         var character = await GetOrThrow(charId, ct);
-        var attr = Enum.Parse<AttributeName>(attrName, true);
+        var attr = EnumParser.Parse<AttributeName>(attrName, nameof(attrName));
         character.SetAttribute(attr, score);
         await _repo.UpdateAsync(character, ct);
         return MapToDetailDto(character);
@@ -74,7 +76,7 @@ public class CharacterService
         CancellationToken ct = default)
     {
         var character = await GetOrThrow(charId, ct);
-        var skill = Enum.Parse<SkillName>(skillName, true);
+        var skill = EnumParser.Parse<SkillName>(skillName, nameof(skillName));
         character.SetSkillRank(skill, rank);
         await _repo.UpdateAsync(character, ct);
         return MapToDetailDto(character);
@@ -112,10 +114,10 @@ public class CharacterService
     {
         var character = await GetOrThrow(charId, ct);
         var effects = req.Effects.Select(e => new FocusEffect(
-            Enum.Parse<FocusEffectType>(e.Type, true),
+            EnumParser.Parse<FocusEffectType>(e.Type, nameof(e.Type)),
             e.NumericValue,
-            e.TargetSkill is not null ? Enum.Parse<SkillName>(e.TargetSkill, true) : null,
-            e.TargetAttribute is not null ? Enum.Parse<AttributeName>(e.TargetAttribute, true) : null,
+            e.TargetSkill is not null ? EnumParser.Parse<SkillName>(e.TargetSkill, nameof(e.TargetSkill)) : null,
+            e.TargetAttribute is not null ? EnumParser.Parse<AttributeName>(e.TargetAttribute, nameof(e.TargetAttribute)) : null,
             e.Description));
 
         var focus = new Focus(req.Name, req.Level, effects);
@@ -135,31 +137,7 @@ public class CharacterService
         CancellationToken ct = default)
     {
         var character = await GetOrThrow(charId, ct);
-        var slotType = Enum.Parse<ItemSlotType>(req.SlotType, true);
-
-        Item item = req.ItemType.ToLower() switch
-        {
-            "weapon" => new Weapon(
-                req.Name,
-                req.Encumbrance,
-                new DamageDie(req.DamageDieCount ?? 1, req.DamageDieSides ?? 6),
-                Enum.Parse<AttributeName>(req.AttributeModifier ?? "Strength", true),
-                ParseWeaponTags(req.Tags),
-                req.ShockDamage.HasValue && req.ShockAcThreshold.HasValue
-                    ? new ShockInfo(req.ShockDamage.Value, req.ShockAcThreshold.Value)
-                    : null,
-                slotType,
-                req.Description),
-            "armor" => new Armor(
-                req.Name,
-                req.Encumbrance,
-                req.AcBonus ?? 0,
-                req.IsShield ?? false,
-                slotType,
-                req.Description),
-            _ => new Item(req.Name, req.Encumbrance, slotType, req.Quantity, req.Description)
-        };
-
+        var item = ItemFactory.Create(req);
         character.AddItem(item);
         await _repo.UpdateAsync(character, ct);
         return MapToDetailDto(character);
@@ -176,7 +154,7 @@ public class CharacterService
         CancellationToken ct = default)
     {
         var character = await GetOrThrow(charId, ct);
-        var slot = Enum.Parse<ItemSlotType>(slotType, true);
+        var slot = EnumParser.Parse<ItemSlotType>(slotType, nameof(slotType));
         character.ChangeItemSlot(itemId, slot);
         await _repo.UpdateAsync(character, ct);
         return MapToDetailDto(character);
@@ -316,9 +294,4 @@ public class CharacterService
         return dto;
     }
 
-    private static WeaponTag ParseWeaponTags(string? tags)
-    {
-        if (string.IsNullOrWhiteSpace(tags)) return WeaponTag.None;
-        return Enum.Parse<WeaponTag>(tags, true);
-    }
 }
