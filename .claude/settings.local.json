@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /Users/scevola/Repos/WWN_CharacterSheet/src -type d -not -path */obj/* -not -path */bin/*)",
+      "Bash(dotnet test:*)",
+      "Bash(git stash:*)",
+      "Bash(dotnet build:*)",
+      "Bash(git commit:*)",
+      "Bash(git add:*)",
+      "Bash(npx tsc:*)"
+    ]
+  }
+}
