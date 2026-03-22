@@ -16,9 +16,12 @@ builder.Services.AddDbContext<WwnDbContext>(opt =>
 // Services
 builder.Services.AddScoped<ICharacterRepository, CharacterRepository>();
 builder.Services.AddScoped<ISpellRepository, SpellRepository>();
+builder.Services.AddScoped<IFocusDefinitionRepository, FocusDefinitionRepository>();
 builder.Services.AddScoped<CharacterService>();
 builder.Services.AddScoped<SpellService>();
 builder.Services.AddScoped<CharacterSpellService>();
+builder.Services.AddScoped<FocusDefinitionService>();
+builder.Services.AddScoped<FocusDefinitionSeeder>();
 builder.Services.AddSingleton<CharacterSheetCalculator>();
 
 // Swagger
@@ -36,6 +39,23 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<WwnDbContext>();
     await db.Database.EnsureCreatedAsync();
+
+    // Create FocusDefinitions table if it doesn't exist (handles databases
+    // created before this feature was added).
+    await db.Database.ExecuteSqlRawAsync(@"
+        CREATE TABLE IF NOT EXISTS ""FocusDefinitions"" (
+            ""Id""                 TEXT    NOT NULL CONSTRAINT ""PK_FocusDefinitions"" PRIMARY KEY,
+            ""Name""               TEXT    NOT NULL,
+            ""Description""        TEXT,
+            ""Level1Description""  TEXT    NOT NULL,
+            ""Level2Description""  TEXT,
+            ""HasLevel2""          INTEGER NOT NULL DEFAULT 0,
+            ""CanTakeMultipleTimes"" INTEGER NOT NULL DEFAULT 0
+        )");
+
+    // Seed default WWN foci from the Free Edition if the table is empty.
+    var seeder = scope.ServiceProvider.GetRequiredService<FocusDefinitionSeeder>();
+    await seeder.SeedIfEmptyAsync();
 }
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
@@ -51,6 +71,7 @@ app.UseDefaultFiles();
 app.UseStaticFiles();
 app.MapCharacterEndpoints();
 app.MapSpellEndpoints();
+app.MapFocusDefinitionEndpoints();
 app.MapFallbackToFile("index.html");
 
 app.Run();
