@@ -8,6 +8,7 @@ public class WwnDbContext : DbContext
 {
     public DbSet<Character> Characters => Set<Character>();
     public DbSet<Spell> Spells => Set<Spell>();
+    public DbSet<FocusDefinition> FocusDefinitions => Set<FocusDefinition>();
 
     public WwnDbContext(DbContextOptions<WwnDbContext> options) : base(options) { }
 

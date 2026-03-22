@@ -78,6 +78,24 @@ public record UpdateNotesRequest
     public string? Notes { get; init; }
 }
 
+public record CreateFocusDefinitionRequest
+{
+    public string Name { get; init; } = string.Empty;
+    public string? Description { get; init; }
+    public string Level1Description { get; init; } = string.Empty;
+    public string? Level2Description { get; init; }
+    public bool CanTakeMultipleTimes { get; init; }
+}
+
+public record UpdateFocusDefinitionRequest
+{
+    public string Name { get; init; } = string.Empty;
+    public string? Description { get; init; }
+    public string Level1Description { get; init; } = string.Empty;
+    public string? Level2Description { get; init; }
+    public bool CanTakeMultipleTimes { get; init; }
+}
+
 public record CreateSpellRequest
 {
     public string Name { get; init; } = string.Empty;

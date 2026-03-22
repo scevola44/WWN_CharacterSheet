@@ -88,6 +88,17 @@ public record ItemDto
     public bool? IsShield { get; init; }
 }
 
+public record FocusDefinitionDto
+{
+    public Guid Id { get; init; }
+    public string Name { get; init; } = string.Empty;
+    public string? Description { get; init; }
+    public string Level1Description { get; init; } = string.Empty;
+    public string? Level2Description { get; init; }
+    public bool HasLevel2 { get; init; }
+    public bool CanTakeMultipleTimes { get; init; }
+}
+
 public record SpellDto
 {
     public Guid Id { get; init; }
