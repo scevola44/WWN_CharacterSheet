@@ -10,6 +10,7 @@ public class KnownSpellConfiguration : IEntityTypeConfiguration<KnownSpell>
     {
         builder.ToTable("KnownSpells");
         builder.HasKey(k => k.Id);
+        builder.Property(k => k.Id).ValueGeneratedNever();
         builder.HasOne(k => k.Spell)
                .WithMany()
                .HasForeignKey(k => k.SpellId)

@@ -7,16 +7,13 @@ public class KnownSpell
     public Guid SpellId { get; private set; }
     public Spell Spell { get; private set; } = null!;
 
-    public KnownSpell(Guid spellId, Spell spell)
+    public KnownSpell(Guid spellId)
     {
         if (spellId == Guid.Empty)
             throw new ArgumentException("SpellId is required.", nameof(spellId));
-        if (spell == null)
-            throw new ArgumentNullException(nameof(spell));
 
         Id = Guid.NewGuid();
         SpellId = spellId;
-        Spell = spell;
     }
 
     private KnownSpell() { } // EF Core

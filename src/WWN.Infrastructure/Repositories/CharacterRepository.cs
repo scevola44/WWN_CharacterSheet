@@ -46,7 +46,10 @@ public class CharacterRepository : ICharacterRepository
 
     public async Task UpdateAsync(Character character, CancellationToken ct = default)
     {
-        _db.Characters.Update(character);
+        var entry = _db.Entry(character);
+        if (entry.State == EntityState.Detached)
+            _db.Characters.Update(character);
+
         await _db.SaveChangesAsync(ct);
     }
 

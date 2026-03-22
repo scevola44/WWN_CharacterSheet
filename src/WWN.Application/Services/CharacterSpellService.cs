@@ -19,16 +19,24 @@ public class CharacterSpellService
 
     public async Task<KnownSpellDto> LearnSpellAsync(Guid charId, Guid spellId, CancellationToken ct = default)
     {
-        var character = await GetCharacterOrThrow(charId, ct);
+        // Load spell first and extract its data for the DTO
         var spell = await GetSpellOrThrow(spellId, ct);
+        var spellDto = new SpellDto
+        {
+            Id = spell.Id,
+            Name = spell.Name,
+            SpellLevel = spell.SpellLevel,
+            Description = spell.Description,
+            Summary = spell.Summary
+        };
+
+        // Now load character - this uses a fresh context/query
+        var character = await GetCharacterOrThrow(charId, ct);
 
         if (character.Spellbook.Any(s => s.SpellId == spellId))
             throw new InvalidOperationException("Character already knows this spell.");
 
-        var knownSpell = new KnownSpell(spellId, spell);
-        knownSpell.GetType().GetProperty(nameof(KnownSpell.CharacterId))
-            ?.SetValue(knownSpell, charId);
-
+        var knownSpell = new KnownSpell(spellId);
         character.LearnSpell(knownSpell);
         await _charRepo.UpdateAsync(character, ct);
 
@@ -36,14 +44,7 @@ public class CharacterSpellService
         {
             Id = knownSpell.Id,
             SpellId = spellId,
-            Spell = new SpellDto
-            {
-                Id = spell.Id,
-                Name = spell.Name,
-                SpellLevel = spell.SpellLevel,
-                Description = spell.Description,
-                Summary = spell.Summary
-            }
+            Spell = spellDto
         };
     }
 
