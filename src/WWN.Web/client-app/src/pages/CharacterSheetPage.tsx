@@ -8,6 +8,7 @@ import { HitPointTracker } from '../components/combat/HitPointTracker';
 import { CombatStats } from '../components/combat/CombatStats';
 import { FociPanel } from '../components/foci/FociPanel';
 import { InventoryPanel } from '../components/inventory/InventoryPanel';
+import { SpellsPanel } from '../components/spells/SpellsPanel';
 import { NotesSection } from '../components/notes/NotesSection';
 
 export function CharacterSheetPage() {
@@ -53,6 +54,10 @@ export function CharacterSheetPage() {
       <div className="sheet-grid">
         <FociPanel character={character} onUpdate={handleUpdate} />
         <InventoryPanel character={character} onUpdate={handleUpdate} />
+      </div>
+
+      <div className="sheet-full">
+        <SpellsPanel character={character} onUpdate={handleUpdate} />
       </div>
 
       <NotesSection character={character} onUpdate={handleUpdate} />

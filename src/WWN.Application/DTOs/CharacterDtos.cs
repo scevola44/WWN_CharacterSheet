@@ -27,6 +27,8 @@ public record CharacterDetailDto
     public List<SkillDto> Skills { get; init; } = new();
     public List<FocusDto> Foci { get; init; } = new();
     public List<ItemDto> Inventory { get; init; } = new();
+    public List<KnownSpellDto> Spellbook { get; init; } = new();
+    public SpellSlotInfoDto? SpellSlots { get; init; }
     public DerivedStatsDto DerivedStats { get; init; } = null!;
     public string? Notes { get; init; }
 }
@@ -84,4 +86,28 @@ public record ItemDto
     // Armor fields
     public int? AcBonus { get; init; }
     public bool? IsShield { get; init; }
+}
+
+public record SpellDto
+{
+    public Guid Id { get; init; }
+    public string Name { get; init; } = string.Empty;
+    public int SpellLevel { get; init; }
+    public string Description { get; init; } = string.Empty;
+    public string? School { get; init; }
+    public string? Duration { get; init; }
+    public string? Range { get; init; }
+}
+
+public record KnownSpellDto
+{
+    public Guid Id { get; init; }
+    public Guid SpellId { get; init; }
+    public SpellDto Spell { get; init; } = null!;
+}
+
+public record SpellSlotInfoDto
+{
+    public int[] Available { get; init; } = new int[6];
+    public int[] Used { get; init; } = new int[6];
 }

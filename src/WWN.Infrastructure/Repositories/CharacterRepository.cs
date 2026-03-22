@@ -21,6 +21,8 @@ public class CharacterRepository : ICharacterRepository
             .Include(c => c.Skills)
             .Include(c => c.Foci)
             .Include(c => c.Inventory)
+            .Include(c => c.Spellbook)
+            .ThenInclude(k => k.Spell)
             .FirstOrDefaultAsync(c => c.Id == id, ct);
     }
 
@@ -31,6 +33,8 @@ public class CharacterRepository : ICharacterRepository
             .Include(c => c.Skills)
             .Include(c => c.Foci)
             .Include(c => c.Inventory)
+            .Include(c => c.Spellbook)
+            .ThenInclude(k => k.Spell)
             .ToListAsync(ct);
     }
 

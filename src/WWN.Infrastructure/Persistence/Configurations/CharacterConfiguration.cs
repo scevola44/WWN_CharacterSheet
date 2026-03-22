@@ -37,9 +37,21 @@ public class CharacterConfiguration : IEntityTypeConfiguration<Character>
                .HasForeignKey(i => i.CharacterId)
                .OnDelete(DeleteBehavior.Cascade);
 
+        builder.HasMany(c => c.Spellbook)
+               .WithOne()
+               .HasForeignKey(k => k.CharacterId)
+               .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Property(c => c.SpellSlotsUsed)
+               .HasConversion(
+                   v => string.Join(',', v),
+                   v => v.Split(',').Select(int.Parse).ToArray())
+               .HasColumnType("TEXT");
+
         builder.Navigation(c => c.Attributes).UsePropertyAccessMode(PropertyAccessMode.Field);
         builder.Navigation(c => c.Skills).UsePropertyAccessMode(PropertyAccessMode.Field);
         builder.Navigation(c => c.Foci).UsePropertyAccessMode(PropertyAccessMode.Field);
         builder.Navigation(c => c.Inventory).UsePropertyAccessMode(PropertyAccessMode.Field);
+        builder.Navigation(c => c.Spellbook).UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

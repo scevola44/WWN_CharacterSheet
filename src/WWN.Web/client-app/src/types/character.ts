@@ -23,6 +23,8 @@ export interface CharacterDetail {
   skills: SkillInfo[];
   foci: FocusInfo[];
   inventory: ItemInfo[];
+  spellbook: KnownSpellInfo[];
+  spellSlots: SpellSlotInfo | null;
   derivedStats: DerivedStats;
   notes: string | null;
 }
@@ -122,4 +124,25 @@ export interface AddFocusRequest {
     targetAttribute?: string;
     description?: string;
   }[];
+}
+
+export interface KnownSpellInfo {
+  id: string;
+  spellId: string;
+  spell: SpellInfo;
+}
+
+export interface SpellInfo {
+  id: string;
+  name: string;
+  spellLevel: number;
+  description: string;
+  school: string | null;
+  duration: string | null;
+  range: string | null;
+}
+
+export interface SpellSlotInfo {
+  available: number[];
+  used: number[];
 }

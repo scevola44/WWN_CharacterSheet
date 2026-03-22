@@ -34,11 +34,16 @@ public class Character
     private readonly List<CharacterSkill> _skills = new();
     private readonly List<Focus> _foci = new();
     private readonly List<Item> _inventory = new();
+    private readonly List<KnownSpell> _spellbook = new();
 
     public IReadOnlyList<CharacterAttribute> Attributes => _attributes.AsReadOnly();
     public IReadOnlyList<CharacterSkill> Skills => _skills.AsReadOnly();
     public IReadOnlyList<Focus> Foci => _foci.AsReadOnly();
     public IReadOnlyList<Item> Inventory => _inventory.AsReadOnly();
+    public IReadOnlyList<KnownSpell> Spellbook => _spellbook.AsReadOnly();
+
+    // Spell slots: [level1, level2, level3, level4, level5, level6]
+    public int[] SpellSlotsUsed { get; private set; } = [0, 0, 0, 0, 0, 0];
 
     private Character() { } // EF Core
 
@@ -239,4 +244,37 @@ public class Character
 
     public void SetBackground(string? background) => Background = background;
     public void SetOrigin(string? origin) => Origin = origin;
+
+    // Spell mutations
+    public void LearnSpell(KnownSpell knownSpell)
+    {
+        if (knownSpell == null)
+            throw new ArgumentNullException(nameof(knownSpell));
+        if (_spellbook.Any(s => s.SpellId == knownSpell.SpellId))
+            throw new InvalidOperationException("Character already knows this spell.");
+        _spellbook.Add(knownSpell);
+    }
+
+    public void ForgetSpell(Guid spellId)
+    {
+        var knownSpell = _spellbook.FirstOrDefault(s => s.SpellId == spellId)
+            ?? throw new InvalidOperationException("Spell not found in spellbook.");
+        _spellbook.Remove(knownSpell);
+    }
+
+    public void UseSpellSlot(int spellLevel)
+    {
+        if (spellLevel < 1 || spellLevel > 6)
+            throw new ArgumentOutOfRangeException(nameof(spellLevel), "Spell level must be 1-6.");
+
+        // Clone the array before mutating so EF Core's change tracker detects the change
+        var copy = (int[])SpellSlotsUsed.Clone();
+        copy[spellLevel - 1]++;
+        SpellSlotsUsed = copy;
+    }
+
+    public void RestoreAllSpellSlots()
+    {
+        SpellSlotsUsed = [0, 0, 0, 0, 0, 0];
+    }
 }

@@ -3,6 +3,7 @@ using WWN.Domain.Aggregates;
 using WWN.Domain.Entities;
 using WWN.Domain.Enums;
 using WWN.Domain.Interfaces;
+using WWN.Domain.Rules;
 using WWN.Domain.ValueObjects;
 
 namespace WWN.Application.Services;
@@ -248,8 +249,53 @@ public class CharacterService
                 }).ToList()
             }).ToList(),
             Inventory = c.Inventory.Select(MapItemDto).ToList(),
+            Spellbook = c.Spellbook.Select(k => new KnownSpellDto
+            {
+                Id = k.Id,
+                SpellId = k.SpellId,
+                Spell = new SpellDto
+                {
+                    Id = k.Spell.Id,
+                    Name = k.Spell.Name,
+                    SpellLevel = k.Spell.SpellLevel,
+                    Description = k.Spell.Description,
+                    School = k.Spell.School,
+                    Duration = k.Spell.Duration,
+                    Range = k.Spell.Range
+                }
+            }).ToList(),
+            SpellSlots = GetSpellSlotsInfo(c),
             DerivedStats = derived
         };
+    }
+
+    private SpellSlotInfoDto? GetSpellSlotsInfo(Character c)
+    {
+        if (c.Class != CharacterClass.Mage && !HasPartialMage(c))
+            return null;
+
+        var intModifier = c.GetAttribute(AttributeName.Intelligence).Modifier;
+
+        int[] available;
+        if (c.Class == CharacterClass.Mage)
+        {
+            available = SpellSlotCalculator.CalculateSlots(CharacterClass.Mage, c.Level, intModifier);
+        }
+        else
+        {
+            available = SpellSlotCalculator.CalculateSlotsForPartialMage(c.Level, intModifier);
+        }
+
+        return new SpellSlotInfoDto
+        {
+            Available = available,
+            Used = c.SpellSlotsUsed
+        };
+    }
+
+    private bool HasPartialMage(Character c)
+    {
+        return c.PartialClassA == PartialClass.PartialMage || c.PartialClassB == PartialClass.PartialMage;
     }
 
     private ItemDto MapItemDto(Item item)

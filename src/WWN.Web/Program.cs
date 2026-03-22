@@ -14,7 +14,10 @@ builder.Services.AddDbContext<WwnDbContext>(opt =>
 
 // Services
 builder.Services.AddScoped<ICharacterRepository, CharacterRepository>();
+builder.Services.AddScoped<ISpellRepository, SpellRepository>();
 builder.Services.AddScoped<CharacterService>();
+builder.Services.AddScoped<SpellService>();
+builder.Services.AddScoped<CharacterSpellService>();
 builder.Services.AddScoped<CharacterSheetCalculator>();
 
 // Swagger
@@ -45,6 +48,7 @@ if (app.Environment.IsDevelopment())
 app.UseDefaultFiles();
 app.UseStaticFiles();
 app.MapCharacterEndpoints();
+app.MapSpellEndpoints();
 app.MapFallbackToFile("index.html");
 
 app.Run();
