@@ -1,3 +1,5 @@
+import type { Spell } from './spell';
+
 export interface CharacterSummary {
   id: string;
   name: string;
@@ -129,17 +131,7 @@ export interface AddFocusRequest {
 export interface KnownSpellInfo {
   id: string;
   spellId: string;
-  spell: SpellInfo;
-}
-
-export interface SpellInfo {
-  id: string;
-  name: string;
-  spellLevel: number;
-  description: string;
-  school: string | null;
-  duration: string | null;
-  range: string | null;
+  spell: Spell;
 }
 
 export interface SpellSlotInfo {

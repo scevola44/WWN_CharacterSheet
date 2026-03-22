@@ -26,11 +26,6 @@ export interface UpdateSpellRequest {
   summary?: string;
 }
 
-export interface SpellSlots {
-  available: number[];
-  used: number[];
-}
-
 export interface UseSpellSlotRequest {
   spellLevel: number;
 }
