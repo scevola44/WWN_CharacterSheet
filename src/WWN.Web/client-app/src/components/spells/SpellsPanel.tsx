@@ -44,7 +44,7 @@ export function SpellsPanel({ character, onUpdate }: {
                 <div style={{ flex: 1 }}>
                   <div style={{ fontWeight: '500' }}>
                     {known.spell.name}
-                    {known.spell.school && <span style={{ fontSize: '0.75rem', marginLeft: '0.5rem', color: 'var(--primary)' }}>{known.spell.school}</span>}
+                    {known.spell.summary && <span style={{ fontSize: '0.75rem', marginLeft: '0.5rem', color: 'var(--primary)' }}>{known.spell.summary}</span>}
                   </div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Level {known.spell.spellLevel}</div>
                 </div>
