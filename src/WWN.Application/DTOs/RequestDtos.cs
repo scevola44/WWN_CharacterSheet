@@ -59,6 +59,7 @@ public record AddItemRequest
     public int? DamageDieCount { get; init; }
     public int? DamageDieSides { get; init; }
     public string? AttributeModifier { get; init; }
+    public string? CombatSkill { get; init; }
     public int? ShockDamage { get; init; }
     public int? ShockAcThreshold { get; init; }
     public string? Tags { get; init; }
@@ -76,6 +77,12 @@ public record ChangeSlotRequest
 public record UpdateNotesRequest
 {
     public string? Notes { get; init; }
+}
+
+public record UpdateWeaponAttackConfigRequest
+{
+    public string Skill { get; init; } = string.Empty;
+    public string Attribute { get; init; } = string.Empty;
 }
 
 public record CreateFocusDefinitionRequest

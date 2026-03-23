@@ -43,7 +43,7 @@ export function CharacterSheetPage() {
       <div className="sheet-grid">
         <div>
           <AttributePanel character={character} onUpdate={handleUpdate} isEditing={isEditing} />
-          <CombatStats character={character} />
+          <CombatStats character={character} onUpdate={handleUpdate} />
           <HitPointTracker character={character} onUpdate={handleUpdate} />
         </div>
         <div>

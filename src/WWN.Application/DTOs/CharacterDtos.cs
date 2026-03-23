@@ -78,6 +78,7 @@ public record ItemDto
     // Weapon fields
     public string? DamageDie { get; init; }
     public string? AttributeModifier { get; init; }
+    public string? CombatSkill { get; init; }
     public int? ShockDamage { get; init; }
     public int? ShockAcThreshold { get; init; }
     public string? Tags { get; init; }

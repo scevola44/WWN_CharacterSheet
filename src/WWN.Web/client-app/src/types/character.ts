@@ -69,6 +69,7 @@ export interface ItemInfo {
   itemType: string;
   damageDie: string | null;
   attributeModifier: string | null;
+  combatSkill: string | null;
   shockDamage: number | null;
   shockAcThreshold: number | null;
   tags: string | null;
@@ -109,6 +110,7 @@ export interface AddItemRequest {
   damageDieCount?: number;
   damageDieSides?: number;
   attributeModifier?: string;
+  combatSkill?: string;
   shockDamage?: number;
   shockAcThreshold?: number;
   tags?: string;

@@ -12,7 +12,7 @@ export function InventoryPanel({ character, onUpdate }: {
   const [showAdd, setShowAdd] = useState(false);
   const [itemType, setItemType] = useState('Item');
   const [form, setForm] = useState<AddItemRequest>({
-    name: '', encumbrance: 1, itemType: 'Item', quantity: 1,
+    name: '', encumbrance: 1, itemType: 'Item', quantity: 1, combatSkill: 'Stab',
   });
 
   const handleAdd = async () => {
@@ -21,7 +21,7 @@ export function InventoryPanel({ character, onUpdate }: {
     const updated = await characterApi.addItem(character.id, req);
     onUpdate(updated);
     setShowAdd(false);
-    setForm({ name: '', encumbrance: 1, itemType: 'Item', quantity: 1 });
+    setForm({ name: '', encumbrance: 1, itemType: 'Item', quantity: 1, combatSkill: 'Stab' });
   };
 
   const handleRemove = async (itemId: string) => {
@@ -102,11 +102,24 @@ export function InventoryPanel({ character, onUpdate }: {
                   onChange={e => setForm({ ...form, damageDieSides: +e.target.value })} />
               </div>
               <div className="form-group">
+                <label>Combat Skill</label>
+                <select value={form.combatSkill ?? 'Stab'}
+                  onChange={e => setForm({ ...form, combatSkill: e.target.value })}>
+                  <option value="Stab">Stab</option>
+                  <option value="Shoot">Shoot</option>
+                  <option value="Punch">Punch</option>
+                  <option value="Magic">Magic</option>
+                </select>
+              </div>
+              <div className="form-group">
                 <label>Attribute</label>
                 <select value={form.attributeModifier ?? 'Strength'}
                   onChange={e => setForm({ ...form, attributeModifier: e.target.value })}>
                   <option>Strength</option>
                   <option>Dexterity</option>
+                  <option>Intelligence</option>
+                  <option>Wisdom</option>
+                  <option>Charisma</option>
                 </select>
               </div>
               <div className="form-group">
@@ -117,6 +130,18 @@ export function InventoryPanel({ character, onUpdate }: {
                   <option>Ranged</option>
                   <option value="Melee, TwoHanded">Two-Handed</option>
                 </select>
+              </div>
+              <div className="form-group">
+                <label>Shock Dmg</label>
+                <input type="number"
+                  value={form.shockDamage ?? ''}
+                  onChange={e => setForm({ ...form, shockDamage: e.target.value === '' ? undefined : +e.target.value })} />
+              </div>
+              <div className="form-group">
+                <label>Shock AC ≤</label>
+                <input type="number"
+                  value={form.shockAcThreshold ?? ''}
+                  onChange={e => setForm({ ...form, shockAcThreshold: e.target.value === '' ? undefined : +e.target.value })} />
               </div>
             </div>
           )}

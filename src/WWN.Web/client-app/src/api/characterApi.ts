@@ -51,6 +51,9 @@ export const characterApi = {
   changeSlot: (id: string, itemId: string, slotType: string) =>
     api.put<CharacterDetail>(`/${id}/items/${itemId}/slot`, { slotType }).then(r => r.data),
 
+  updateWeaponAttackConfig: (id: string, itemId: string, skill: string, attribute: string) =>
+    api.put<CharacterDetail>(`/${id}/items/${itemId}/attack-config`, { skill, attribute }).then(r => r.data),
+
   updateNotes: (id: string, notes: string | null) =>
     api.put<CharacterDetail>(`/${id}/notes`, { notes }).then(r => r.data),
 };

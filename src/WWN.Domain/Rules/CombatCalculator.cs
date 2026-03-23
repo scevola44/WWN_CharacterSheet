@@ -26,8 +26,7 @@ public static class CombatCalculator
         int bab = GetBaseAttackBonus(character.Class, character.PartialClassA,
             character.PartialClassB, character.Level);
 
-        SkillName combatSkill = GetCombatSkillForWeapon(weapon);
-        var skill = character.GetSkillOrDefault(combatSkill);
+        var skill = character.GetSkillOrDefault(weapon.CombatSkill);
         int skillLevel = skill?.Rank.Level ?? -1;
         int attrMod = character.GetAttribute(weapon.AttributeModifier).Modifier;
         int focusBonus = FocusEffectAggregator.SumEffects(character.Foci, FocusEffectType.AttackBonus);

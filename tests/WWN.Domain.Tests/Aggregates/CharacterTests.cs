@@ -218,7 +218,7 @@ public class CharacterTests
     {
         var character = Character.Create("Test", CharacterClass.Warrior, DefaultScores);
         var sword = new Weapon("Sword", 1, new DamageDie(1, 8),
-            AttributeName.Strength, WeaponTag.Melee, slotType: ItemSlotType.Equipped);
+            AttributeName.Strength, SkillName.Stab, WeaponTag.Melee, slotType: ItemSlotType.Equipped);
         character.AddItem(sword);
         character.GetEquippedWeapon().Should().NotBeNull();
         character.GetEquippedWeapon()!.Name.Should().Be("Sword");

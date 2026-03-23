@@ -19,6 +19,7 @@ public static class ItemFactory
                 request.Encumbrance,
                 new DamageDie(request.DamageDieCount ?? 1, request.DamageDieSides ?? 6),
                 EnumParser.Parse<AttributeName>(request.AttributeModifier ?? "Strength", nameof(request.AttributeModifier)),
+                EnumParser.Parse<SkillName>(request.CombatSkill ?? "Stab", nameof(request.CombatSkill)),
                 ParseWeaponTags(request.Tags),
                 request is { ShockDamage: not null, ShockAcThreshold: not null }
                     ? new ShockInfo(request.ShockDamage.Value, request.ShockAcThreshold.Value)
