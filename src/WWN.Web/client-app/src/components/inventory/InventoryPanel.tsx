@@ -131,6 +131,18 @@ export function InventoryPanel({ character, onUpdate }: {
                   <option value="Melee, TwoHanded">Two-Handed</option>
                 </select>
               </div>
+              <div className="form-group">
+                <label>Shock Dmg</label>
+                <input type="number"
+                  value={form.shockDamage ?? ''}
+                  onChange={e => setForm({ ...form, shockDamage: e.target.value === '' ? undefined : +e.target.value })} />
+              </div>
+              <div className="form-group">
+                <label>Shock AC ≤</label>
+                <input type="number"
+                  value={form.shockAcThreshold ?? ''}
+                  onChange={e => setForm({ ...form, shockAcThreshold: e.target.value === '' ? undefined : +e.target.value })} />
+              </div>
             </div>
           )}
 
