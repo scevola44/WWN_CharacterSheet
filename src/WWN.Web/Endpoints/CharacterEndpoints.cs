@@ -103,6 +103,13 @@ public static class CharacterEndpoints
             return Results.Ok(dto);
         });
 
+        group.MapPut("/{id:guid}/items/{itemId:guid}/attack-config", async (Guid id, Guid itemId,
+            UpdateWeaponAttackConfigRequest req, CharacterService svc, CancellationToken ct) =>
+        {
+            var dto = await svc.UpdateWeaponAttackConfigAsync(id, itemId, req.Skill, req.Attribute, ct);
+            return Results.Ok(dto);
+        });
+
         group.MapPut("/{id:guid}/notes", async (Guid id,
             UpdateNotesRequest req, CharacterService svc, CancellationToken ct) =>
         {
