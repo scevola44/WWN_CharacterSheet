@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { Spell, CreateSpellRequest, UpdateSpellRequest } from '../types/spell';
 import { spellsApi } from '../api/spellApi';
+import { SpellForm } from '../components/spells/SpellForm';
 
 export function SpellDatabasePage() {
   const [spells, setSpells] = useState<Spell[]>([]);
@@ -161,43 +162,13 @@ export function SpellDatabasePage() {
               {editingSpellId === spell.id && editForm ? (
                 <div>
                   <h3 style={{ margin: '0 0 1rem 0' }}>Edit Spell</h3>
-                  <div className="form-group">
-                    <label>Name *</label>
-                    <input
-                      type="text"
-                      value={editForm.name}
-                      onChange={e => setEditForm({ ...editForm, name: e.target.value })}
-                    />
-                  </div>
-                  <div className="form-row">
-                    <div className="form-group" style={{ flex: 1 }}>
-                      <label>Level *</label>
-                      <select value={editForm.spellLevel} onChange={e => setEditForm({ ...editForm, spellLevel: parseInt(e.target.value) })}>
-                        {[1, 2, 3, 4, 5, 6].map(l => <option key={l} value={l}>Level {l}</option>)}
-                      </select>
-                    </div>
-                    <div className="form-group" style={{ flex: 1 }}>
-                      <label>Summary</label>
-                      <input
-                        type="text"
-                        value={editForm.summary || ''}
-                        onChange={e => setEditForm({ ...editForm, summary: e.target.value })}
-                        placeholder="Brief summary"
-                      />
-                    </div>
-                  </div>
-                  <div className="form-group">
-                    <label>Description *</label>
-                    <textarea
-                      value={editForm.description}
-                      onChange={e => setEditForm({ ...editForm, description: e.target.value })}
-                      rows={4}
-                    />
-                  </div>
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <button onClick={() => handleEditSave(spell.id)}>Save</button>
-                    <button className="secondary" onClick={handleEditCancel}>Cancel</button>
-                  </div>
+                  <SpellForm
+                    values={editForm}
+                    onChange={setEditForm}
+                    onSubmit={() => handleEditSave(spell.id)}
+                    onCancel={handleEditCancel}
+                    submitLabel="Save"
+                  />
                 </div>
               ) : (
                 <>

@@ -3,6 +3,7 @@ import { SectionCard } from '../layout/SectionCard';
 import { characterApi } from '../../api/characterApi';
 import { focusDefinitionApi } from '../../api/focusDefinitionApi';
 import { FocusDatabaseModal } from './FocusDatabaseModal';
+import { FocusDetailModal } from './FocusDetailModal';
 import type { CharacterDetail, AddFocusRequest } from '../../types/character';
 import type { FocusDefinition } from '../../types/focusDefinition';
 
@@ -15,6 +16,7 @@ export function FociPanel({ character, onUpdate }: {
   const [name, setName] = useState('');
   const [level, setLevel] = useState(1);
   const [definitions, setDefinitions] = useState<FocusDefinition[]>([]);
+  const [selectedDefinition, setSelectedDefinition] = useState<FocusDefinition | null>(null);
 
   useEffect(() => {
     focusDefinitionApi.list().then(setDefinitions).catch(() => {});
@@ -48,19 +50,27 @@ export function FociPanel({ character, onUpdate }: {
     <SectionCard title="Foci">
       {character.foci.map(f => {
         const def = getDefinition(f.name);
-        const description = def
-          ? (f.level === 2 ? def.level2Description : def.level1Description)
-          : null;
-
         return (
           <div key={f.id} className="focus-row">
             <div className="focus-header">
-              <span><strong>{f.name}</strong> (Level {f.level})</span>
+              <span>
+                {def ? (
+                  <button
+                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontWeight: 'bold', textDecoration: 'underline', color: 'inherit', fontSize: 'inherit' }}
+                    onClick={() => setSelectedDefinition(def)}
+                  >
+                    {f.name}
+                  </button>
+                ) : (
+                  <strong>{f.name}</strong>
+                )}
+                {' '}(Level {f.level})
+              </span>
               <button className="sm danger" onClick={() => handleRemove(f.id)}>Remove</button>
             </div>
-            {description && (
+            {def?.description && (
               <div className="focus-effects" style={{ fontSize: '0.875rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
-                {description}
+                {def.description}
               </div>
             )}
             {f.effects.length > 0 && (
@@ -117,6 +127,17 @@ export function FociPanel({ character, onUpdate }: {
           character={character}
           onAdd={handleCatalogAdd}
           onClose={() => setShowCatalog(false)}
+        />
+      )}
+
+      {selectedDefinition && (
+        <FocusDetailModal
+          focus={selectedDefinition}
+          onClose={() => setSelectedDefinition(null)}
+          onSaved={updated => {
+            setDefinitions(prev => prev.map(d => d.id === updated.id ? updated : d));
+            setSelectedDefinition(updated);
+          }}
         />
       )}
     </SectionCard>

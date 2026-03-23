@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { SectionCard } from '../layout/SectionCard';
 import { SpellSlotTracker } from './SpellSlotTracker';
 import { SpellDatabaseModal } from './SpellDatabaseModal';
+import { SpellDetailModal } from './SpellDetailModal';
 import type { CharacterDetail } from '../../types/character';
+import type { Spell } from '../../types/spell';
 import { spellsApi } from '../../api/spellApi';
 
 export function SpellsPanel({ character, onUpdate }: {
@@ -10,6 +12,7 @@ export function SpellsPanel({ character, onUpdate }: {
   onUpdate: (c: CharacterDetail) => void;
 }) {
   const [showAddModal, setShowAddModal] = useState(false);
+  const [selectedSpell, setSelectedSpell] = useState<Spell | null>(null);
 
   // Only show for Mage or Adventurer with PartialMage
   const isMage = character.class === 'Mage';
@@ -43,7 +46,12 @@ export function SpellsPanel({ character, onUpdate }: {
               <div key={known.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem', background: 'var(--bg-subtle)', borderRadius: '0.25rem' }}>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontWeight: '500' }}>
-                    {known.spell.name}
+                    <button
+                      style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontWeight: '500', textDecoration: 'underline', color: 'inherit', fontSize: 'inherit' }}
+                      onClick={() => setSelectedSpell(known.spell)}
+                    >
+                      {known.spell.name}
+                    </button>
                     {known.spell.summary && <span style={{ fontSize: '0.75rem', marginLeft: '0.5rem', color: 'var(--primary)' }}>{known.spell.summary}</span>}
                   </div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Level {known.spell.spellLevel}</div>
@@ -69,6 +77,18 @@ export function SpellsPanel({ character, onUpdate }: {
           character={character}
           onLearn={handleLearnSuccess}
           onClose={() => setShowAddModal(false)}
+        />
+      )}
+
+      {selectedSpell && (
+        <SpellDetailModal
+          spell={selectedSpell}
+          onClose={() => setSelectedSpell(null)}
+          onSaved={async updated => {
+            setSelectedSpell(updated);
+            const refreshed = await spellsApi.getCharacterSpells(character.id);
+            onUpdate(refreshed);
+          }}
         />
       )}
     </SectionCard>
