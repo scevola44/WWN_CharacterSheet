@@ -3,12 +3,7 @@ import { SectionCard } from '../layout/SectionCard';
 import { characterApi } from '../../api/characterApi';
 import type { CharacterDetail } from '../../types/character';
 
-const ATTRIBUTE_GROUPS: Record<string, string[]> = {
-  Stab: ['Strength', 'Dexterity'],
-  Shoot: ['Strength', 'Dexterity'],
-  Punch: ['Strength', 'Dexterity'],
-  Magic: ['Intelligence', 'Wisdom', 'Charisma'],
-};
+const ALL_ATTRIBUTES = ['Strength', 'Dexterity', 'Intelligence', 'Wisdom', 'Charisma', 'Constitution'];
 
 export function CombatStats({ character, onUpdate }: {
   character: CharacterDetail;
@@ -20,9 +15,7 @@ export function CombatStats({ character, onUpdate }: {
   const handleWeaponConfigChange = async (weaponId: string, skill: string, attribute: string) => {
     setUpdating(weaponId);
     try {
-      const validAttributes = ATTRIBUTE_GROUPS[skill] || ['Strength', 'Dexterity'];
-      const validAttribute = validAttributes.includes(attribute) ? attribute : validAttributes[0];
-      const updated = await characterApi.updateWeaponAttackConfig(character.id, weaponId, skill, validAttribute);
+      const updated = await characterApi.updateWeaponAttackConfig(character.id, weaponId, skill, attribute);
       onUpdate?.(updated);
     } finally {
       setUpdating(null);
@@ -67,7 +60,6 @@ export function CombatStats({ character, onUpdate }: {
             const atkBonus = derivedStats.weaponAttackBonuses[w.id];
             const currentSkill = w.combatSkill || 'Stab';
             const currentAttr = w.attributeModifier || 'Strength';
-            const validAttributes = ATTRIBUTE_GROUPS[currentSkill] || ['Strength', 'Dexterity'];
 
             return (
               <div key={w.id} className="item-row" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -83,12 +75,7 @@ export function CombatStats({ character, onUpdate }: {
                     <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-muted)' }}>Skill</label>
                     <select
                       value={currentSkill}
-                      onChange={(e) => {
-                        const newSkill = e.target.value;
-                        const newValidAttrs = ATTRIBUTE_GROUPS[newSkill] || ['Strength', 'Dexterity'];
-                        const newAttr = newValidAttrs.includes(currentAttr) ? currentAttr : newValidAttrs[0];
-                        handleWeaponConfigChange(w.id, newSkill, newAttr);
-                      }}
+                      onChange={(e) => handleWeaponConfigChange(w.id, e.target.value, currentAttr)}
                       disabled={updating === w.id}
                       style={{ width: '100%', padding: '0.25rem', fontSize: '0.75rem' }}
                     >
@@ -106,7 +93,7 @@ export function CombatStats({ character, onUpdate }: {
                       disabled={updating === w.id}
                       style={{ width: '100%', padding: '0.25rem', fontSize: '0.75rem' }}
                     >
-                      {validAttributes.map(attr => (
+                      {ALL_ATTRIBUTES.map(attr => (
                         <option key={attr} value={attr}>{attr}</option>
                       ))}
                     </select>
