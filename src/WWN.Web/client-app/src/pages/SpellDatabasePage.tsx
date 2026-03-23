@@ -86,14 +86,14 @@ export function SpellDatabasePage() {
   });
 
   return (
-    <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '1rem' }}>
+    <div className="page-content">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
         <h1>Spell Database</h1>
         <button onClick={() => setShowForm(!showForm)}>+ Add Spell</button>
       </div>
 
       {showForm && (
-        <div style={{ background: 'var(--bg-card)', padding: '1.5rem', borderRadius: '0.5rem', marginBottom: '1.5rem', border: '1px solid var(--border)' }}>
+        <div style={{ background: 'var(--surface)', padding: '1.5rem', borderRadius: '0.5rem', marginBottom: '1.5rem', border: '1px solid var(--border)' }}>
           <h2>Add New Spell</h2>
           <div className="form-group">
             <label>Name *</label>
@@ -157,7 +157,7 @@ export function SpellDatabasePage() {
       ) : (
         <div style={{ display: 'grid', gap: '1rem', marginTop: '1.5rem' }}>
           {filteredSpells.map(spell => (
-            <div key={spell.id} style={{ background: 'var(--bg-card)', padding: '1rem', borderRadius: '0.5rem', border: '1px solid var(--border)' }}>
+            <div key={spell.id} style={{ background: 'var(--surface)', padding: '1rem', borderRadius: '0.5rem', border: '1px solid var(--border)' }}>
               {editingSpellId === spell.id && editForm ? (
                 <div>
                   <h3 style={{ margin: '0 0 1rem 0' }}>Edit Spell</h3>

@@ -17,7 +17,7 @@ export function CharacterListPage() {
   if (loading) return <div className="loading">Loading characters...</div>;
 
   return (
-    <div>
+    <div className="page-content">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
         <h2>Characters</h2>
         <button onClick={() => navigate('/new')}>+ New Character</button>

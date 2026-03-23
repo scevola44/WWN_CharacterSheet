@@ -96,14 +96,14 @@ export function FocusDatabasePage() {
   );
 
   return (
-    <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '1rem' }}>
+    <div className="page-content">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
         <h1>Foci Database</h1>
         <button onClick={() => setShowForm(!showForm)}>+ Add Focus</button>
       </div>
 
       {showForm && (
-        <div style={{ background: 'var(--bg-card)', padding: '1.5rem', borderRadius: '0.5rem', marginBottom: '1.5rem', border: '1px solid var(--border)' }}>
+        <div style={{ background: 'var(--bg)', padding: '1.5rem', borderRadius: '0.5rem', marginBottom: '1.5rem', border: '1px solid var(--border)' }}>
           <h2>Add New Focus</h2>
           <FocusForm
             values={form}
@@ -134,7 +134,7 @@ export function FocusDatabasePage() {
       ) : (
         <div style={{ display: 'grid', gap: '1rem', marginTop: '1.5rem' }}>
           {filtered.map(fd => (
-            <div key={fd.id} style={{ background: 'var(--bg-card)', padding: '1rem', borderRadius: '0.5rem', border: '1px solid var(--border)' }}>
+            <div key={fd.id} style={{ background: 'var(--surface)', padding: '1rem', borderRadius: '0.5rem', border: '1px solid var(--border)' }}>
               {editingId === fd.id && editForm ? (
                 <div>
                   <h3 style={{ margin: '0 0 1rem 0' }}>Edit Focus</h3>
