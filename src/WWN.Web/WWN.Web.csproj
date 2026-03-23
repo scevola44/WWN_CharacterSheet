@@ -19,7 +19,7 @@
     <LangVersion>latestmajor</LangVersion>
   </PropertyGroup>
 
-  <Target Name="BuildClientApp" BeforeTargets="Build">
+  <Target Name="BuildClientApp" BeforeTargets="Build" Condition="'$(Configuration)' != 'Release'">
     <Exec Command="npm ci" WorkingDirectory="$(MSBuildThisFileDirectory)client-app" />
     <Exec Command="npm run build" WorkingDirectory="$(MSBuildThisFileDirectory)client-app" />
   </Target>

@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: wwn-character-sheet
+    runtime: docker
+    region: oregon
+    plan: standard
+    numInstances: 1
+    healthCheckPath: /health
+    dockerfile: ./Dockerfile
+    dockerCommand: ''
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: DOTNET_ENVIRONMENT
+        value: Production
+    autoDeploy: true
+    branch: develop
