@@ -79,7 +79,7 @@ public class CombatCalculatorTests
         character.SetSkillRank(SkillName.Stab, 2);
 
         var sword = new Weapon("Longsword", 1, new DamageDie(1, 8),
-            AttributeName.Strength, WeaponTag.Melee);
+            AttributeName.Strength, SkillName.Stab, WeaponTag.Melee);
         character.AddItem(sword);
 
         // BAB 3 + Stab 2 + STR mod 1 = 6
@@ -94,7 +94,7 @@ public class CombatCalculatorTests
         character.SetSkillRank(SkillName.Shoot, 1);
 
         var bow = new Weapon("Bow", 1, new DamageDie(1, 6),
-            AttributeName.Dexterity, WeaponTag.Ranged);
+            AttributeName.Dexterity, SkillName.Shoot, WeaponTag.Ranged);
 
         CombatCalculator.GetCombatSkillForWeapon(bow).Should().Be(SkillName.Shoot);
         // BAB 1 + Shoot 1 + DEX mod 1 = 3
