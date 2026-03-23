@@ -1,9 +1,12 @@
 import axios from 'axios';
 import type { Spell, KnownSpell, CreateSpellRequest, UpdateSpellRequest, UseSpellSlotRequest } from '../types/spell';
 import type { CharacterDetail } from '../types/character';
+import { applyDevErrorInterceptor } from './apiInterceptor';
 
 const spellApi = axios.create({ baseURL: '/api/spells' });
+applyDevErrorInterceptor(spellApi);
 const charSpellApi = axios.create({ baseURL: '/api/characters' });
+applyDevErrorInterceptor(charSpellApi);
 
 export const spellsApi = {
   // Spell catalog

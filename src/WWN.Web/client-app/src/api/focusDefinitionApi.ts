@@ -4,8 +4,10 @@ import type {
   CreateFocusDefinitionRequest,
   UpdateFocusDefinitionRequest,
 } from '../types/focusDefinition';
+import { applyDevErrorInterceptor } from './apiInterceptor';
 
 const api = axios.create({ baseURL: '/api/focus-definitions' });
+applyDevErrorInterceptor(api);
 
 export const focusDefinitionApi = {
   list: () => api.get<FocusDefinition[]>('/').then(r => r.data),

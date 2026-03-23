@@ -4,11 +4,13 @@ import { CharacterCreatePage } from './pages/CharacterCreatePage';
 import { CharacterSheetPage } from './pages/CharacterSheetPage';
 import { SpellDatabasePage } from './pages/SpellDatabasePage';
 import { FocusDatabasePage } from './pages/FocusDatabasePage';
+import { ErrorDetailModal } from './components/common/ErrorDetailModal';
 import './App.css';
 
 function App() {
   return (
     <BrowserRouter>
+      <ErrorDetailModal />
       <div className="app">
         <header>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

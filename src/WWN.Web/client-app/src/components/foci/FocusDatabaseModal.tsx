@@ -15,6 +15,7 @@ export function FocusDatabaseModal({ character, onAdd, onClose }: {
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [levelSelections, setLevelSelections] = useState<Record<string, 1 | 2>>({});
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     focusDefinitionApi.list().then(setFoci).finally(() => setLoading(false));
@@ -50,13 +51,18 @@ export function FocusDatabaseModal({ character, onAdd, onClose }: {
     levelSelections[fd.id] ?? getDefaultLevel(fd);
 
   const handleAdd = async (fd: FocusDefinition) => {
-    const level = getSelectedLevel(fd);
-    const updated = await characterApi.addFocus(character.id, {
-      name: fd.name,
-      level,
-      effects: [],
-    });
-    onAdd(updated);
+    setError(null);
+    try {
+      const level = getSelectedLevel(fd);
+      const updated = await characterApi.addFocus(character.id, {
+        name: fd.name,
+        level,
+        effects: [],
+      });
+      onAdd(updated);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to add focus');
+    }
   };
 
   return (
@@ -66,6 +72,10 @@ export function FocusDatabaseModal({ character, onAdd, onClose }: {
           <h2 style={{ margin: 0 }}>Select a Focus</h2>
           <button className="sm danger" onClick={onClose}>✕</button>
         </div>
+
+        {error && (
+          <div style={{ color: 'var(--danger)', marginBottom: '0.5rem', fontSize: '0.875rem' }}>{error}</div>
+        )}
 
         <div className="form-group">
           <label>Search</label>

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using WWN.Application.Services;
 using WWN.Domain.Interfaces;
 using WWN.Infrastructure.Persistence;
@@ -6,74 +7,83 @@ using WWN.Infrastructure.Repositories;
 using WWN.Web.Endpoints;
 using WWN.Web.Middleware;
 
-var builder = WebApplication.CreateBuilder(args);
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(new ConfigurationBuilder()
+        .AddJsonFile("appsettings.json")
+        .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", optional: true)
+        .Build())
+    .CreateBootstrapLogger();
 
-// Database
-builder.Services.AddDbContext<WwnDbContext>(opt =>
-    opt.UseSqlite(builder.Configuration.GetConnectionString("Default")
-        ?? "Data Source=wwn_characters.db"));
-
-// Services
-builder.Services.AddScoped<ICharacterRepository, CharacterRepository>();
-builder.Services.AddScoped<ISpellRepository, SpellRepository>();
-builder.Services.AddScoped<IFocusDefinitionRepository, FocusDefinitionRepository>();
-builder.Services.AddScoped<CharacterService>();
-builder.Services.AddScoped<SpellService>();
-builder.Services.AddScoped<CharacterSpellService>();
-builder.Services.AddScoped<FocusDefinitionService>();
-builder.Services.AddScoped<FocusDefinitionSeeder>();
-builder.Services.AddSingleton<CharacterSheetCalculator>();
-
-// Swagger
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-// CORS for React dev server
-builder.Services.AddCors(opt => opt.AddDefaultPolicy(p =>
-    p.WithOrigins("http://localhost:5173").AllowAnyHeader().AllowAnyMethod()));
-
-var app = builder.Build();
-
-// Auto-migrate
-using (var scope = app.Services.CreateScope())
+try
 {
-    var db = scope.ServiceProvider.GetRequiredService<WwnDbContext>();
-    await db.Database.EnsureCreatedAsync();
+    var builder = WebApplication.CreateBuilder(args);
+    builder.Host.UseSerilog((ctx, services, cfg) =>
+        cfg.ReadFrom.Configuration(ctx.Configuration)
+           .ReadFrom.Services(services));
 
-    // Create FocusDefinitions table if it doesn't exist (handles databases
-    // created before this feature was added).
-    await db.Database.ExecuteSqlRawAsync(@"
-        CREATE TABLE IF NOT EXISTS ""FocusDefinitions"" (
-            ""Id""                 TEXT    NOT NULL CONSTRAINT ""PK_FocusDefinitions"" PRIMARY KEY,
-            ""Name""               TEXT    NOT NULL,
-            ""Description""        TEXT,
-            ""Level1Description""  TEXT    NOT NULL,
-            ""Level2Description""  TEXT,
-            ""HasLevel2""          INTEGER NOT NULL DEFAULT 0,
-            ""CanTakeMultipleTimes"" INTEGER NOT NULL DEFAULT 0
-        )");
+    // Database
+    builder.Services.AddDbContext<WwnDbContext>(opt =>
+        opt.UseSqlite(builder.Configuration.GetConnectionString("Default")
+            ?? "Data Source=wwn_characters.db"));
 
-    // Seed default WWN foci from the Free Edition if the table is empty.
-    var seeder = scope.ServiceProvider.GetRequiredService<FocusDefinitionSeeder>();
-    await seeder.SeedIfEmptyAsync();
+    // Services
+    builder.Services.AddScoped<ICharacterRepository, CharacterRepository>();
+    builder.Services.AddScoped<ISpellRepository, SpellRepository>();
+    builder.Services.AddScoped<IFocusDefinitionRepository, FocusDefinitionRepository>();
+    builder.Services.AddScoped<CharacterService>();
+    builder.Services.AddScoped<SpellService>();
+    builder.Services.AddScoped<CharacterSpellService>();
+    builder.Services.AddScoped<FocusDefinitionService>();
+    builder.Services.AddScoped<FocusDefinitionSeeder>();
+    builder.Services.AddSingleton<CharacterSheetCalculator>();
+
+    // Swagger
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
+
+    // CORS for React dev server
+    builder.Services.AddCors(opt => opt.AddDefaultPolicy(p =>
+        p.WithOrigins("http://localhost:5173").AllowAnyHeader().AllowAnyMethod()));
+
+    var app = builder.Build();
+
+    // Auto-migrate
+    using (var scope = app.Services.CreateScope())
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<WwnDbContext>();
+        await dbContext.Database.EnsureCreatedAsync();
+
+        // Seed default WWN foci from the Free Edition if the table is empty.
+        var seeder = scope.ServiceProvider.GetRequiredService<FocusDefinitionSeeder>();
+        await seeder.SeedIfEmptyAsync();
+    }
+
+    app.UseMiddleware<ExceptionHandlingMiddleware>();
+    app.UseCors();
+    app.UseSerilogRequestLogging();
+
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
+
+    app.UseDefaultFiles();
+    app.UseStaticFiles();
+    app.MapCharacterEndpoints();
+    app.MapSpellEndpoints();
+    app.MapFocusDefinitionEndpoints();
+    app.MapFallbackToFile("index.html");
+
+    app.Run();
 }
-
-app.UseMiddleware<ExceptionHandlingMiddleware>();
-app.UseCors();
-
-if (app.Environment.IsDevelopment())
+catch (Exception ex)
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    Log.Fatal(ex, "Application terminated unexpectedly");
 }
-
-app.UseDefaultFiles();
-app.UseStaticFiles();
-app.MapCharacterEndpoints();
-app.MapSpellEndpoints();
-app.MapFocusDefinitionEndpoints();
-app.MapFallbackToFile("index.html");
-
-app.Run();
+finally
+{
+    Log.CloseAndFlush();
+}
 
 public partial class Program { } // For integration tests

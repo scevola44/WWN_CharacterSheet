@@ -10,6 +10,7 @@ public class FocusConfiguration : IEntityTypeConfiguration<Focus>
     {
         builder.ToTable("Foci");
         builder.HasKey(f => f.Id);
+        builder.Property(f => f.Id).ValueGeneratedNever();
         builder.Property(f => f.Name).HasMaxLength(100).IsRequired();
         builder.OwnsMany(f => f.Effects, e =>
         {

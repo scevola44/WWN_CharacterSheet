@@ -6,8 +6,10 @@ import type {
   AddItemRequest,
   AddFocusRequest,
 } from '../types/character';
+import { applyDevErrorInterceptor } from './apiInterceptor';
 
 const api = axios.create({ baseURL: '/api/characters' });
+applyDevErrorInterceptor(api);
 
 export const characterApi = {
   list: () => api.get<CharacterSummary[]>('/').then(r => r.data),
