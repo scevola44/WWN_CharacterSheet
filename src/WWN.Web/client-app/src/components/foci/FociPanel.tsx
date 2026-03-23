@@ -4,8 +4,43 @@ import { characterApi } from '../../api/characterApi';
 import { focusDefinitionApi } from '../../api/focusDefinitionApi';
 import { FocusDatabaseModal } from './FocusDatabaseModal';
 import { FocusDetailModal } from './FocusDetailModal';
-import type { CharacterDetail, AddFocusRequest } from '../../types/character';
+import type { CharacterDetail, AddFocusRequest, FocusEffectInfo } from '../../types/character';
 import type { FocusDefinition } from '../../types/focusDefinition';
+
+function formatEffect(e: FocusEffectInfo): string {
+  const conditionLabel: Record<string, string> = {
+    Always: '',
+    StabWeapon: ' (Stab weapons)',
+    ShootWeapon: ' (Shoot weapons)',
+    PunchWeapon: ' (Punch weapons)',
+    Conditional: ' (conditional)',
+  };
+  const cond = conditionLabel[e.condition] ?? '';
+
+  const valueLabel = () => {
+    if (e.valueType === 'Level') return '+level';
+    if (e.valueType === 'HalfLevel') return '+½ level';
+    if (e.valueType === 'SkillLevel') return `+${e.targetSkill ?? 'skill'} rank`;
+    return e.numericValue >= 0 ? `+${e.numericValue}` : `${e.numericValue}`;
+  };
+
+  const typeLabels: Record<string, string> = {
+    SkillBonus: 'Skill',
+    AttributeBonus: 'Attr',
+    AttackBonus: 'Attack',
+    DamageBonus: 'Damage',
+    AcBonus: 'AC',
+    ShockBonus: 'Shock',
+    HpBonus: 'HP',
+    SaveBonus: 'Save',
+    Initiative: 'Initiative',
+    Custom: 'Custom',
+  };
+
+  const target = e.targetSkill || e.targetAttribute || '';
+  const targetStr = target ? ` ${target}` : '';
+  return `${typeLabels[e.type] ?? e.type}${targetStr} ${valueLabel()}${cond}`;
+}
 
 export function FociPanel({ character, onUpdate }: {
   character: CharacterDetail;
@@ -74,14 +109,9 @@ export function FociPanel({ character, onUpdate }: {
               </div>
             )}
             {f.effects.length > 0 && (
-              <div className="focus-effects">
+              <div className="focus-effects" style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
                 {f.effects.map((e, i) => (
-                  <div key={i}>
-                    {e.type}: +{e.numericValue}
-                    {e.targetSkill && ` (${e.targetSkill})`}
-                    {e.targetAttribute && ` (${e.targetAttribute})`}
-                    {e.description && ` - ${e.description}`}
-                  </div>
+                  <span key={i} style={{ marginRight: '0.75rem' }}>{formatEffect(e)}</span>
                 ))}
               </div>
             )}

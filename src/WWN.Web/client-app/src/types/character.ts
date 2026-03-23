@@ -48,12 +48,15 @@ export interface FocusInfo {
   id: string;
   name: string;
   level: number;
+  conditionalActive: boolean;
   effects: FocusEffectInfo[];
 }
 
 export interface FocusEffectInfo {
   type: string;
   numericValue: number;
+  valueType: string;
+  condition: string;
   targetSkill: string | null;
   targetAttribute: string | null;
   description: string | null;
@@ -86,6 +89,7 @@ export interface DerivedStats {
   mentalSave: number;
   attributeModifiers: Record<string, number>;
   weaponAttackBonuses: Record<string, number>;
+  weaponDamageBonuses: Record<string, number>;
   hitDieModifier: number;
 }
 
@@ -124,6 +128,8 @@ export interface AddFocusRequest {
   effects: {
     type: string;
     numericValue: number;
+    valueType?: string;
+    condition?: string;
     targetSkill?: string;
     targetAttribute?: string;
     description?: string;

@@ -16,5 +16,7 @@ public class FocusDefinitionConfiguration : IEntityTypeConfiguration<FocusDefini
         builder.Property(focus => focus.Level2Description);
         builder.Property(focus => focus.HasLevel2).IsRequired();
         builder.Property(focus => focus.CanTakeMultipleTimes).IsRequired();
+        builder.OwnsMany(fd => fd.Level1Effects, e => { e.ToJson(); });
+        builder.OwnsMany(fd => fd.Level2Effects, e => { e.ToJson(); });
     }
 }

@@ -24,6 +24,10 @@ public class CharacterSheetCalculator
                 .OfType<Weapon>()
                 .Where(w => w.SlotType == ItemSlotType.Equipped)
                 .ToDictionary(w => w.Id, w => CombatCalculator.GetTotalAttackBonus(character, w)),
+            WeaponDamageBonuses = character.Inventory
+                .OfType<Weapon>()
+                .Where(w => w.SlotType == ItemSlotType.Equipped)
+                .ToDictionary(w => w.Id, w => CombatCalculator.GetTotalDamageBonus(character, w)),
             HitDieModifier = HitPointCalculator.GetHitDieModifier(
                 character.Class, character.PartialClassA, character.PartialClassB)
         };

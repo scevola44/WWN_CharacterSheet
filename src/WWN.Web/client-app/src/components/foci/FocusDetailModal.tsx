@@ -15,6 +15,8 @@ export function FocusDetailModal({ focus, onClose, onSaved }: {
     level1Description: focus.level1Description,
     level2Description: focus.level2Description ?? '',
     canTakeMultipleTimes: focus.canTakeMultipleTimes,
+    level1Effects: focus.level1Effects,
+    level2Effects: focus.level2Effects,
   });
 
   const handleSave = async () => {

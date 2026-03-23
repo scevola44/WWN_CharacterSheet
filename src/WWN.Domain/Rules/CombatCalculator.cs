@@ -29,9 +29,19 @@ public static class CombatCalculator
         var skill = character.GetSkillOrDefault(weapon.CombatSkill);
         int skillLevel = skill?.Rank.Level ?? -1;
         int attrMod = character.GetAttribute(weapon.AttributeModifier).Modifier;
-        int focusBonus = FocusEffectAggregator.SumEffects(character.Foci, FocusEffectType.AttackBonus);
+        int focusBonus = FocusEffectAggregator.SumEffects(
+            character.Foci, FocusEffectType.AttackBonus, character, MapSkillToCondition(weapon.CombatSkill));
 
         return bab + skillLevel + attrMod + focusBonus;
+    }
+
+    public static int GetTotalDamageBonus(Character character, Weapon weapon)
+    {
+        int attrMod = character.GetAttribute(weapon.AttributeModifier).Modifier;
+        int focusBonus = FocusEffectAggregator.SumEffects(
+            character.Foci, FocusEffectType.DamageBonus, character, MapSkillToCondition(weapon.CombatSkill));
+
+        return attrMod + focusBonus;
     }
 
     public static int GetArmorClass(Character character)
@@ -43,15 +53,24 @@ public static class CombatCalculator
 
         int armorBonus = armor?.AcBonus ?? 0;
         int shieldBonus = (shield != null && armor != null) ? 1 : 0;
-        int focusBonus = FocusEffectAggregator.SumEffects(character.Foci, FocusEffectType.AcBonus);
+        int focusBonus = FocusEffectAggregator.SumEffects(
+            character.Foci, FocusEffectType.AcBonus, character);
 
         return baseAc + armorBonus + dexMod + shieldBonus + focusBonus;
     }
 
     public static SkillName GetCombatSkillForWeapon(Weapon weapon)
     {
-        return weapon.Tags.HasFlag(WeaponTag.Ranged) 
-            ? SkillName.Shoot 
+        return weapon.Tags.HasFlag(WeaponTag.Ranged)
+            ? SkillName.Shoot
             : SkillName.Stab;
     }
+
+    private static FocusEffectCondition MapSkillToCondition(SkillName skill) => skill switch
+    {
+        SkillName.Stab => FocusEffectCondition.StabWeapon,
+        SkillName.Shoot => FocusEffectCondition.ShootWeapon,
+        SkillName.Punch => FocusEffectCondition.PunchWeapon,
+        _ => FocusEffectCondition.Always
+    };
 }

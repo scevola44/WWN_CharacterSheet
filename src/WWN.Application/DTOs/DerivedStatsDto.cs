@@ -11,5 +11,6 @@ public record DerivedStatsDto
     public int MentalSave { get; init; }
     public Dictionary<string, int> AttributeModifiers { get; init; } = new();
     public Dictionary<Guid, int> WeaponAttackBonuses { get; init; } = new();
+    public Dictionary<Guid, int> WeaponDamageBonuses { get; init; } = new();
     public int HitDieModifier { get; init; }
 }

@@ -92,6 +92,8 @@ public record CreateFocusDefinitionRequest
     public string Level1Description { get; init; } = string.Empty;
     public string? Level2Description { get; init; }
     public bool CanTakeMultipleTimes { get; init; }
+    public List<FocusEffectDto> Level1Effects { get; init; } = new();
+    public List<FocusEffectDto> Level2Effects { get; init; } = new();
 }
 
 public record UpdateFocusDefinitionRequest
@@ -101,6 +103,8 @@ public record UpdateFocusDefinitionRequest
     public string Level1Description { get; init; } = string.Empty;
     public string? Level2Description { get; init; }
     public bool CanTakeMultipleTimes { get; init; }
+    public List<FocusEffectDto> Level1Effects { get; init; } = new();
+    public List<FocusEffectDto> Level2Effects { get; init; } = new();
 }
 
 public record CreateSpellRequest
@@ -122,4 +126,14 @@ public record UpdateSpellRequest
 public record UseSpellSlotRequest
 {
     public int SpellLevel { get; init; }
+}
+
+public record UpgradeFocusRequest
+{
+    public List<FocusEffectDto> AdditionalEffects { get; init; } = new();
+}
+
+public record SetFocusConditionalRequest
+{
+    public bool Active { get; init; }
 }

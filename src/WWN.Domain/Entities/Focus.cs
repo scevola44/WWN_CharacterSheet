@@ -10,6 +10,7 @@ public class Focus
     public string Name { get; private set; } = string.Empty;
     public int Level { get; private set; }
     public List<FocusEffect> Effects { get; private set; } = new();
+    public bool ConditionalActive { get; private set; }
 
     public Focus(string name, int level, IEnumerable<FocusEffect> effects)
     {
@@ -30,4 +31,6 @@ public class Focus
         Level = 2;
         Effects.AddRange(additionalEffects);
     }
+
+    public void SetConditionalActive(bool active) => ConditionalActive = active;
 }

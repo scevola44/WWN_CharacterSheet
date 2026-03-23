@@ -54,12 +54,30 @@ export function FocusDatabaseModal({ character, onAdd, onClose }: {
     setError(null);
     try {
       const level = getSelectedLevel(fd);
-      const updated = await characterApi.addFocus(character.id, {
-        name: fd.name,
-        level,
-        effects: [],
-      });
-      onAdd(updated);
+      const existingFocus = character.foci.find(
+        f => f.name.toLowerCase() === fd.name.toLowerCase()
+      );
+
+      if (existingFocus && level === 2 && existingFocus.level === 1) {
+        // Upgrade existing L1 focus to L2 in-place
+        const updated = await characterApi.upgradeFocus(
+          character.id,
+          existingFocus.id,
+          fd.level2Effects
+        );
+        onAdd(updated);
+      } else {
+        // Add fresh focus with effects for the selected level
+        const effects = level === 2
+          ? [...fd.level1Effects, ...fd.level2Effects]
+          : fd.level1Effects;
+        const updated = await characterApi.addFocus(character.id, {
+          name: fd.name,
+          level,
+          effects,
+        });
+        onAdd(updated);
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to add focus');
     }

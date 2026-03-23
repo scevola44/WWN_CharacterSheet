@@ -120,20 +120,42 @@ public class CharacterService(
     }
 
     public async Task<CharacterDetailDto> AddFocusAsync(
-        Guid characterId, 
+        Guid characterId,
         AddFocusRequest request,
         CancellationToken cancellationToken = default)
     {
         var character = await GetOrThrow(characterId, cancellationToken);
-        var focusEffects = request.Effects.Select(e => new FocusEffect(
-            EnumParser.Parse<FocusEffectType>(e.Type, nameof(e.Type)),
-            e.NumericValue,
-            e.TargetSkill is not null ? EnumParser.Parse<SkillName>(e.TargetSkill, nameof(e.TargetSkill)) : null,
-            e.TargetAttribute is not null ? EnumParser.Parse<AttributeName>(e.TargetAttribute, nameof(e.TargetAttribute)) : null,
-            e.Description));
-
+        var focusEffects = request.Effects.Select(ParseFocusEffect);
         var focus = new Focus(request.Name, request.Level, focusEffects);
         character.AddFocus(focus);
+        await characterRepository.UpdateAsync(character, cancellationToken);
+        return MapToDetailDto(character);
+    }
+
+    public async Task<CharacterDetailDto> UpgradeFocusAsync(
+        Guid characterId,
+        Guid focusId,
+        UpgradeFocusRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var character = await GetOrThrow(characterId, cancellationToken);
+        var focus = character.Foci.FirstOrDefault(f => f.Id == focusId)
+            ?? throw new KeyNotFoundException($"Focus {focusId} not found on character {characterId}.");
+        focus.UpgradeToLevel2(request.AdditionalEffects.Select(ParseFocusEffect));
+        await characterRepository.UpdateAsync(character, cancellationToken);
+        return MapToDetailDto(character);
+    }
+
+    public async Task<CharacterDetailDto> SetFocusConditionalAsync(
+        Guid characterId,
+        Guid focusId,
+        bool active,
+        CancellationToken cancellationToken = default)
+    {
+        var character = await GetOrThrow(characterId, cancellationToken);
+        var focus = character.Foci.FirstOrDefault(f => f.Id == focusId)
+            ?? throw new KeyNotFoundException($"Focus {focusId} not found on character {characterId}.");
+        focus.SetConditionalActive(active);
         await characterRepository.UpdateAsync(character, cancellationToken);
         return MapToDetailDto(character);
     }
@@ -260,14 +282,8 @@ public class CharacterService(
                 Id = focus.Id,
                 Name = focus.Name,
                 Level = focus.Level,
-                Effects = focus.Effects.Select(focusEffect => new FocusEffectDto
-                {
-                    Type = focusEffect.Type.ToString(),
-                    NumericValue = focusEffect.NumericValue,
-                    TargetSkill = focusEffect.TargetSkill?.ToString(),
-                    TargetAttribute = focusEffect.TargetAttribute?.ToString(),
-                    Description = focusEffect.Description
-                }).ToList()
+                ConditionalActive = focus.ConditionalActive,
+                Effects = focus.Effects.Select(MapFocusEffectDto).ToList()
             }).ToList(),
             Inventory = character.Inventory.Select(MapItemDto).ToList(),
             Spellbook = character.Spellbook.Select(k => new KnownSpellDto
@@ -302,6 +318,26 @@ public class CharacterService(
         return character.PartialClassA == PartialClass.PartialMage 
                || character.PartialClassB == PartialClass.PartialMage;
     }
+
+    private static FocusEffect ParseFocusEffect(FocusEffectDto e) => new(
+        EnumParser.Parse<FocusEffectType>(e.Type, nameof(e.Type)),
+        e.NumericValue,
+        EnumParser.ParseOrDefault(e.ValueType, FocusEffectValueType.Static),
+        EnumParser.ParseOrDefault(e.Condition, FocusEffectCondition.Always),
+        e.TargetSkill is not null ? EnumParser.Parse<SkillName>(e.TargetSkill, nameof(e.TargetSkill)) : null,
+        e.TargetAttribute is not null ? EnumParser.Parse<AttributeName>(e.TargetAttribute, nameof(e.TargetAttribute)) : null,
+        e.Description);
+
+    private static FocusEffectDto MapFocusEffectDto(FocusEffect e) => new()
+    {
+        Type = e.Type.ToString(),
+        NumericValue = e.NumericValue,
+        ValueType = e.ValueType.ToString(),
+        Condition = e.Condition.ToString(),
+        TargetSkill = e.TargetSkill?.ToString(),
+        TargetAttribute = e.TargetAttribute?.ToString(),
+        Description = e.Description
+    };
 
     private static ItemDto MapItemDto(Item item)
     {

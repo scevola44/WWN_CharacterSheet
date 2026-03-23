@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WWN.Infrastructure.Persistence;
 
@@ -10,9 +11,11 @@ using WWN.Infrastructure.Persistence;
 namespace WWN.Infrastructure.Migrations
 {
     [DbContext(typeof(WwnDbContext))]
-    partial class WwnDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260323160046_AddFocusEffectBonusSystem")]
+    partial class AddFocusEffectBonusSystem
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.25");

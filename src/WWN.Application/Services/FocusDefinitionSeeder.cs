@@ -1,5 +1,7 @@
 using WWN.Domain.Entities;
+using WWN.Domain.Enums;
 using WWN.Domain.Interfaces;
+using WWN.Domain.ValueObjects;
 
 namespace WWN.Application.Services;
 
@@ -30,7 +32,11 @@ public class FocusDefinitionSeeder(IFocusDefinitionRepository focusDefinitionRep
                 "You always act first in a combat round unless another combatant is also Alert. " +
                 "You may choose to act at any point in the round.",
             description:
-                "You are keenly aware of your surroundings and virtually impossible to take unaware.");
+                "You are keenly aware of your surroundings and virtually impossible to take unaware.",
+            level1Effects: new[]
+            {
+                new FocusEffect(FocusEffectType.SkillBonus, 1, TargetSkill: SkillName.Notice),
+            });
 
         yield return new FocusDefinition(
             name: "Armsmaster",
@@ -45,7 +51,23 @@ public class FocusDefinitionSeeder(IFocusDefinitionRepository focusDefinitionRep
             description:
                 "You have unusual competence with thrown weapons and melee attacks. This focus " +
                 "does not apply to unarmed attacks or non-thrown projectile weapons, and its " +
-                "bonuses do not stack with Deadeye or similar foci.");
+                "bonuses do not stack with Deadeye or similar foci.",
+            level1Effects: new[]
+            {
+                new FocusEffect(FocusEffectType.SkillBonus, 1, TargetSkill: SkillName.Stab),
+                new FocusEffect(FocusEffectType.AttackBonus, 1,
+                    Condition: FocusEffectCondition.StabWeapon),
+                new FocusEffect(FocusEffectType.DamageBonus, 0,
+                    FocusEffectValueType.SkillLevel, FocusEffectCondition.StabWeapon,
+                    TargetSkill: SkillName.Stab),
+            },
+            level2Effects: new[]
+            {
+                new FocusEffect(FocusEffectType.AttackBonus, 1,
+                    Condition: FocusEffectCondition.StabWeapon),
+                new FocusEffect(FocusEffectType.ShockBonus, 2,
+                    Condition: FocusEffectCondition.StabWeapon),
+            });
 
         yield return new FocusDefinition(
             name: "Assassin",
@@ -82,7 +104,19 @@ public class FocusDefinitionSeeder(IFocusDefinitionRepository focusDefinitionRep
                 "any AC bonus that targets receive from cover.",
             description:
                 "You are an exceptional marksman, consistently finding weak spots in defenses " +
-                "from a distance.");
+                "from a distance.",
+            level1Effects: new[]
+            {
+                new FocusEffect(FocusEffectType.SkillBonus, 1, TargetSkill: SkillName.Shoot),
+                new FocusEffect(FocusEffectType.DamageBonus, 0,
+                    FocusEffectValueType.SkillLevel, FocusEffectCondition.ShootWeapon,
+                    TargetSkill: SkillName.Shoot),
+            },
+            level2Effects: new[]
+            {
+                new FocusEffect(FocusEffectType.AttackBonus, 1,
+                    Condition: FocusEffectCondition.ShootWeapon),
+            });
 
         yield return new FocusDefinition(
             name: "Die Hard",
@@ -95,7 +129,12 @@ public class FocusDefinitionSeeder(IFocusDefinitionRepository focusDefinitionRep
                 "result of 4 or higher, you remain conscious at 1 hit point instead.",
             description:
                 "You are exceptionally difficult to kill, hardened by experience and sheer " +
-                "physical resilience.");
+                "physical resilience.",
+            level1Effects: new[]
+            {
+                new FocusEffect(FocusEffectType.SkillBonus, 1, TargetSkill: SkillName.Survive),
+                new FocusEffect(FocusEffectType.HpBonus, 2, FocusEffectValueType.Level),
+            });
 
         yield return new FocusDefinition(
             name: "Impervious Defense",
@@ -106,7 +145,15 @@ public class FocusDefinitionSeeder(IFocusDefinitionRepository focusDefinitionRep
                 "reduced by enemy special attacks, abilities, or situational penalties.",
             description:
                 "You have an uncanny ability to avoid blows through anticipation, footwork, " +
-                "and subtle deflection.");
+                "and subtle deflection.",
+            level1Effects: new[]
+            {
+                new FocusEffect(FocusEffectType.AcBonus, 2),
+            },
+            level2Effects: new[]
+            {
+                new FocusEffect(FocusEffectType.AcBonus, 1),
+            });
 
         yield return new FocusDefinition(
             name: "Ironhide",
@@ -331,7 +378,12 @@ public class FocusDefinitionSeeder(IFocusDefinitionRepository focusDefinitionRep
                 "magical effect that is targeting you, with no saving throw required.",
             description:
                 "You have an innate resistance to magical forces and a talent for disrupting " +
-                "arcane workings.");
+                "arcane workings.",
+            level1Effects: new[]
+            {
+                new FocusEffect(FocusEffectType.SkillBonus, 1, TargetSkill: SkillName.Notice),
+                new FocusEffect(FocusEffectType.SaveBonus, 2),
+            });
 
         yield return new FocusDefinition(
             name: "Poisoner",

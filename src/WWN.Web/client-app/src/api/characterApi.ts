@@ -42,6 +42,12 @@ export const characterApi = {
   removeFocus: (id: string, focusId: string) =>
     api.delete(`/${id}/foci/${focusId}`),
 
+  upgradeFocus: (id: string, focusId: string, additionalEffects: AddFocusRequest['effects']) =>
+    api.post<CharacterDetail>(`/${id}/foci/${focusId}/upgrade`, { additionalEffects }).then(r => r.data),
+
+  setFocusConditional: (id: string, focusId: string, active: boolean) =>
+    api.patch<CharacterDetail>(`/${id}/foci/${focusId}/conditional`, { active }).then(r => r.data),
+
   addItem: (id: string, req: AddItemRequest) =>
     api.post<CharacterDetail>(`/${id}/items`, req).then(r => r.data),
 
