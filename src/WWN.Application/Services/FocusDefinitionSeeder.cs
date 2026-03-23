@@ -26,8 +26,7 @@ public class FocusDefinitionSeeder
 
     private static IEnumerable<FocusDefinition> CreateDefaultFoci()
     {
-        // ─── Combat Foci ───────────────────────────────────────────────────────
-
+#region Combat Foci
         yield return new FocusDefinition(
             name: "Alert",
             level1Description:
@@ -230,9 +229,9 @@ public class FocusDefinitionSeeder
             description:
                 "You fight in a whirlwind of fluid motion, striking multiple opponents with " +
                 "devastating speed.");
+#endregion Combat Foci
 
-        // ─── Non-Combat Foci ───────────────────────────────────────────────────
-
+#region Non-Combat Foci
         yield return new FocusDefinition(
             name: "Authority",
             level1Description:
@@ -449,5 +448,7 @@ public class FocusDefinitionSeeder
             description:
                 "You have an exceptional sense of direction and geography, able to find " +
                 "your way anywhere with remarkable ease.");
+        
+        #endregion Non-Combat Foci
     }
 }
