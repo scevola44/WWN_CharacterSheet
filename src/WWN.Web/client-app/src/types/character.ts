@@ -91,6 +91,7 @@ export interface DerivedStats {
   weaponAttackBonuses: Record<string, number>;
   weaponDamageBonuses: Record<string, number>;
   hitDieModifier: number;
+  hpFocusBonus: number;
 }
 
 export interface CreateCharacterRequest {

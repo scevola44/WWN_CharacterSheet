@@ -56,6 +56,7 @@ export function HitPointTracker({ character, onUpdate }: {
       </div>
       <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
         Hit Die: d6{character.derivedStats.hitDieModifier >= 0 ? '+' : ''}{character.derivedStats.hitDieModifier}
+        {character.derivedStats.hpFocusBonus !== 0 && ` | Focus HP: +${character.derivedStats.hpFocusBonus}`}
       </div>
     </SectionCard>
   );
