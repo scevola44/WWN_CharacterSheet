@@ -18,4 +18,9 @@
     <LangVersion>latestmajor</LangVersion>
   </PropertyGroup>
 
+  <Target Name="BuildClientApp" BeforeTargets="Build">
+    <Exec Command="npm ci" WorkingDirectory="$(MSBuildThisFileDirectory)client-app" />
+    <Exec Command="npm run build" WorkingDirectory="$(MSBuildThisFileDirectory)client-app" />
+  </Target>
+
 </Project>
