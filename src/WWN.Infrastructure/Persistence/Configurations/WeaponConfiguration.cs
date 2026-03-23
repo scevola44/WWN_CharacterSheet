@@ -20,5 +20,6 @@ public class WeaponConfiguration : IEntityTypeConfiguration<Weapon>
         });
         builder.Property(weapon => weapon.Tags).HasConversion<int>();
         builder.Property(weapon => weapon.AttributeModifier).HasConversion<string>().HasMaxLength(20);
+        builder.Property(weapon => weapon.CombatSkill).HasConversion<string>().HasMaxLength(20);
     }
 }
