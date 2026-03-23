@@ -180,8 +180,27 @@ public class CharacterService(
         return MapToDetailDto(character);
     }
 
+    public async Task<CharacterDetailDto> UpdateWeaponAttackConfigAsync(
+        Guid characterId,
+        Guid itemId,
+        string skill,
+        string attribute,
+        CancellationToken cancellationToken = default)
+    {
+        var character = await GetOrThrow(characterId, cancellationToken);
+        var weapon = character.Inventory.OfType<Weapon>().FirstOrDefault(w => w.Id == itemId);
+        if (weapon is null)
+            throw new InvalidOperationException($"Weapon with ID {itemId} not found in character inventory.");
+
+        var skillName = EnumParser.Parse<SkillName>(skill, nameof(skill));
+        var attrName = EnumParser.Parse<AttributeName>(attribute, nameof(attribute));
+        weapon.SetCombatConfig(skillName, attrName);
+        await characterRepository.UpdateAsync(character, cancellationToken);
+        return MapToDetailDto(character);
+    }
+
     public async Task<CharacterDetailDto> UpdateNotesAsync(
-        Guid characterId, 
+        Guid characterId,
         string? notes,
         CancellationToken cancellationToken = default)
     {
@@ -303,6 +322,7 @@ public class CharacterService(
                 ItemType = "Weapon",
                 DamageDie = weapon.DamageDie.ToString(),
                 AttributeModifier = weapon.AttributeModifier.ToString(),
+                CombatSkill = weapon.CombatSkill.ToString(),
                 ShockDamage = weapon.Shock?.Damage,
                 ShockAcThreshold = weapon.Shock?.AcThreshold,
                 Tags = weapon.Tags.ToString()
