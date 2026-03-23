@@ -69,6 +69,7 @@ export interface ItemInfo {
   itemType: string;
   damageDie: string | null;
   attributeModifier: string | null;
+  combatSkill: string | null;
   shockDamage: number | null;
   shockAcThreshold: number | null;
   tags: string | null;
