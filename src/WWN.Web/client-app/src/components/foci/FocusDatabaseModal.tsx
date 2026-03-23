@@ -1,8 +1,27 @@
 import { useState, useEffect } from 'react';
-import type { FocusDefinition } from '../../types/focusDefinition';
+import type { FocusDefinition, FocusEffectTemplate } from '../../types/focusDefinition';
 import type { CharacterDetail } from '../../types/character';
 import { focusDefinitionApi } from '../../api/focusDefinitionApi';
 import { characterApi } from '../../api/characterApi';
+
+function formatEffect(e: FocusEffectTemplate): string {
+  const conditionLabel: Record<string, string> = {
+    Always: '', StabWeapon: ' (Stab)', ShootWeapon: ' (Shoot)',
+    PunchWeapon: ' (Punch)', Conditional: ' (conditional)',
+  };
+  const cond = conditionLabel[e.condition] ?? '';
+  const valueLabel = e.valueType === 'Level' ? '+level'
+    : e.valueType === 'HalfLevel' ? '+½ level'
+    : e.valueType === 'SkillLevel' ? `+${e.targetSkill ?? 'skill'} rank`
+    : e.numericValue >= 0 ? `+${e.numericValue}` : `${e.numericValue}`;
+  const typeLabels: Record<string, string> = {
+    SkillBonus: 'Skill', AttributeBonus: 'Attr', AttackBonus: 'Attack',
+    DamageBonus: 'Damage', AcBonus: 'AC', ShockBonus: 'Shock',
+    HpBonus: 'HP', SaveBonus: 'Save', Initiative: 'Initiative', Custom: 'Custom',
+  };
+  const target = e.targetSkill || e.targetAttribute || '';
+  return `${typeLabels[e.type] ?? e.type}${target ? ` ${target}` : ''} ${valueLabel}${cond}`;
+}
 
 export function FocusDatabaseModal({ character, onAdd, onClose }: {
   character: CharacterDetail;
@@ -165,6 +184,15 @@ export function FocusDatabaseModal({ character, onAdd, onClose }: {
                             Level 1
                           </div>
                           <p style={{ margin: 0, fontSize: '0.875rem' }}>{fd.level1Description}</p>
+                          {fd.level1Effects.length > 0 && (
+                            <div style={{ marginTop: '0.25rem', display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
+                              {fd.level1Effects.map((e, i) => (
+                                <span key={i} style={{ fontSize: '0.75rem', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '0.2rem', padding: '0.1rem 0.35rem', color: 'var(--text-muted)' }}>
+                                  {formatEffect(e)}
+                                </span>
+                              ))}
+                            </div>
+                          )}
                         </div>
                         {fd.hasLevel2 && fd.level2Description && (
                           <div>
@@ -172,6 +200,15 @@ export function FocusDatabaseModal({ character, onAdd, onClose }: {
                               Level 2
                             </div>
                             <p style={{ margin: 0, fontSize: '0.875rem' }}>{fd.level2Description}</p>
+                            {fd.level2Effects.length > 0 && (
+                              <div style={{ marginTop: '0.25rem', display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
+                                {fd.level2Effects.map((e, i) => (
+                                  <span key={i} style={{ fontSize: '0.75rem', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '0.2rem', padding: '0.1rem 0.35rem', color: 'var(--text-muted)' }}>
+                                    {formatEffect(e)}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
