@@ -9,11 +9,11 @@ public class CharacterAttributeConfiguration : IEntityTypeConfiguration<Characte
     public void Configure(EntityTypeBuilder<CharacterAttribute> builder)
     {
         builder.ToTable("CharacterAttributes");
-        builder.HasKey(a => a.Id);
-        builder.Property(a => a.Name).HasConversion<string>().HasMaxLength(20);
-        builder.OwnsOne(a => a.Score, s =>
+        builder.HasKey(attribute => attribute.Id);
+        builder.Property(attribute => attribute.Name).HasConversion<string>().HasMaxLength(20);
+        builder.OwnsOne(attribute => attribute.Score, s =>
         {
-            s.Property(x => x.Value).HasColumnName("Score").IsRequired();
+            s.Property(score => score.Value).HasColumnName("Score").IsRequired();
         });
     }
 }

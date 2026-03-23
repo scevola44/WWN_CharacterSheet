@@ -9,49 +9,49 @@ public class CharacterConfiguration : IEntityTypeConfiguration<Character>
     public void Configure(EntityTypeBuilder<Character> builder)
     {
         builder.ToTable("Characters");
-        builder.HasKey(c => c.Id);
-        builder.Property(c => c.Name).HasMaxLength(200).IsRequired();
-        builder.Property(c => c.Background).HasMaxLength(200);
-        builder.Property(c => c.Origin).HasMaxLength(200);
-        builder.Property(c => c.Class).HasConversion<string>().HasMaxLength(50);
-        builder.Property(c => c.PartialClassA).HasConversion<string>().HasMaxLength(50);
-        builder.Property(c => c.PartialClassB).HasConversion<string>().HasMaxLength(50);
+        builder.HasKey(character => character.Id);
+        builder.Property(character => character.Name).HasMaxLength(200).IsRequired();
+        builder.Property(character => character.Background).HasMaxLength(200);
+        builder.Property(character => character.Origin).HasMaxLength(200);
+        builder.Property(character => character.Class).HasConversion<string>().HasMaxLength(50);
+        builder.Property(character => character.PartialClassA).HasConversion<string>().HasMaxLength(50);
+        builder.Property(character => character.PartialClassB).HasConversion<string>().HasMaxLength(50);
 
-        builder.HasMany(c => c.Attributes)
+        builder.HasMany(character => character.Attributes)
                .WithOne()
                .HasForeignKey(a => a.CharacterId)
                .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasMany(c => c.Skills)
+        builder.HasMany(character => character.Skills)
                .WithOne()
                .HasForeignKey(s => s.CharacterId)
                .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasMany(c => c.Foci)
+        builder.HasMany(character => character.Foci)
                .WithOne()
                .HasForeignKey(f => f.CharacterId)
                .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasMany(c => c.Inventory)
+        builder.HasMany(character => character.Inventory)
                .WithOne()
                .HasForeignKey(i => i.CharacterId)
                .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasMany(c => c.Spellbook)
+        builder.HasMany(character => character.Spellbook)
                .WithOne()
                .HasForeignKey(k => k.CharacterId)
                .OnDelete(DeleteBehavior.Cascade);
 
-        builder.Property(c => c.SpellSlotsUsed)
+        builder.Property(character => character.SpellSlotsUsed)
                .HasConversion(
                    v => string.Join(',', v),
                    v => v.Split(',').Select(int.Parse).ToArray())
                .HasColumnType("TEXT");
 
-        builder.Navigation(c => c.Attributes).UsePropertyAccessMode(PropertyAccessMode.Field);
-        builder.Navigation(c => c.Skills).UsePropertyAccessMode(PropertyAccessMode.Field);
-        builder.Navigation(c => c.Foci).UsePropertyAccessMode(PropertyAccessMode.Field);
-        builder.Navigation(c => c.Inventory).UsePropertyAccessMode(PropertyAccessMode.Field);
-        builder.Navigation(c => c.Spellbook).UsePropertyAccessMode(PropertyAccessMode.Field);
+        builder.Navigation(character => character.Attributes).UsePropertyAccessMode(PropertyAccessMode.Field);
+        builder.Navigation(character => character.Skills).UsePropertyAccessMode(PropertyAccessMode.Field);
+        builder.Navigation(character => character.Foci).UsePropertyAccessMode(PropertyAccessMode.Field);
+        builder.Navigation(character => character.Inventory).UsePropertyAccessMode(PropertyAccessMode.Field);
+        builder.Navigation(character => character.Spellbook).UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

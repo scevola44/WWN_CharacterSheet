@@ -9,10 +9,10 @@ public class ItemConfiguration : IEntityTypeConfiguration<Item>
     public void Configure(EntityTypeBuilder<Item> builder)
     {
         builder.ToTable("Items");
-        builder.HasKey(i => i.Id);
-        builder.Property(i => i.Name).HasMaxLength(200).IsRequired();
-        builder.Property(i => i.Description).HasMaxLength(1000);
-        builder.Property(i => i.SlotType).HasConversion<string>().HasMaxLength(20);
+        builder.HasKey(item => item.Id);
+        builder.Property(item => item.Name).HasMaxLength(200).IsRequired();
+        builder.Property(item => item.Description).HasMaxLength(1000);
+        builder.Property(item => item.SlotType).HasConversion<string>().HasMaxLength(20);
 
         builder.HasDiscriminator<string>("ItemType")
                .HasValue<Item>("Item")

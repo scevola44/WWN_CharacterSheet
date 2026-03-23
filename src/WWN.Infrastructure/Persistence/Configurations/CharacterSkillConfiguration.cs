@@ -9,12 +9,12 @@ public class CharacterSkillConfiguration : IEntityTypeConfiguration<CharacterSki
     public void Configure(EntityTypeBuilder<CharacterSkill> builder)
     {
         builder.ToTable("CharacterSkills");
-        builder.HasKey(s => s.Id);
-        builder.Property(s => s.Name).HasConversion<string>().HasMaxLength(20);
-        builder.Property(s => s.CustomName).HasMaxLength(100);
-        builder.OwnsOne(s => s.Rank, r =>
+        builder.HasKey(skill => skill.Id);
+        builder.Property(skill => skill.Name).HasConversion<string>().HasMaxLength(20);
+        builder.Property(skill => skill.CustomName).HasMaxLength(100);
+        builder.OwnsOne(skill => skill.Rank, r =>
         {
-            r.Property(x => x.Level).HasColumnName("Level").IsRequired();
+            r.Property(skillRank => skillRank.Level).HasColumnName("Level").IsRequired();
         });
     }
 }

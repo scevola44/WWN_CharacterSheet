@@ -5,68 +5,61 @@ using WWN.Infrastructure.Persistence;
 
 namespace WWN.Infrastructure.Repositories;
 
-public class CharacterRepository : ICharacterRepository
+public class CharacterRepository(WwnDbContext dbContext) : ICharacterRepository
 {
-    private readonly WwnDbContext _db;
-
-    public CharacterRepository(WwnDbContext db)
+    public async Task<Character?> GetByIdAsync(Guid characterId, CancellationToken cancellationToken = default)
     {
-        _db = db;
-    }
-
-    public async Task<Character?> GetByIdAsync(Guid id, CancellationToken ct = default)
-    {
-        return await _db.Characters
-            .Include(c => c.Attributes)
-            .Include(c => c.Skills)
-            .Include(c => c.Foci)
-            .Include(c => c.Inventory)
-            .Include(c => c.Spellbook)
+        return await dbContext.Characters
+            .Include(character => character.Attributes)
+            .Include(character => character.Skills)
+            .Include(character => character.Foci)
+            .Include(character => character.Inventory)
+            .Include(character => character.Spellbook)
             .ThenInclude(k => k.Spell)
-            .FirstOrDefaultAsync(c => c.Id == id, ct);
+            .FirstOrDefaultAsync(character => character.Id == characterId, cancellationToken);
     }
 
-    public async Task<IReadOnlyList<Character>> GetAllAsync(CancellationToken ct = default)
+    public async Task<IReadOnlyList<Character>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await _db.Characters
-            .Include(c => c.Attributes)
-            .Include(c => c.Skills)
-            .Include(c => c.Foci)
-            .Include(c => c.Inventory)
-            .Include(c => c.Spellbook)
-            .ThenInclude(k => k.Spell)
-            .ToListAsync(ct);
+        return await dbContext.Characters
+            .Include(character => character.Attributes)
+            .Include(character => character.Skills)
+            .Include(character => character.Foci)
+            .Include(character => character.Inventory)
+            .Include(character => character.Spellbook)
+            .ThenInclude(knownSpell => knownSpell.Spell)
+            .ToListAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<Character>> GetAllSummariesAsync(CancellationToken ct = default)
+    public async Task<IReadOnlyList<Character>> GetAllSummariesAsync(CancellationToken cancellationToken = default)
     {
-        return await _db.Characters
+        return await dbContext.Characters
             .AsNoTracking()
-            .ToListAsync(ct);
+            .ToListAsync(cancellationToken);
     }
 
-    public async Task AddAsync(Character character, CancellationToken ct = default)
+    public async Task AddAsync(Character character, CancellationToken cancellationToken = default)
     {
-        await _db.Characters.AddAsync(character, ct);
-        await _db.SaveChangesAsync(ct);
+        await dbContext.Characters.AddAsync(character, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task UpdateAsync(Character character, CancellationToken ct = default)
+    public async Task UpdateAsync(Character character, CancellationToken cancellationToken = default)
     {
-        var entry = _db.Entry(character);
+        var entry = dbContext.Entry(character);
         if (entry.State == EntityState.Detached)
-            _db.Characters.Update(character);
+            dbContext.Characters.Update(character);
 
-        await _db.SaveChangesAsync(ct);
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task DeleteAsync(Guid id, CancellationToken ct = default)
+    public async Task DeleteAsync(Guid characterId, CancellationToken ct = default)
     {
-        var character = await _db.Characters.FindAsync(new object[] { id }, ct);
+        var character = await dbContext.Characters.FindAsync([characterId], ct);
         if (character is not null)
         {
-            _db.Characters.Remove(character);
-            await _db.SaveChangesAsync(ct);
+            dbContext.Characters.Remove(character);
+            await dbContext.SaveChangesAsync(ct);
         }
     }
 }

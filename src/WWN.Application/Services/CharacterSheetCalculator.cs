@@ -8,7 +8,7 @@ namespace WWN.Application.Services;
 
 public class CharacterSheetCalculator
 {
-    public DerivedStatsDto Calculate(Character character)
+    public static DerivedStatsDto Calculate(Character character)
     {
         return new DerivedStatsDto
         {

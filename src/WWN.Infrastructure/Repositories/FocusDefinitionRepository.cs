@@ -5,43 +5,36 @@ using WWN.Infrastructure.Persistence;
 
 namespace WWN.Infrastructure.Repositories;
 
-public class FocusDefinitionRepository : IFocusDefinitionRepository
+public class FocusDefinitionRepository(WwnDbContext dbContext) : IFocusDefinitionRepository
 {
-    private readonly WwnDbContext _db;
+    public async Task<FocusDefinition?> GetByIdAsync(Guid focusId, CancellationToken cancellationToken = default)
+        => await dbContext.FocusDefinitions.FirstOrDefaultAsync(f => f.Id == focusId, cancellationToken);
 
-    public FocusDefinitionRepository(WwnDbContext db)
+    public async Task<IReadOnlyList<FocusDefinition>> GetAllAsync(CancellationToken cancellationToken = default)
+        => await dbContext.FocusDefinitions.OrderBy(f => f.Name).ToListAsync(cancellationToken);
+
+    public async Task AddAsync(FocusDefinition focusDefinition, CancellationToken cancellationToken = default)
     {
-        _db = db;
+        await dbContext.FocusDefinitions.AddAsync(focusDefinition, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<FocusDefinition?> GetByIdAsync(Guid id, CancellationToken ct = default)
-        => await _db.FocusDefinitions.FirstOrDefaultAsync(f => f.Id == id, ct);
-
-    public async Task<IReadOnlyList<FocusDefinition>> GetAllAsync(CancellationToken ct = default)
-        => await _db.FocusDefinitions.OrderBy(f => f.Name).ToListAsync(ct);
-
-    public async Task AddAsync(FocusDefinition fd, CancellationToken ct = default)
+    public async Task UpdateAsync(FocusDefinition focusDefinition, CancellationToken cancellationToken = default)
     {
-        await _db.FocusDefinitions.AddAsync(fd, ct);
-        await _db.SaveChangesAsync(ct);
+        dbContext.FocusDefinitions.Update(focusDefinition);
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task UpdateAsync(FocusDefinition fd, CancellationToken ct = default)
+    public async Task DeleteAsync(Guid focusId, CancellationToken cancellationToken = default)
     {
-        _db.FocusDefinitions.Update(fd);
-        await _db.SaveChangesAsync(ct);
-    }
-
-    public async Task DeleteAsync(Guid id, CancellationToken ct = default)
-    {
-        var fd = await _db.FocusDefinitions.FindAsync(new object[] { id }, ct);
-        if (fd is not null)
+        var focusDefinition = await dbContext.FocusDefinitions.FindAsync([focusId], cancellationToken);
+        if (focusDefinition is not null)
         {
-            _db.FocusDefinitions.Remove(fd);
-            await _db.SaveChangesAsync(ct);
+            dbContext.FocusDefinitions.Remove(focusDefinition);
+            await dbContext.SaveChangesAsync(cancellationToken);
         }
     }
 
-    public async Task<bool> AnyAsync(CancellationToken ct = default)
-        => await _db.FocusDefinitions.AnyAsync(ct);
+    public async Task<bool> AnyAsync(CancellationToken cancellationToken = default)
+        => await dbContext.FocusDefinitions.AnyAsync(cancellationToken);
 }

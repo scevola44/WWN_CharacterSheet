@@ -8,17 +8,17 @@ public class WeaponConfiguration : IEntityTypeConfiguration<Weapon>
 {
     public void Configure(EntityTypeBuilder<Weapon> builder)
     {
-        builder.OwnsOne(w => w.DamageDie, d =>
+        builder.OwnsOne(weapon => weapon.DamageDie, d =>
         {
-            d.Property(x => x.Count).HasColumnName("DamageDieCount");
-            d.Property(x => x.Sides).HasColumnName("DamageDieSides");
+            d.Property(damageDie => damageDie.Count).HasColumnName("DamageDieCount");
+            d.Property(damageDie => damageDie.Sides).HasColumnName("DamageDieSides");
         });
-        builder.OwnsOne(w => w.Shock, s =>
+        builder.OwnsOne(weapon => weapon.Shock, s =>
         {
-            s.Property(x => x.Damage).HasColumnName("ShockDamage");
-            s.Property(x => x.AcThreshold).HasColumnName("ShockAcThreshold");
+            s.Property(damageDie => damageDie.Damage).HasColumnName("ShockDamage");
+            s.Property(damageDie => damageDie.AcThreshold).HasColumnName("ShockAcThreshold");
         });
-        builder.Property(w => w.Tags).HasConversion<int>();
-        builder.Property(w => w.AttributeModifier).HasConversion<string>().HasMaxLength(20);
+        builder.Property(weapon => weapon.Tags).HasConversion<int>();
+        builder.Property(weapon => weapon.AttributeModifier).HasConversion<string>().HasMaxLength(20);
     }
 }

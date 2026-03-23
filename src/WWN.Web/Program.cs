@@ -35,6 +35,7 @@ try
     builder.Services.AddScoped<CharacterSpellService>();
     builder.Services.AddScoped<FocusDefinitionService>();
     builder.Services.AddScoped<FocusDefinitionSeeder>();
+    builder.Services.AddScoped<SpellDefinitionSeeder>();
     builder.Services.AddSingleton<CharacterSheetCalculator>();
 
     // Swagger
@@ -54,8 +55,12 @@ try
         await dbContext.Database.EnsureCreatedAsync();
 
         // Seed default WWN foci from the Free Edition if the table is empty.
-        var seeder = scope.ServiceProvider.GetRequiredService<FocusDefinitionSeeder>();
-        await seeder.SeedIfEmptyAsync();
+        var focusSeeder = scope.ServiceProvider.GetRequiredService<FocusDefinitionSeeder>();
+        await focusSeeder.SeedIfEmptyAsync();
+
+        // Seed default WWN spells from the Free Edition if the table is empty.
+        var spellSeeder = scope.ServiceProvider.GetRequiredService<SpellDefinitionSeeder>();
+        await spellSeeder.SeedIfEmptyAsync();
     }
 
     app.UseMiddleware<ExceptionHandlingMiddleware>();

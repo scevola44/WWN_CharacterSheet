@@ -5,44 +5,42 @@ using WWN.Infrastructure.Persistence;
 
 namespace WWN.Infrastructure.Repositories;
 
-public class SpellRepository : ISpellRepository
+public class SpellRepository(WwnDbContext dbContext) : ISpellRepository
 {
-    private readonly WwnDbContext _db;
-
-    public SpellRepository(WwnDbContext db)
+    public async Task<Spell?> GetByIdAsync(Guid spellId, CancellationToken cancellationToken = default)
     {
-        _db = db;
+        return await dbContext.Spells.FirstOrDefaultAsync(s => s.Id == spellId, cancellationToken);
     }
 
-    public async Task<Spell?> GetByIdAsync(Guid id, CancellationToken ct = default)
+    public async Task<IReadOnlyList<Spell>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await _db.Spells.FirstOrDefaultAsync(s => s.Id == id, ct);
+        return await dbContext.Spells.OrderBy(s => s.SpellLevel).ThenBy(s => s.Name).ToListAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<Spell>> GetAllAsync(CancellationToken ct = default)
+    public async Task AddAsync(Spell spell, CancellationToken cancellationToken = default)
     {
-        return await _db.Spells.OrderBy(s => s.SpellLevel).ThenBy(s => s.Name).ToListAsync(ct);
+        await dbContext.Spells.AddAsync(spell, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task AddAsync(Spell spell, CancellationToken ct = default)
+    public async Task UpdateAsync(Spell spell, CancellationToken cancellationToken = default)
     {
-        await _db.Spells.AddAsync(spell, ct);
-        await _db.SaveChangesAsync(ct);
+        dbContext.Spells.Update(spell);
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task UpdateAsync(Spell spell, CancellationToken ct = default)
+    public async Task DeleteAsync(Guid spellId, CancellationToken cancellationToken = default)
     {
-        _db.Spells.Update(spell);
-        await _db.SaveChangesAsync(ct);
-    }
-
-    public async Task DeleteAsync(Guid id, CancellationToken ct = default)
-    {
-        var spell = await _db.Spells.FindAsync(new object[] { id }, ct);
+        var spell = await dbContext.Spells.FindAsync(new object[] { spellId }, cancellationToken);
         if (spell is not null)
         {
-            _db.Spells.Remove(spell);
-            await _db.SaveChangesAsync(ct);
+            dbContext.Spells.Remove(spell);
+            await dbContext.SaveChangesAsync(cancellationToken);
         }
+    }
+
+    public async Task<bool> AnyAsync(CancellationToken cancellationToken = default)
+    {
+        return await dbContext.Spells.AnyAsync(cancellationToken);
     }
 }

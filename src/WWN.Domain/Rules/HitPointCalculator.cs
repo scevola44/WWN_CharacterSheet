@@ -4,7 +4,9 @@ namespace WWN.Domain.Rules;
 
 public static class HitPointCalculator
 {
-    public static int GetHitDieModifier(CharacterClass charClass, PartialClass? partialA,
+    public static int GetHitDieModifier(
+        CharacterClass charClass, 
+        PartialClass? partialA,
         PartialClass? partialB)
     {
         if (charClass == CharacterClass.Warrior) return 2;

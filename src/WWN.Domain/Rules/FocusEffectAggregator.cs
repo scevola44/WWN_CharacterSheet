@@ -7,22 +7,24 @@ public static class FocusEffectAggregator
 {
     public static int SumEffects(IEnumerable<Focus> foci, FocusEffectType type)
     {
-        return foci.SelectMany(f => f.Effects)
-                   .Where(e => e.Type == type)
-                   .Sum(e => e.NumericValue);
+        return foci.SelectMany(focus => focus.Effects)
+                   .Where(effect => effect.Type == type)
+                   .Sum(effect => effect.NumericValue);
     }
 
     public static int SumSkillEffects(IEnumerable<Focus> foci, SkillName skill)
     {
-        return foci.SelectMany(f => f.Effects)
-                   .Where(e => e.Type == FocusEffectType.SkillBonus && e.TargetSkill == skill)
-                   .Sum(e => e.NumericValue);
+        return foci.SelectMany(focus => focus.Effects)
+                   .Where(effect => effect.Type == FocusEffectType.SkillBonus 
+                                    && effect.TargetSkill == skill)
+                   .Sum(effect => effect.NumericValue);
     }
 
-    public static int SumAttributeEffects(IEnumerable<Focus> foci, AttributeName attr)
+    public static int SumAttributeEffects(IEnumerable<Focus> foci, AttributeName attribute)
     {
-        return foci.SelectMany(f => f.Effects)
-                   .Where(e => e.Type == FocusEffectType.AttributeBonus && e.TargetAttribute == attr)
+        return foci.SelectMany(focus => focus.Effects)
+                   .Where(effect => effect.Type == FocusEffectType.AttributeBonus 
+                                    && effect.TargetAttribute == attribute)
                    .Sum(e => e.NumericValue);
     }
 }

@@ -4,48 +4,50 @@ using WWN.Domain.Interfaces;
 
 namespace WWN.Application.Services;
 
-public class SpellService
+public class SpellService(ISpellRepository spellRepository)
 {
-    private readonly ISpellRepository _repo;
-
-    public SpellService(ISpellRepository repo)
+    public async Task<IReadOnlyList<SpellDto>> ListSpellsAsync(CancellationToken cancellationToken = default)
     {
-        _repo = repo;
-    }
-
-    public async Task<IReadOnlyList<SpellDto>> ListSpellsAsync(CancellationToken ct = default)
-    {
-        var spells = await _repo.GetAllAsync(ct);
+        var spells = await spellRepository.GetAllAsync(cancellationToken);
         return spells.Select(MapToDto).ToList();
     }
 
-    public async Task<SpellDto?> GetSpellAsync(Guid id, CancellationToken ct = default)
+    public async Task<SpellDto?> GetSpellAsync(
+        Guid spellId, 
+        CancellationToken cancellationToken = default)
     {
-        var spell = await _repo.GetByIdAsync(id, ct);
+        var spell = await spellRepository.GetByIdAsync(spellId, cancellationToken);
         return spell is null ? null : MapToDto(spell);
     }
 
-    public async Task<SpellDto> CreateSpellAsync(CreateSpellRequest req, CancellationToken ct = default)
+    public async Task<SpellDto> CreateSpellAsync(
+        CreateSpellRequest request, 
+        CancellationToken cancellationToken = default)
     {
-        var spell = new Spell(req.Name, req.SpellLevel, req.Description, req.Summary);
-        await _repo.AddAsync(spell, ct);
+        var spell = new Spell(request.Name, request.SpellLevel, request.Description, request.Summary);
+        await spellRepository.AddAsync(spell, cancellationToken);
         return MapToDto(spell);
     }
 
-    public async Task<SpellDto?> UpdateSpellAsync(Guid id, UpdateSpellRequest req, CancellationToken ct = default)
+    public async Task<SpellDto?> UpdateSpellAsync(
+        Guid spellId, 
+        UpdateSpellRequest request, 
+        CancellationToken cancellationToken = default)
     {
-        var spell = await _repo.GetByIdAsync(id, ct);
+        var spell = await spellRepository.GetByIdAsync(spellId, cancellationToken);
         if (spell is null)
             return null;
 
-        spell.Update(req.Name, req.SpellLevel, req.Summary, req.Description);
-        await _repo.UpdateAsync(spell, ct);
+        spell.Update(request.Name, request.SpellLevel, request.Summary, request.Description);
+        await spellRepository.UpdateAsync(spell, cancellationToken);
         return MapToDto(spell);
     }
 
-    public async Task DeleteSpellAsync(Guid id, CancellationToken ct = default)
+    public async Task DeleteSpellAsync(
+        Guid spellId, 
+        CancellationToken cancellationToken = default)
     {
-        await _repo.DeleteAsync(id, ct);
+        await spellRepository.DeleteAsync(spellId, cancellationToken);
     }
 
     internal static SpellDto MapToDto(Spell spell)

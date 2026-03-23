@@ -9,10 +9,10 @@ public class SpellConfiguration : IEntityTypeConfiguration<Spell>
     public void Configure(EntityTypeBuilder<Spell> builder)
     {
         builder.ToTable("Spells");
-        builder.HasKey(s => s.Id);
-        builder.Property(s => s.Name).HasMaxLength(200).IsRequired();
-        builder.Property(s => s.SpellLevel).IsRequired();
-        builder.Property(s => s.Description).IsRequired();
-        builder.Property(s => s.Summary).HasMaxLength(500);
+        builder.HasKey(spell => spell.Id);
+        builder.Property(spell => spell.Name).HasMaxLength(200).IsRequired();
+        builder.Property(spell => spell.SpellLevel).IsRequired();
+        builder.Property(spell => spell.Description).IsRequired();
+        builder.Property(spell => spell.Summary).HasMaxLength(500);
     }
 }

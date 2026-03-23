@@ -9,11 +9,11 @@ public class KnownSpellConfiguration : IEntityTypeConfiguration<KnownSpell>
     public void Configure(EntityTypeBuilder<KnownSpell> builder)
     {
         builder.ToTable("KnownSpells");
-        builder.HasKey(k => k.Id);
-        builder.Property(k => k.Id).ValueGeneratedNever();
-        builder.HasOne(k => k.Spell)
+        builder.HasKey(knownSpell => knownSpell.Id);
+        builder.Property(knownSpell => knownSpell.Id).ValueGeneratedNever();
+        builder.HasOne(knownSpell => knownSpell.Spell)
                .WithMany()
-               .HasForeignKey(k => k.SpellId)
+               .HasForeignKey(knownSpell => knownSpell.SpellId)
                .OnDelete(DeleteBehavior.Cascade);
     }
 }

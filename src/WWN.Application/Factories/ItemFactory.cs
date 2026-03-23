@@ -8,37 +8,38 @@ namespace WWN.Application.Factories;
 
 public static class ItemFactory
 {
-    public static Item Create(AddItemRequest req)
+    public static Item Create(AddItemRequest request)
     {
-        var slotType = EnumParser.Parse<ItemSlotType>(req.SlotType, nameof(req.SlotType));
+        var slotType = EnumParser.Parse<ItemSlotType>(request.SlotType, nameof(request.SlotType));
 
-        return req.ItemType.ToLower() switch
+        return request.ItemType.ToLower() switch
         {
             "weapon" => new Weapon(
-                req.Name,
-                req.Encumbrance,
-                new DamageDie(req.DamageDieCount ?? 1, req.DamageDieSides ?? 6),
-                EnumParser.Parse<AttributeName>(req.AttributeModifier ?? "Strength", nameof(req.AttributeModifier)),
-                ParseWeaponTags(req.Tags),
-                req.ShockDamage.HasValue && req.ShockAcThreshold.HasValue
-                    ? new ShockInfo(req.ShockDamage.Value, req.ShockAcThreshold.Value)
+                request.Name,
+                request.Encumbrance,
+                new DamageDie(request.DamageDieCount ?? 1, request.DamageDieSides ?? 6),
+                EnumParser.Parse<AttributeName>(request.AttributeModifier ?? "Strength", nameof(request.AttributeModifier)),
+                ParseWeaponTags(request.Tags),
+                request is { ShockDamage: not null, ShockAcThreshold: not null }
+                    ? new ShockInfo(request.ShockDamage.Value, request.ShockAcThreshold.Value)
                     : null,
                 slotType,
-                req.Description),
+                request.Description),
             "armor" => new Armor(
-                req.Name,
-                req.Encumbrance,
-                req.AcBonus ?? 0,
-                req.IsShield ?? false,
+                request.Name,
+                request.Encumbrance,
+                request.AcBonus ?? 0,
+                request.IsShield ?? false,
                 slotType,
-                req.Description),
-            _ => new Item(req.Name, req.Encumbrance, slotType, req.Quantity, req.Description)
+                request.Description),
+            _ => new Item(request.Name, request.Encumbrance, slotType, request.Quantity, request.Description)
         };
     }
 
     private static WeaponTag ParseWeaponTags(string? tags)
     {
-        if (string.IsNullOrWhiteSpace(tags)) return WeaponTag.None;
-        return EnumParser.Parse<WeaponTag>(tags, nameof(tags));
+        return string.IsNullOrWhiteSpace(tags) 
+            ? WeaponTag.None 
+            : EnumParser.Parse<WeaponTag>(tags, nameof(tags));
     }
 }

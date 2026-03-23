@@ -4,53 +4,53 @@ using WWN.Domain.Interfaces;
 
 namespace WWN.Application.Services;
 
-public class FocusDefinitionService
+public class FocusDefinitionService(IFocusDefinitionRepository focusDefinitionRepository)
 {
-    private readonly IFocusDefinitionRepository _repo;
-
-    public FocusDefinitionService(IFocusDefinitionRepository repo)
+    public async Task<IReadOnlyList<FocusDefinitionDto>> ListAsync(CancellationToken cancellationToken = default)
     {
-        _repo = repo;
-    }
-
-    public async Task<IReadOnlyList<FocusDefinitionDto>> ListAsync(CancellationToken ct = default)
-    {
-        var foci = await _repo.GetAllAsync(ct);
+        var foci = await focusDefinitionRepository.GetAllAsync(cancellationToken);
         return foci.Select(MapToDto).ToList();
     }
 
-    public async Task<FocusDefinitionDto?> GetAsync(Guid id, CancellationToken ct = default)
+    public async Task<FocusDefinitionDto?> GetAsync(
+        Guid focusId, 
+        CancellationToken cancellationToken = default)
     {
-        var fd = await _repo.GetByIdAsync(id, ct);
-        return fd is null ? null : MapToDto(fd);
+        var focusDefinition = await focusDefinitionRepository.GetByIdAsync(focusId, cancellationToken);
+        return focusDefinition is null ? null : MapToDto(focusDefinition);
     }
 
-    public async Task<FocusDefinitionDto> CreateAsync(CreateFocusDefinitionRequest req, CancellationToken ct = default)
+    public async Task<FocusDefinitionDto> CreateAsync(
+        CreateFocusDefinitionRequest request, 
+        CancellationToken cancellationToken = default)
     {
-        var fd = new FocusDefinition(
-            req.Name,
-            req.Level1Description,
-            req.Level2Description,
-            req.Description,
-            req.CanTakeMultipleTimes);
-        await _repo.AddAsync(fd, ct);
-        return MapToDto(fd);
+        var focusDefinition = new FocusDefinition(
+            request.Name,
+            request.Level1Description,
+            request.Level2Description,
+            request.Description,
+            request.CanTakeMultipleTimes);
+        await focusDefinitionRepository.AddAsync(focusDefinition, cancellationToken);
+        return MapToDto(focusDefinition);
     }
 
-    public async Task<FocusDefinitionDto?> UpdateAsync(Guid id, UpdateFocusDefinitionRequest req, CancellationToken ct = default)
+    public async Task<FocusDefinitionDto?> UpdateAsync(
+        Guid focusId, 
+        UpdateFocusDefinitionRequest request, 
+        CancellationToken cancellationToken = default)
     {
-        var fd = await _repo.GetByIdAsync(id, ct);
-        if (fd is null) return null;
+        var focusDefinition = await focusDefinitionRepository.GetByIdAsync(focusId, cancellationToken);
+        if (focusDefinition is null) return null;
 
-        fd.Update(req.Name, req.Description, req.Level1Description, req.Level2Description, req.CanTakeMultipleTimes);
-        await _repo.UpdateAsync(fd, ct);
-        return MapToDto(fd);
+        focusDefinition.Update(request.Name, request.Description, request.Level1Description, request.Level2Description, request.CanTakeMultipleTimes);
+        await focusDefinitionRepository.UpdateAsync(focusDefinition, cancellationToken);
+        return MapToDto(focusDefinition);
     }
 
-    public async Task DeleteAsync(Guid id, CancellationToken ct = default)
-        => await _repo.DeleteAsync(id, ct);
+    public async Task DeleteAsync(Guid focusId, CancellationToken cancellationToken = default)
+        => await focusDefinitionRepository.DeleteAsync(focusId, cancellationToken);
 
-    internal static FocusDefinitionDto MapToDto(FocusDefinition fd) => new()
+    private static FocusDefinitionDto MapToDto(FocusDefinition fd) => new()
     {
         Id = fd.Id,
         Name = fd.Name,

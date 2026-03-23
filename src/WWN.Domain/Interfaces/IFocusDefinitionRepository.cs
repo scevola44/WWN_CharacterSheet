@@ -4,10 +4,10 @@ namespace WWN.Domain.Interfaces;
 
 public interface IFocusDefinitionRepository
 {
-    Task<FocusDefinition?> GetByIdAsync(Guid id, CancellationToken ct = default);
-    Task<IReadOnlyList<FocusDefinition>> GetAllAsync(CancellationToken ct = default);
-    Task AddAsync(FocusDefinition fd, CancellationToken ct = default);
-    Task UpdateAsync(FocusDefinition fd, CancellationToken ct = default);
-    Task DeleteAsync(Guid id, CancellationToken ct = default);
-    Task<bool> AnyAsync(CancellationToken ct = default);
+    Task<FocusDefinition?> GetByIdAsync(Guid focusId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<FocusDefinition>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task AddAsync(FocusDefinition focusDefinition, CancellationToken cancellationToken = default);
+    Task UpdateAsync(FocusDefinition focusDefinition, CancellationToken cancellationToken = default);
+    Task DeleteAsync(Guid focusId, CancellationToken cancellationToken = default);
+    Task<bool> AnyAsync(CancellationToken cancellationToken = default);
 }

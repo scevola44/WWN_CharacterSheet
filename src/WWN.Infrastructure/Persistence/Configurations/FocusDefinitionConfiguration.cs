@@ -9,12 +9,12 @@ public class FocusDefinitionConfiguration : IEntityTypeConfiguration<FocusDefini
     public void Configure(EntityTypeBuilder<FocusDefinition> builder)
     {
         builder.ToTable("FocusDefinitions");
-        builder.HasKey(f => f.Id);
-        builder.Property(f => f.Name).HasMaxLength(100).IsRequired();
-        builder.Property(f => f.Description).HasMaxLength(1000);
-        builder.Property(f => f.Level1Description).IsRequired();
-        builder.Property(f => f.Level2Description);
-        builder.Property(f => f.HasLevel2).IsRequired();
-        builder.Property(f => f.CanTakeMultipleTimes).IsRequired();
+        builder.HasKey(focus => focus.Id);
+        builder.Property(focus => focus.Name).HasMaxLength(100).IsRequired();
+        builder.Property(focus => focus.Description).HasMaxLength(1000);
+        builder.Property(focus => focus.Level1Description).IsRequired();
+        builder.Property(focus => focus.Level2Description);
+        builder.Property(focus => focus.HasLevel2).IsRequired();
+        builder.Property(focus => focus.CanTakeMultipleTimes).IsRequired();
     }
 }

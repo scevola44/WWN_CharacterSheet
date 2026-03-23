@@ -8,7 +8,7 @@ public class ArmorConfiguration : IEntityTypeConfiguration<Armor>
 {
     public void Configure(EntityTypeBuilder<Armor> builder)
     {
-        builder.Property(a => a.AcBonus).HasColumnName("AcBonus");
-        builder.Property(a => a.IsShield).HasColumnName("IsShield");
+        builder.Property(armor => armor.AcBonus).HasColumnName("AcBonus");
+        builder.Property(armor => armor.IsShield).HasColumnName("IsShield");
     }
 }

@@ -4,27 +4,22 @@ using WWN.Domain.Interfaces;
 
 namespace WWN.Application.Services;
 
-public class CharacterSpellService
+public class CharacterSpellService(
+    ICharacterRepository characterRepository,
+    ISpellRepository spellRepository,
+    CharacterService characterService)
 {
-    private readonly ICharacterRepository _charRepo;
-    private readonly ISpellRepository _spellRepo;
-    private readonly CharacterService _charService;
-
-    public CharacterSpellService(ICharacterRepository charRepo, ISpellRepository spellRepo, CharacterService charService)
+    public async Task<KnownSpellDto> LearnSpellAsync(
+        Guid characterId, 
+        Guid spellId, 
+        CancellationToken cancellationToken = default)
     {
-        _charRepo = charRepo;
-        _spellRepo = spellRepo;
-        _charService = charService;
-    }
-
-    public async Task<KnownSpellDto> LearnSpellAsync(Guid charId, Guid spellId, CancellationToken ct = default)
-    {
-        var spell = await GetSpellOrThrow(spellId, ct);
-        var character = await GetCharacterOrThrow(charId, ct);
+        var spell = await GetSpellOrThrow(spellId, cancellationToken);
+        var character = await GetCharacterOrThrow(characterId, cancellationToken);
 
         var knownSpell = new KnownSpell(spellId);
         character.LearnSpell(knownSpell);
-        await _charRepo.UpdateAsync(character, ct);
+        await characterRepository.UpdateAsync(character, cancellationToken);
 
         return new KnownSpellDto
         {
@@ -34,38 +29,49 @@ public class CharacterSpellService
         };
     }
 
-    public async Task ForgetSpellAsync(Guid charId, Guid spellId, CancellationToken ct = default)
+    public async Task ForgetSpellAsync(
+        Guid characterId, 
+        Guid spellId, 
+        CancellationToken cancellationToken = default)
     {
-        var character = await GetCharacterOrThrow(charId, ct);
+        var character = await GetCharacterOrThrow(characterId, cancellationToken);
         character.ForgetSpell(spellId);
-        await _charRepo.UpdateAsync(character, ct);
+        await characterRepository.UpdateAsync(character, cancellationToken);
     }
 
-    public async Task<CharacterDetailDto> UseSpellSlotAsync(Guid charId, int spellLevel, CancellationToken ct = default)
+    public async Task<CharacterDetailDto> UseSpellSlotAsync(
+        Guid characterId, 
+        int spellLevel, 
+        CancellationToken cancellationToken = default)
     {
-        var character = await GetCharacterOrThrow(charId, ct);
+        var character = await GetCharacterOrThrow(characterId, cancellationToken);
         character.UseSpellSlot(spellLevel);
-        await _charRepo.UpdateAsync(character, ct);
-        return _charService.MapToDetailDto(character);
+        await characterRepository.UpdateAsync(character, cancellationToken);
+        return characterService.MapToDetailDto(character);
     }
 
-    public async Task<CharacterDetailDto> RestoreSpellSlotsAsync(Guid charId, CancellationToken ct = default)
+    public async Task<CharacterDetailDto> RestoreSpellSlotsAsync(
+        Guid characterId, 
+        CancellationToken cancellationToken = default)
     {
-        var character = await GetCharacterOrThrow(charId, ct);
+        var character = await GetCharacterOrThrow(characterId, cancellationToken);
         character.RestoreAllSpellSlots();
-        await _charRepo.UpdateAsync(character, ct);
-        return _charService.MapToDetailDto(character);
+        await characterRepository.UpdateAsync(character, cancellationToken);
+        return characterService.MapToDetailDto(character);
     }
 
-    private async Task<Domain.Aggregates.Character> GetCharacterOrThrow(Guid id, CancellationToken ct)
+    private async Task<Domain.Aggregates.Character> GetCharacterOrThrow(
+        Guid characterId, 
+        CancellationToken cancellationToken)
     {
-        return await _charRepo.GetByIdAsync(id, ct)
-            ?? throw new KeyNotFoundException($"Character {id} not found.");
+        return await characterRepository.GetByIdAsync(characterId, cancellationToken)
+            ?? throw new KeyNotFoundException($"Character {characterId} not found.");
     }
 
-    private async Task<Spell> GetSpellOrThrow(Guid id, CancellationToken ct)
+    private async Task<Spell> GetSpellOrThrow(Guid spellId, 
+        CancellationToken cancellationToken)
     {
-        return await _spellRepo.GetByIdAsync(id, ct)
-            ?? throw new KeyNotFoundException($"Spell {id} not found.");
+        return await spellRepository.GetByIdAsync(spellId, cancellationToken)
+            ?? throw new KeyNotFoundException($"Spell {spellId} not found.");
     }
 }

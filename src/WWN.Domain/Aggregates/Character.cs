@@ -7,29 +7,34 @@ namespace WWN.Domain.Aggregates;
 public class Character
 {
     public Guid Id { get; private set; }
-
-    // Identity
+    
+    #region Identity
     public string Name { get; private set; } = string.Empty;
     public string? Background { get; private set; }
     public string? Origin { get; private set; }
+    #endregion Identity
 
-    // Class
+    #region Class
     public CharacterClass Class { get; private set; }
     public PartialClass? PartialClassA { get; private set; }
     public PartialClass? PartialClassB { get; private set; }
     public int Level { get; private set; }
+    #endregion Class
 
-    // HP
+    #region HP
     public int MaxHitPoints { get; private set; }
     public int CurrentHitPoints { get; private set; }
+#endregion HP
 
-    // Experience
+    #region Experience
     public int ExperiencePoints { get; private set; }
+    #endregion Experience
 
-    // Notes
+    #region Notes
     public string? Notes { get; private set; }
+    #endregion Notes
 
-    // Collections
+    #region Collections
     private readonly List<CharacterAttribute> _attributes = new();
     private readonly List<CharacterSkill> _skills = new();
     private readonly List<Focus> _foci = new();
@@ -41,10 +46,13 @@ public class Character
     public IReadOnlyList<Focus> Foci => _foci.AsReadOnly();
     public IReadOnlyList<Item> Inventory => _inventory.AsReadOnly();
     public IReadOnlyList<KnownSpell> Spellbook => _spellbook.AsReadOnly();
+    #endregion Collections
 
-    // Spell slots: [level1, level2, level3, level4, level5, level6]
+    #region Spells
     public int[] SpellSlotsUsed { get; private set; } = [0, 0, 0, 0, 0, 0];
+    #endregion Spells
 
+    #region Constructors
     private Character() { } // EF Core
 
     public static Character Create(string name, CharacterClass charClass,
@@ -78,27 +86,28 @@ public class Character
         };
 
         // Initialize 6 attributes
-        foreach (AttributeName attr in Enum.GetValues<AttributeName>())
+        foreach (var attributeName in Enum.GetValues<AttributeName>())
         {
-            if (!scores.TryGetValue(attr, out var score))
-                throw new ArgumentException($"Missing score for {attr}.", nameof(scores));
+            if (!scores.TryGetValue(attributeName, out var score))
+                throw new ArgumentException($"Missing score for {attributeName}.", nameof(scores));
 
-            var charAttr = new CharacterAttribute(attr, score);
-            character._attributes.Add(charAttr);
+            var characterAttribute = new CharacterAttribute(attributeName, score);
+            character._attributes.Add(characterAttribute);
         }
 
         // Initialize 16 default skills at -1
-        foreach (SkillName skill in Enum.GetValues<SkillName>())
+        foreach (var skill in Enum.GetValues<SkillName>())
         {
             if (skill == SkillName.Custom) continue;
-            var charSkill = new CharacterSkill(skill, -1);
-            character._skills.Add(charSkill);
+            var characterSkill = new CharacterSkill(skill, -1);
+            character._skills.Add(characterSkill);
         }
 
         return character;
     }
+    #endregion Constructors
 
-    // Attribute mutations
+    #region Attribute mutations
     public void SetAttribute(AttributeName attr, int score)
     {
         var charAttr = GetAttribute(attr);
@@ -110,8 +119,9 @@ public class Character
         return _attributes.FirstOrDefault(a => a.Name == name)
             ?? throw new InvalidOperationException($"Attribute {name} not found.");
     }
+    #endregion Attribute mutations
 
-    // Skill mutations
+    #region Skill mutations
     public void SetSkillRank(SkillName skill, int rank)
     {
         var charSkill = GetSkill(skill);
@@ -135,8 +145,9 @@ public class Character
             throw new ArgumentException("Custom skill name is required.", nameof(name));
         _skills.Add(new CharacterSkill(SkillName.Custom, rank, name));
     }
+    #endregion Skill mutations
 
-    // Focus mutations
+    #region Focus mutations
     public void AddFocus(Focus focus)
     {
         _foci.Add(focus);
@@ -148,8 +159,9 @@ public class Character
             ?? throw new InvalidOperationException("Focus not found.");
         _foci.Remove(focus);
     }
+    #endregion Focus mutations
 
-    // HP mutations
+    #region HP mutations
     public void SetHitPoints(int max, int current)
     {
         if (max < 1) throw new ArgumentOutOfRangeException(nameof(max), "Max HP must be at least 1.");
@@ -170,8 +182,9 @@ public class Character
         if (amount < 0) throw new ArgumentOutOfRangeException(nameof(amount));
         CurrentHitPoints = Math.Min(MaxHitPoints, CurrentHitPoints + amount);
     }
+    #endregion HP mutations
 
-    // Inventory mutations
+    #region Inventory mutations
     public void AddItem(Item item)
     {
         _inventory.Add(item);
@@ -211,8 +224,9 @@ public class Character
             ?? throw new InvalidOperationException("Item not found.");
         item.SlotType = slot;
     }
+    #endregion Inventory mutations
 
-    // Query helpers
+    #region Query helpers
     public Weapon? GetEquippedWeapon()
     {
         return _inventory.OfType<Weapon>().FirstOrDefault(w => w.SlotType == ItemSlotType.Equipped);
@@ -227,8 +241,9 @@ public class Character
     {
         return _inventory.OfType<Armor>().FirstOrDefault(a => a.SlotType == ItemSlotType.Equipped && a.IsShield);
     }
+    #endregion Query helpers
 
-    // Level & XP
+    #region Level & XP
     public void SetLevel(int level)
     {
         if (level < 1 || level > 10)
@@ -252,8 +267,9 @@ public class Character
     public void SetNotes(string? notes) => Notes = notes;
     public void SetBackground(string? background) => Background = background;
     public void SetOrigin(string? origin) => Origin = origin;
+    #endregion Level & XP
 
-    // Spell mutations
+    #region Spell mutations
     public void LearnSpell(KnownSpell knownSpell)
     {
         if (knownSpell == null)
@@ -286,4 +302,5 @@ public class Character
     {
         SpellSlotsUsed = [0, 0, 0, 0, 0, 0];
     }
+    #endregion Spell mutations
 }

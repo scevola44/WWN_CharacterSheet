@@ -4,9 +4,10 @@ namespace WWN.Domain.Interfaces;
 
 public interface ISpellRepository
 {
-    Task<Spell?> GetByIdAsync(Guid id, CancellationToken ct = default);
-    Task<IReadOnlyList<Spell>> GetAllAsync(CancellationToken ct = default);
-    Task AddAsync(Spell spell, CancellationToken ct = default);
-    Task UpdateAsync(Spell spell, CancellationToken ct = default);
-    Task DeleteAsync(Guid id, CancellationToken ct = default);
+    Task<Spell?> GetByIdAsync(Guid spellId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Spell>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task AddAsync(Spell spell, CancellationToken cancellationToken = default);
+    Task UpdateAsync(Spell spell, CancellationToken cancellationToken = default);
+    Task DeleteAsync(Guid spellId, CancellationToken cancellationToken = default);
+    Task<bool> AnyAsync(CancellationToken cancellationToken = default);
 }

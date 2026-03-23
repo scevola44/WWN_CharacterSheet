@@ -2,6 +2,7 @@ using WWN.Domain.ValueObjects;
 
 namespace WWN.Domain.Entities;
 
+// TODO since we have the int Level property, it would be best practice to not hard-code logic to manually consider levels 1 and 2, but to be more abstract.
 public class Focus
 {
     public Guid Id { get; private set; }
@@ -12,7 +13,7 @@ public class Focus
 
     public Focus(string name, int level, IEnumerable<FocusEffect> effects)
     {
-        if (level < 1 || level > 2)
+        if (level is < 1 or > 2)
             throw new ArgumentOutOfRangeException(nameof(level), level, "Focus level must be 1 or 2.");
         Id = Guid.NewGuid();
         Name = name;

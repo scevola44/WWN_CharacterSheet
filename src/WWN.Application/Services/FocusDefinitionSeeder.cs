@@ -7,21 +7,14 @@ namespace WWN.Application.Services;
 /// Seeds the FocusDefinitions table with the standard Foci from the
 /// Worlds Without Number Free Edition rulebook (Sine Nomine Publishing).
 /// </summary>
-public class FocusDefinitionSeeder
+public class FocusDefinitionSeeder(IFocusDefinitionRepository focusDefinitionRepository)
 {
-    private readonly IFocusDefinitionRepository _repo;
-
-    public FocusDefinitionSeeder(IFocusDefinitionRepository repo)
-    {
-        _repo = repo;
-    }
-
     public async Task SeedIfEmptyAsync(CancellationToken ct = default)
     {
-        if (await _repo.AnyAsync(ct)) return;
+        if (await focusDefinitionRepository.AnyAsync(ct)) return;
 
-        foreach (var fd in CreateDefaultFoci())
-            await _repo.AddAsync(fd, ct);
+        foreach (var focusDefinition in CreateDefaultFoci())
+            await focusDefinitionRepository.AddAsync(focusDefinition, ct);
     }
 
     private static IEnumerable<FocusDefinition> CreateDefaultFoci()

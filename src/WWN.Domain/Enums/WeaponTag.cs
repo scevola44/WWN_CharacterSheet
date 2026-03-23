@@ -1,5 +1,6 @@
 namespace WWN.Domain.Enums;
 
+// TODO some tags are not used. Shock might be useless because ShockInfo exists, the others should have an effect in the code.
 [Flags]
 public enum WeaponTag
 {
