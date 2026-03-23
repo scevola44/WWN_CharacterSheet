@@ -110,6 +110,7 @@ export interface AddItemRequest {
   damageDieCount?: number;
   damageDieSides?: number;
   attributeModifier?: string;
+  combatSkill?: string;
   shockDamage?: number;
   shockAcThreshold?: number;
   tags?: string;

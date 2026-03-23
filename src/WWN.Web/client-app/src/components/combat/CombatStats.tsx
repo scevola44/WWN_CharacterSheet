@@ -20,7 +20,9 @@ export function CombatStats({ character, onUpdate }: {
   const handleWeaponConfigChange = async (weaponId: string, skill: string, attribute: string) => {
     setUpdating(weaponId);
     try {
-      const updated = await characterApi.updateWeaponAttackConfig(character.id, weaponId, skill, attribute);
+      const validAttributes = ATTRIBUTE_GROUPS[skill] || ['Strength', 'Dexterity'];
+      const validAttribute = validAttributes.includes(attribute) ? attribute : validAttributes[0];
+      const updated = await characterApi.updateWeaponAttackConfig(character.id, weaponId, skill, validAttribute);
       onUpdate?.(updated);
     } finally {
       setUpdating(null);
@@ -81,7 +83,12 @@ export function CombatStats({ character, onUpdate }: {
                     <label style={{ display: 'block', marginBottom: '0.2rem', color: 'var(--text-muted)' }}>Skill</label>
                     <select
                       value={currentSkill}
-                      onChange={(e) => handleWeaponConfigChange(w.id, e.target.value, currentAttr)}
+                      onChange={(e) => {
+                        const newSkill = e.target.value;
+                        const newValidAttrs = ATTRIBUTE_GROUPS[newSkill] || ['Strength', 'Dexterity'];
+                        const newAttr = newValidAttrs.includes(currentAttr) ? currentAttr : newValidAttrs[0];
+                        handleWeaponConfigChange(w.id, newSkill, newAttr);
+                      }}
                       disabled={updating === w.id}
                       style={{ width: '100%', padding: '0.25rem', fontSize: '0.75rem' }}
                     >
