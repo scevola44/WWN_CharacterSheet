@@ -40,20 +40,17 @@ export function CharacterSheetPage() {
         <IdentitySection character={character} />
       </div>
 
-      <div className="sheet-grid">
-        <div>
+      <div className="sheet-columns">
+        <div className="sheet-col">
           <AttributePanel character={character} onUpdate={handleUpdate} isEditing={isEditing} />
           <CombatStats character={character} onUpdate={handleUpdate} />
           <HitPointTracker character={character} onUpdate={handleUpdate} />
+          <FociPanel character={character} onUpdate={handleUpdate} />
         </div>
-        <div>
+        <div className="sheet-col">
           <SkillPanel character={character} onUpdate={handleUpdate} isEditing={isEditing} />
+          <InventoryPanel character={character} onUpdate={handleUpdate} />
         </div>
-      </div>
-
-      <div className="sheet-grid">
-        <FociPanel character={character} onUpdate={handleUpdate} />
-        <InventoryPanel character={character} onUpdate={handleUpdate} />
       </div>
 
       <div className="sheet-full">

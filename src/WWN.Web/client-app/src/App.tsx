@@ -21,10 +21,10 @@ function App() {
               Characters
             </NavLink>
             <NavLink to="/foci" className={({ isActive }) => isActive ? 'tab active' : 'tab'}>
-              Foci Database
+              Foci
             </NavLink>
             <NavLink to="/spells" className={({ isActive }) => isActive ? 'tab active' : 'tab'}>
-              Spell Database
+              Spells
             </NavLink>
           </nav>
         </header>
