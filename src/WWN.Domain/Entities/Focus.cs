@@ -33,4 +33,9 @@ public class Focus
     }
 
     public void SetConditionalActive(bool active) => ConditionalActive = active;
+
+    public void SetEffects(IEnumerable<FocusEffect> effects)
+    {
+        Effects = effects.ToList();
+    }
 }

@@ -5,7 +5,8 @@ import { focusDefinitionApi } from '../../api/focusDefinitionApi';
 import { FocusDatabaseModal } from './FocusDatabaseModal';
 import { FocusDetailModal } from './FocusDetailModal';
 import type { CharacterDetail, AddFocusRequest, FocusEffectInfo } from '../../types/character';
-import type { FocusDefinition } from '../../types/focusDefinition';
+import type { FocusDefinition, FocusEffectTemplate } from '../../types/focusDefinition';
+import { FocusEffectEditor } from './FocusEffectEditor';
 
 function formatEffect(e: FocusEffectInfo): string {
   const conditionLabel: Record<string, string> = {
@@ -50,6 +51,7 @@ export function FociPanel({ character, onUpdate }: {
   const [showCatalog, setShowCatalog] = useState(false);
   const [name, setName] = useState('');
   const [level, setLevel] = useState(1);
+  const [manualEffects, setManualEffects] = useState<FocusEffectTemplate[]>([]);
   const [definitions, setDefinitions] = useState<FocusDefinition[]>([]);
   const [selectedDefinition, setSelectedDefinition] = useState<FocusDefinition | null>(null);
 
@@ -62,12 +64,13 @@ export function FociPanel({ character, onUpdate }: {
 
   const handleAdd = async () => {
     if (!name.trim()) return;
-    const req: AddFocusRequest = { name: name.trim(), level, effects: [] };
+    const req: AddFocusRequest = { name: name.trim(), level, effects: manualEffects };
     const updated = await characterApi.addFocus(character.id, req);
     onUpdate(updated);
     setShowAdd(false);
     setName('');
     setLevel(1);
+    setManualEffects([]);
   };
 
   const handleRemove = async (focusId: string) => {
@@ -145,8 +148,12 @@ export function FociPanel({ character, onUpdate }: {
               </select>
             </div>
           </div>
+          <div style={{ marginTop: '0.5rem' }}>
+            <label style={{ fontSize: '0.85rem', fontWeight: 500 }}>Effects (optional)</label>
+            <FocusEffectEditor effects={manualEffects} onChange={setManualEffects} />
+          </div>
           <div className="modal-actions">
-            <button className="secondary" onClick={() => setShowAdd(false)}>Cancel</button>
+            <button className="secondary" onClick={() => { setShowAdd(false); setManualEffects([]); }}>Cancel</button>
             <button onClick={handleAdd}>Add Focus</button>
           </div>
         </div>
@@ -164,9 +171,11 @@ export function FociPanel({ character, onUpdate }: {
         <FocusDetailModal
           focus={selectedDefinition}
           onClose={() => setSelectedDefinition(null)}
-          onSaved={updated => {
+          onSaved={async updated => {
             setDefinitions(prev => prev.map(d => d.id === updated.id ? updated : d));
             setSelectedDefinition(updated);
+            const refreshed = await characterApi.get(character.id);
+            onUpdate(refreshed);
           }}
         />
       )}
