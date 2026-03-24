@@ -1,3 +1,5 @@
+using WWN.Domain.ValueObjects;
+
 namespace WWN.Domain.Entities;
 
 public class ClassAbilityDefinition
@@ -7,8 +9,10 @@ public class ClassAbilityDefinition
     public string Description { get; private set; } = string.Empty;
     public int MinLevel { get; private set; }
     public string ClassOwner { get; private set; } = string.Empty;
+    public List<ClassAbilityEffect> Effects { get; private set; } = new();
 
-    public ClassAbilityDefinition(string name, string description, int minLevel, string classOwner)
+    public ClassAbilityDefinition(string name, string description, int minLevel, string classOwner,
+        IEnumerable<ClassAbilityEffect>? effects = null)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Ability name is required.", nameof(name));
@@ -24,6 +28,12 @@ public class ClassAbilityDefinition
         Description = description;
         MinLevel = minLevel;
         ClassOwner = classOwner;
+        Effects = effects?.ToList() ?? new List<ClassAbilityEffect>();
+    }
+
+    public void SetEffects(IEnumerable<ClassAbilityEffect> effects)
+    {
+        Effects = effects.ToList();
     }
 
     private ClassAbilityDefinition() { } // EF Core

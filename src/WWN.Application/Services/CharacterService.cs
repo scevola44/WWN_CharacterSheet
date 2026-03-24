@@ -336,8 +336,13 @@ public class CharacterService(
         var allAbilities = await classAbilityRepository.GetAllAsync(cancellationToken);
         var ownerKeys = GetAbilityOwnerKeys(character);
 
-        var classAbilities = allAbilities
+        var activeAbilities = allAbilities
             .Where(a => ownerKeys.Contains(a.ClassOwner) && a.MinLevel <= character.Level)
+            .ToList();
+
+        character.LoadClassAbilityDefinitions(activeAbilities);
+
+        var classAbilities = activeAbilities
             .OrderBy(a => a.MinLevel)
             .ThenBy(a => a.Name)
             .Select(a => new ClassAbilityDto

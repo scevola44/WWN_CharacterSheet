@@ -125,6 +125,9 @@ namespace WWN.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("CharacterId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("ClassOwner")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -143,6 +146,8 @@ namespace WWN.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CharacterId");
 
                     b.HasIndex("ClassOwner");
 
@@ -395,6 +400,55 @@ namespace WWN.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("WWN.Domain.Entities.ClassAbilityDefinition", b =>
+                {
+                    b.HasOne("WWN.Domain.Aggregates.Character", null)
+                        .WithMany("ClassAbilities")
+                        .HasForeignKey("CharacterId");
+
+                    b.OwnsMany("WWN.Domain.ValueObjects.ClassAbilityEffect", "Effects", b1 =>
+                        {
+                            b1.Property<Guid>("ClassAbilityDefinitionId")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("INTEGER");
+
+                            b1.Property<int>("Condition")
+                                .HasColumnType("INTEGER");
+
+                            b1.Property<string>("Description")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<int>("NumericValue")
+                                .HasColumnType("INTEGER");
+
+                            b1.Property<int?>("TargetAttribute")
+                                .HasColumnType("INTEGER");
+
+                            b1.Property<int?>("TargetSkill")
+                                .HasColumnType("INTEGER");
+
+                            b1.Property<int>("Type")
+                                .HasColumnType("INTEGER");
+
+                            b1.Property<int>("ValueType")
+                                .HasColumnType("INTEGER");
+
+                            b1.HasKey("ClassAbilityDefinitionId", "Id");
+
+                            b1.ToTable("ClassAbilityDefinitions");
+
+                            b1.ToJson("Effects");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ClassAbilityDefinitionId");
+                        });
+
+                    b.Navigation("Effects");
+                });
+
             modelBuilder.Entity("WWN.Domain.Entities.Focus", b =>
                 {
                     b.HasOne("WWN.Domain.Aggregates.Character", null)
@@ -612,6 +666,8 @@ namespace WWN.Infrastructure.Migrations
             modelBuilder.Entity("WWN.Domain.Aggregates.Character", b =>
                 {
                     b.Navigation("Attributes");
+
+                    b.Navigation("ClassAbilities");
 
                     b.Navigation("Foci");
 

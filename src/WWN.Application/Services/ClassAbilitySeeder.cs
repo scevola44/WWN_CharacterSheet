@@ -1,5 +1,7 @@
 using WWN.Domain.Entities;
+using WWN.Domain.Enums;
 using WWN.Domain.Interfaces;
+using WWN.Domain.ValueObjects;
 
 namespace WWN.Application.Services;
 
@@ -26,7 +28,15 @@ public class ClassAbilitySeeder(IClassAbilityRepository repository)
                 "Add half your character level (rounded up) to all damage rolls, including Shock damage. " +
                 "This bonus applies to every attack, spell, or special ability that inflicts damage.",
             minLevel: 1,
-            classOwner: "Warrior");
+            classOwner: "Warrior",
+            effects:
+            [
+                new ClassAbilityEffect(
+                    Type: FocusEffectType.DamageBonus,
+                    NumericValue: 0,
+                    ValueType: FocusEffectValueType.HalfLevelRoundedUp,
+                    Description: "Killing Blow damage bonus")
+            ]);
 
         yield return new ClassAbilityDefinition(
             name: "Veteran's Luck",

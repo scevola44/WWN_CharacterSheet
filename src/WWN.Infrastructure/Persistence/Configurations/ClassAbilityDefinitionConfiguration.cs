@@ -15,5 +15,6 @@ public class ClassAbilityDefinitionConfiguration : IEntityTypeConfiguration<Clas
         builder.Property(a => a.MinLevel).IsRequired();
         builder.Property(a => a.ClassOwner).HasMaxLength(50).IsRequired();
         builder.HasIndex(a => a.ClassOwner);
+        builder.OwnsMany(a => a.Effects, b => b.ToJson());
     }
 }

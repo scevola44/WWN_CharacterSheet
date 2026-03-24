@@ -15,6 +15,7 @@ public static class SkillCheckCalculator
         var charSkill = character.GetSkillOrDefault(skill);
         int skillLevel = charSkill?.Rank.Level ?? -1;
         int focusSkillBonus = FocusEffectAggregator.SumSkillEffects(character.Foci, skill, character);
-        return attrMod + skillLevel + focusSkillBonus;
+        int abilitySkillBonus = ClassAbilityEffectAggregator.SumSkillEffects(character.ClassAbilities, skill, character);
+        return attrMod + skillLevel + focusSkillBonus + abilitySkillBonus;
     }
 }

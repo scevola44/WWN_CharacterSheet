@@ -11,8 +11,8 @@ using WWN.Infrastructure.Persistence;
 namespace WWN.Infrastructure.Migrations
 {
     [DbContext(typeof(WwnDbContext))]
-    [Migration("20260323160046_AddFocusEffectBonusSystem")]
-    partial class AddFocusEffectBonusSystem
+    [Migration("20260324122945_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -120,6 +120,41 @@ namespace WWN.Infrastructure.Migrations
                     b.HasIndex("CharacterId");
 
                     b.ToTable("CharacterSkills", (string)null);
+                });
+
+            modelBuilder.Entity("WWN.Domain.Entities.ClassAbilityDefinition", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("CharacterId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ClassOwner")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("MinLevel")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CharacterId");
+
+                    b.HasIndex("ClassOwner");
+
+                    b.ToTable("ClassAbilityDefinitions", (string)null);
                 });
 
             modelBuilder.Entity("WWN.Domain.Entities.Focus", b =>
@@ -368,6 +403,55 @@ namespace WWN.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("WWN.Domain.Entities.ClassAbilityDefinition", b =>
+                {
+                    b.HasOne("WWN.Domain.Aggregates.Character", null)
+                        .WithMany("ClassAbilities")
+                        .HasForeignKey("CharacterId");
+
+                    b.OwnsMany("WWN.Domain.ValueObjects.ClassAbilityEffect", "Effects", b1 =>
+                        {
+                            b1.Property<Guid>("ClassAbilityDefinitionId")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("INTEGER");
+
+                            b1.Property<int>("Condition")
+                                .HasColumnType("INTEGER");
+
+                            b1.Property<string>("Description")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<int>("NumericValue")
+                                .HasColumnType("INTEGER");
+
+                            b1.Property<int?>("TargetAttribute")
+                                .HasColumnType("INTEGER");
+
+                            b1.Property<int?>("TargetSkill")
+                                .HasColumnType("INTEGER");
+
+                            b1.Property<int>("Type")
+                                .HasColumnType("INTEGER");
+
+                            b1.Property<int>("ValueType")
+                                .HasColumnType("INTEGER");
+
+                            b1.HasKey("ClassAbilityDefinitionId", "Id");
+
+                            b1.ToTable("ClassAbilityDefinitions");
+
+                            b1.ToJson("Effects");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ClassAbilityDefinitionId");
+                        });
+
+                    b.Navigation("Effects");
+                });
+
             modelBuilder.Entity("WWN.Domain.Entities.Focus", b =>
                 {
                     b.HasOne("WWN.Domain.Aggregates.Character", null)
@@ -585,6 +669,8 @@ namespace WWN.Infrastructure.Migrations
             modelBuilder.Entity("WWN.Domain.Aggregates.Character", b =>
                 {
                     b.Navigation("Attributes");
+
+                    b.Navigation("ClassAbilities");
 
                     b.Navigation("Foci");
 

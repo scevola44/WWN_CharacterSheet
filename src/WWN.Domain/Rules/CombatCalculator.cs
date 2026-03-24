@@ -30,8 +30,9 @@ public static class CombatCalculator
         int skillLevel = skill?.Rank.Level ?? -1;
         int attrMod = character.GetAttribute(weapon.AttributeModifier).Modifier;
         int focusBonus = FocusEffectAggregator.SumEffects(character.Foci, FocusEffectType.AttackBonus, character);
+        int abilityBonus = ClassAbilityEffectAggregator.SumEffects(character.ClassAbilities, FocusEffectType.AttackBonus, character);
 
-        return bab + skillLevel + attrMod + focusBonus;
+        return bab + skillLevel + attrMod + focusBonus + abilityBonus;
     }
 
     public static int GetTotalDamageBonus(Character character, Weapon weapon)
@@ -39,8 +40,10 @@ public static class CombatCalculator
         int attrMod = character.GetAttribute(weapon.AttributeModifier).Modifier;
         int focusBonus = FocusEffectAggregator.SumEffects(
             character.Foci, FocusEffectType.DamageBonus, character, MapSkillToCondition(weapon.CombatSkill));
+        int abilityBonus = ClassAbilityEffectAggregator.SumEffects(
+            character.ClassAbilities, FocusEffectType.DamageBonus, character, MapSkillToCondition(weapon.CombatSkill));
 
-        return attrMod + focusBonus;
+        return attrMod + focusBonus + abilityBonus;
     }
 
     public static int GetArmorClass(Character character)
@@ -56,8 +59,10 @@ public static class CombatCalculator
         int shieldBonus = (shield != null && armor != null && !twoHandedEquipped) ? 1 : 0;
         int focusBonus = FocusEffectAggregator.SumEffects(
             character.Foci, FocusEffectType.AcBonus, character);
+        int abilityBonus = ClassAbilityEffectAggregator.SumEffects(
+            character.ClassAbilities, FocusEffectType.AcBonus, character);
 
-        return baseAc + armorBonus + dexMod + shieldBonus + focusBonus;
+        return baseAc + armorBonus + dexMod + shieldBonus + focusBonus + abilityBonus;
     }
 
     public static SkillName GetCombatSkillForWeapon(Weapon weapon)
