@@ -21,7 +21,10 @@ internal static class CharacterEffectAggregator
         FocusEffectValueType.Level => character.Level,
         FocusEffectValueType.HalfLevel => character.Level / 2,
         FocusEffectValueType.HalfLevelRoundedUp => (character.Level + 1) / 2,
-        FocusEffectValueType.SkillLevel => character.GetSkillOrDefault(effect.TargetSkill!.Value)?.Rank.Level ?? -1,
+        FocusEffectValueType.SkillLevel =>
+            (character.GetSkillOrDefault(effect.TargetSkill!.Value)?.Rank.Level ?? -1)
+            + FocusEffectAggregator.SumSkillEffects(character.Foci, effect.TargetSkill!.Value, character)
+            + ClassAbilityEffectAggregator.SumSkillEffects(character.ClassAbilities, effect.TargetSkill!.Value, character),
         _ => effect.NumericValue
     };
 }

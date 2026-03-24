@@ -29,8 +29,9 @@ public static class CombatCalculator
         var skill = character.GetSkillOrDefault(weapon.CombatSkill);
         int skillLevel = skill?.Rank.Level ?? -1;
         int attrMod = character.GetAttribute(weapon.AttributeModifier).Modifier;
-        int focusBonus = FocusEffectAggregator.SumEffects(character.Foci, FocusEffectType.AttackBonus, character);
-        int abilityBonus = ClassAbilityEffectAggregator.SumEffects(character.ClassAbilities, FocusEffectType.AttackBonus, character);
+        var condition = MapSkillToCondition(weapon.CombatSkill);
+        int focusBonus = FocusEffectAggregator.SumEffects(character.Foci, FocusEffectType.AttackBonus, character, condition);
+        int abilityBonus = ClassAbilityEffectAggregator.SumEffects(character.ClassAbilities, FocusEffectType.AttackBonus, character, condition);
 
         return bab + skillLevel + attrMod + focusBonus + abilityBonus;
     }

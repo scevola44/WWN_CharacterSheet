@@ -381,6 +381,8 @@ public class CharacterService(
                 Name = skill.Name.ToString(),
                 CustomName = skill.CustomName,
                 Level = skill.Rank.Level
+                    + FocusEffectAggregator.SumSkillEffects(character.Foci, skill.Name, character)
+                    + ClassAbilityEffectAggregator.SumSkillEffects(character.ClassAbilities, skill.Name, character)
             }).ToList(),
             Foci = character.Foci.Select(focus => new FocusDto
             {

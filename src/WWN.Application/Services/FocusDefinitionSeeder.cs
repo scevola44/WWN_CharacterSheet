@@ -33,10 +33,10 @@ public class FocusDefinitionSeeder(IFocusDefinitionRepository focusDefinitionRep
                 "You may choose to act at any point in the round.",
             description:
                 "You are keenly aware of your surroundings and virtually impossible to take unaware.",
-            level1Effects: new[]
-            {
-                new FocusEffect(FocusEffectType.SkillBonus, 1, TargetSkill: SkillName.Notice),
-            });
+            level1Effects:
+            [
+                new FocusEffect(FocusEffectType.SkillBonus, 1, TargetSkill: SkillName.Notice)
+            ]);
 
         yield return new FocusDefinition(
             name: "Armsmaster",
@@ -52,22 +52,22 @@ public class FocusDefinitionSeeder(IFocusDefinitionRepository focusDefinitionRep
                 "You have unusual competence with thrown weapons and melee attacks. This focus " +
                 "does not apply to unarmed attacks or non-thrown projectile weapons, and its " +
                 "bonuses do not stack with Deadeye or similar foci.",
-            level1Effects: new[]
-            {
+            level1Effects:
+            [
                 new FocusEffect(FocusEffectType.SkillBonus, 1, TargetSkill: SkillName.Stab),
                 new FocusEffect(FocusEffectType.AttackBonus, 1,
                     Condition: FocusEffectCondition.StabWeapon),
                 new FocusEffect(FocusEffectType.DamageBonus, 0,
                     FocusEffectValueType.SkillLevel, FocusEffectCondition.StabWeapon,
-                    TargetSkill: SkillName.Stab),
-            },
-            level2Effects: new[]
-            {
+                    TargetSkill: SkillName.Stab)
+            ],
+            level2Effects:
+            [
                 new FocusEffect(FocusEffectType.AttackBonus, 1,
                     Condition: FocusEffectCondition.StabWeapon),
                 new FocusEffect(FocusEffectType.ShockBonus, 2,
-                    Condition: FocusEffectCondition.StabWeapon),
-            });
+                    Condition: FocusEffectCondition.StabWeapon)
+            ]);
 
         yield return new FocusDefinition(
             name: "Assassin",
@@ -105,18 +105,18 @@ public class FocusDefinitionSeeder(IFocusDefinitionRepository focusDefinitionRep
             description:
                 "You are an exceptional marksman, consistently finding weak spots in defenses " +
                 "from a distance.",
-            level1Effects: new[]
-            {
+            level1Effects:
+            [
                 new FocusEffect(FocusEffectType.SkillBonus, 1, TargetSkill: SkillName.Shoot),
                 new FocusEffect(FocusEffectType.DamageBonus, 0,
                     FocusEffectValueType.SkillLevel, FocusEffectCondition.ShootWeapon,
-                    TargetSkill: SkillName.Shoot),
-            },
-            level2Effects: new[]
-            {
+                    TargetSkill: SkillName.Shoot)
+            ],
+            level2Effects:
+            [
                 new FocusEffect(FocusEffectType.AttackBonus, 1,
-                    Condition: FocusEffectCondition.ShootWeapon),
-            });
+                    Condition: FocusEffectCondition.ShootWeapon)
+            ]);
 
         yield return new FocusDefinition(
             name: "Die Hard",
@@ -130,11 +130,11 @@ public class FocusDefinitionSeeder(IFocusDefinitionRepository focusDefinitionRep
             description:
                 "You are exceptionally difficult to kill, hardened by experience and sheer " +
                 "physical resilience.",
-            level1Effects: new[]
-            {
+            level1Effects:
+            [
                 new FocusEffect(FocusEffectType.SkillBonus, 1, TargetSkill: SkillName.Survive),
-                new FocusEffect(FocusEffectType.HpBonus, 2, FocusEffectValueType.Level),
-            });
+                new FocusEffect(FocusEffectType.HpBonus, 2, FocusEffectValueType.Level)
+            ]);
 
         yield return new FocusDefinition(
             name: "Impervious Defense",
@@ -146,14 +146,14 @@ public class FocusDefinitionSeeder(IFocusDefinitionRepository focusDefinitionRep
             description:
                 "You have an uncanny ability to avoid blows through anticipation, footwork, " +
                 "and subtle deflection.",
-            level1Effects: new[]
-            {
-                new FocusEffect(FocusEffectType.AcBonus, 2),
-            },
-            level2Effects: new[]
-            {
-                new FocusEffect(FocusEffectType.AcBonus, 1),
-            });
+            level1Effects:
+            [
+                new FocusEffect(FocusEffectType.AcBonus, 2)
+            ],
+            level2Effects:
+            [
+                new FocusEffect(FocusEffectType.AcBonus, 1)
+            ]);
 
         yield return new FocusDefinition(
             name: "Ironhide",
