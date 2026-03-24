@@ -1,4 +1,5 @@
 import type { CreateFocusDefinitionRequest, UpdateFocusDefinitionRequest } from '../../types/focusDefinition';
+import { FocusEffectEditor } from './FocusEffectEditor';
 
 export function FocusForm({
   values,
@@ -57,12 +58,28 @@ export function FocusForm({
       </div>
 
       <div className="form-group">
+        <label>Level 1 Effects</label>
+        <FocusEffectEditor
+          effects={values.level1Effects}
+          onChange={level1Effects => onChange({ ...values, level1Effects })}
+        />
+      </div>
+
+      <div className="form-group">
         <label>Level 2 Description</label>
         <textarea
           value={values.level2Description || ''}
           onChange={e => onChange({ ...values, level2Description: e.target.value })}
           placeholder="What the character gains at level 2 (leave blank if this focus only has one level)"
           rows={3}
+        />
+      </div>
+
+      <div className="form-group">
+        <label>Level 2 Effects <span style={{ color: 'var(--text-muted)', fontWeight: 'normal', fontSize: '0.8rem' }}>(incremental — added on top of Level 1)</span></label>
+        <FocusEffectEditor
+          effects={values.level2Effects}
+          onChange={level2Effects => onChange({ ...values, level2Effects })}
         />
       </div>
 

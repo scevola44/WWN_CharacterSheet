@@ -13,6 +13,8 @@ const emptyForm: CreateFocusDefinitionRequest = {
   level1Description: '',
   level2Description: '',
   canTakeMultipleTimes: false,
+  level1Effects: [],
+  level2Effects: [],
 };
 
 export function FocusDatabasePage() {
@@ -46,6 +48,8 @@ export function FocusDatabasePage() {
       level1Description: form.level1Description.trim(),
       level2Description: form.level2Description?.trim() || undefined,
       canTakeMultipleTimes: form.canTakeMultipleTimes,
+      level1Effects: form.level1Effects,
+      level2Effects: form.level2Effects,
     });
     setForm(emptyForm);
     setShowForm(false);
@@ -60,6 +64,8 @@ export function FocusDatabasePage() {
       level1Description: fd.level1Description,
       level2Description: fd.level2Description || '',
       canTakeMultipleTimes: fd.canTakeMultipleTimes,
+      level1Effects: fd.level1Effects,
+      level2Effects: fd.level2Effects,
     });
   };
 
@@ -74,6 +80,8 @@ export function FocusDatabasePage() {
       level1Description: editForm.level1Description.trim(),
       level2Description: editForm.level2Description?.trim() || undefined,
       canTakeMultipleTimes: editForm.canTakeMultipleTimes,
+      level1Effects: editForm.level1Effects,
+      level2Effects: editForm.level2Effects,
     });
     setEditingId(null);
     setEditForm(null);

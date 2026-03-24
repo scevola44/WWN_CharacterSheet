@@ -54,6 +54,7 @@ public record FocusDto
     public Guid Id { get; init; }
     public string Name { get; init; } = string.Empty;
     public int Level { get; init; }
+    public bool ConditionalActive { get; init; }
     public List<FocusEffectDto> Effects { get; init; } = new();
 }
 
@@ -61,6 +62,8 @@ public record FocusEffectDto
 {
     public string Type { get; init; } = string.Empty;
     public int NumericValue { get; init; }
+    public string ValueType { get; init; } = "Static";
+    public string Condition { get; init; } = "Always";
     public string? TargetSkill { get; init; }
     public string? TargetAttribute { get; init; }
     public string? Description { get; init; }
@@ -100,6 +103,8 @@ public record FocusDefinitionDto
     public string? Level2Description { get; init; }
     public bool HasLevel2 { get; init; }
     public bool CanTakeMultipleTimes { get; init; }
+    public List<FocusEffectDto> Level1Effects { get; init; } = new();
+    public List<FocusEffectDto> Level2Effects { get; init; } = new();
 }
 
 public record SpellDto

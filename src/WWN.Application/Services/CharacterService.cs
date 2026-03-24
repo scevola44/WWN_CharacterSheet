@@ -12,13 +12,13 @@ namespace WWN.Application.Services;
 
 public class CharacterService(
     ICharacterRepository characterRepository,
-    IClassAbilityRepository classAbilityRepository,
-    CharacterSheetCalculator sheetCalculator)
+    IFocusDefinitionRepository focusDefinitionRepository,
+    IClassAbilityRepository classAbilityRepository)
 {
     public async Task<CharacterDetailDto?> GetCharacterAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var character = await characterRepository.GetByIdAsync(id, cancellationToken);
-        return character is null ? null : await MapToDetailDtoAsync(character, cancellationToken);
+        return character is null ? null : await SyncAndMap(character, cancellationToken);
     }
 
     public async Task<IReadOnlyList<CharacterSummaryDto>> ListCharactersAsync(
@@ -37,7 +37,7 @@ public class CharacterService(
     }
 
     public async Task<Guid> CreateCharacterAsync(
-        CreateCharacterRequest request,
+        CreateCharacterRequest request, 
         CancellationToken cancellationToken = default)
     {
         var characterClass = EnumParser.Parse<CharacterClass>(request.Class, nameof(request.Class));
@@ -60,8 +60,8 @@ public class CharacterService(
     }
 
     public async Task<CharacterDetailDto> UpdateAttributeAsync(
-        Guid characterId,
-        string attributeString,
+        Guid characterId, 
+        string attributeString, 
         int score,
         CancellationToken cancellationToken = default)
     {
@@ -69,12 +69,12 @@ public class CharacterService(
         var attributeName = EnumParser.Parse<AttributeName>(attributeString, nameof(attributeString));
         character.SetAttribute(attributeName, score);
         await characterRepository.UpdateAsync(character, cancellationToken);
-        return await MapToDetailDtoAsync(character, cancellationToken);
+        return await SyncAndMap(character, cancellationToken);
     }
 
     public async Task<CharacterDetailDto> UpdateSkillAsync(
-        Guid charId,
-        string skillName,
+        Guid charId, 
+        string skillName, 
         int rank,
         CancellationToken cancellationToken = default)
     {
@@ -82,46 +82,46 @@ public class CharacterService(
         var skill = EnumParser.Parse<SkillName>(skillName, nameof(skillName));
         character.SetSkillRank(skill, rank);
         await characterRepository.UpdateAsync(character, cancellationToken);
-        return await MapToDetailDtoAsync(character, cancellationToken);
+        return await SyncAndMap(character, cancellationToken);
     }
 
     public async Task<CharacterDetailDto> AddCustomSkillAsync(
-        Guid characterId,
-        string name,
+        Guid characterId, 
+        string name, 
         int rank,
         CancellationToken cancellationToken = default)
     {
         var character = await GetOrThrow(characterId, cancellationToken);
         character.AddCustomSkill(name, rank);
         await characterRepository.UpdateAsync(character, cancellationToken);
-        return await MapToDetailDtoAsync(character, cancellationToken);
+        return await SyncAndMap(character, cancellationToken);
     }
 
     public async Task<CharacterDetailDto> SetHpAsync(
-        Guid characterId,
-        int maxHp,
+        Guid characterId, 
+        int maxHp, 
         int currentHp,
         CancellationToken cancellationToken = default)
     {
         var character = await GetOrThrow(characterId, cancellationToken);
         character.SetHitPoints(maxHp, currentHp);
         await characterRepository.UpdateAsync(character, cancellationToken);
-        return await MapToDetailDtoAsync(character, cancellationToken);
+        return await SyncAndMap(character, cancellationToken);
     }
 
     public async Task<CharacterDetailDto> SetLevelAsync(
-        Guid characterId,
+        Guid characterId, 
         int level,
         CancellationToken cancellationToken = default)
     {
         var character = await GetOrThrow(characterId, cancellationToken);
         character.SetLevel(level);
         await characterRepository.UpdateAsync(character, cancellationToken);
-        return await MapToDetailDtoAsync(character, cancellationToken);
+        return await SyncAndMap(character, cancellationToken);
     }
 
     public async Task<CharacterDetailDto> AddFocusAsync(
-        Guid characterId,
+        Guid characterId, 
         AddFocusRequest request,
         CancellationToken cancellationToken = default)
     {
@@ -129,6 +129,8 @@ public class CharacterService(
         var focusEffects = request.Effects.Select(e => new FocusEffect(
             EnumParser.Parse<FocusEffectType>(e.Type, nameof(e.Type)),
             e.NumericValue,
+            EnumParser.Parse<FocusEffectValueType>(e.ValueType, nameof(e.ValueType)),
+            EnumParser.Parse<FocusEffectCondition>(e.Condition, nameof(e.Condition)),
             e.TargetSkill is not null ? EnumParser.Parse<SkillName>(e.TargetSkill, nameof(e.TargetSkill)) : null,
             e.TargetAttribute is not null ? EnumParser.Parse<AttributeName>(e.TargetAttribute, nameof(e.TargetAttribute)) : null,
             e.Description));
@@ -136,7 +138,35 @@ public class CharacterService(
         var focus = new Focus(request.Name, request.Level, focusEffects);
         character.AddFocus(focus);
         await characterRepository.UpdateAsync(character, cancellationToken);
-        return await MapToDetailDtoAsync(character, cancellationToken);
+        return await SyncAndMap(character, cancellationToken);
+    }
+
+    public async Task<CharacterDetailDto> UpgradeFocusAsync(
+        Guid characterId,
+        Guid focusId,
+        UpgradeFocusRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var character = await GetOrThrow(characterId, cancellationToken);
+        var focus = character.Foci.FirstOrDefault(f => f.Id == focusId)
+            ?? throw new KeyNotFoundException($"Focus {focusId} not found on character {characterId}.");
+        focus.UpgradeToLevel2(request.AdditionalEffects.Select(ParseFocusEffect));
+        await characterRepository.UpdateAsync(character, cancellationToken);
+        return await SyncAndMap(character, cancellationToken);
+    }
+
+    public async Task<CharacterDetailDto> SetFocusConditionalAsync(
+        Guid characterId,
+        Guid focusId,
+        bool active,
+        CancellationToken cancellationToken = default)
+    {
+        var character = await GetOrThrow(characterId, cancellationToken);
+        var focus = character.Foci.FirstOrDefault(f => f.Id == focusId)
+            ?? throw new KeyNotFoundException($"Focus {focusId} not found on character {characterId}.");
+        focus.SetConditionalActive(active);
+        await characterRepository.UpdateAsync(character, cancellationToken);
+        return await SyncAndMap(character, cancellationToken);
     }
 
     public async Task RemoveFocusAsync(Guid characterId, Guid focusId, CancellationToken ct = default)
@@ -147,7 +177,7 @@ public class CharacterService(
     }
 
     public async Task<CharacterDetailDto> AddItemAsync(
-        Guid characterId,
+        Guid characterId, 
         AddItemRequest request,
         CancellationToken cancellationToken = default)
     {
@@ -155,12 +185,12 @@ public class CharacterService(
         var item = ItemFactory.Create(request);
         character.AddItem(item);
         await characterRepository.UpdateAsync(character, cancellationToken);
-        return await MapToDetailDtoAsync(character, cancellationToken);
+        return await SyncAndMap(character, cancellationToken);
     }
 
     public async Task RemoveItemAsync(
-        Guid characterId,
-        Guid itemId,
+        Guid characterId, 
+        Guid itemId, 
         CancellationToken cancellationToken = default)
     {
         var character = await GetOrThrow(characterId, cancellationToken);
@@ -225,8 +255,8 @@ public class CharacterService(
     }
 
     public async Task<CharacterDetailDto> ChangeSlotAsync(
-        Guid characterId,
-        Guid itemId,
+        Guid characterId, 
+        Guid itemId, 
         string slotType,
         CancellationToken cancellationToken = default)
     {
@@ -234,7 +264,7 @@ public class CharacterService(
         var slot = EnumParser.Parse<ItemSlotType>(slotType, nameof(slotType));
         character.ChangeItemSlot(itemId, slot);
         await characterRepository.UpdateAsync(character, cancellationToken);
-        return await MapToDetailDtoAsync(character, cancellationToken);
+        return await SyncAndMap(character, cancellationToken);
     }
 
     public async Task<CharacterDetailDto> UpdateWeaponAttackConfigAsync(
@@ -253,7 +283,7 @@ public class CharacterService(
         var attrName = EnumParser.Parse<AttributeName>(attribute, nameof(attribute));
         weapon.SetCombatConfig(skillName, attrName);
         await characterRepository.UpdateAsync(character, cancellationToken);
-        return await MapToDetailDtoAsync(character, cancellationToken);
+        return await SyncAndMap(character, cancellationToken);
     }
 
     public async Task<CharacterDetailDto> UpdateNotesAsync(
@@ -264,18 +294,35 @@ public class CharacterService(
         var character = await GetOrThrow(characterId, cancellationToken);
         character.SetNotes(notes);
         await characterRepository.UpdateAsync(character, cancellationToken);
-        return await MapToDetailDtoAsync(character, cancellationToken);
+        return await SyncAndMap(character, cancellationToken);
     }
 
     public async Task DeleteCharacterAsync(
-        Guid characterId,
+        Guid characterId, 
         CancellationToken cancellationToken = default)
     {
         await characterRepository.DeleteAsync(characterId, cancellationToken);
     }
 
+    private async Task<CharacterDetailDto> SyncAndMap(Character character, CancellationToken cancellationToken)
+    {
+        var definitions = await focusDefinitionRepository.GetAllAsync(cancellationToken);
+        var defsByName = definitions.ToDictionary(d => d.Name, StringComparer.OrdinalIgnoreCase);
+        foreach (var focus in character.Foci)
+        {
+            if (defsByName.TryGetValue(focus.Name, out var def))
+            {
+                var effects = focus.Level >= 2
+                    ? def.Level1Effects.Concat(def.Level2Effects)
+                    : def.Level1Effects;
+                focus.SetEffects(effects);
+            }
+        }
+        return await MapToDetailDtoAsync(character, cancellationToken);
+    }
+
     private async Task<Character> GetOrThrow(
-        Guid characterId,
+        Guid characterId, 
         CancellationToken cancellationToken)
     {
         return await characterRepository.GetByIdAsync(characterId, cancellationToken)
@@ -386,9 +433,29 @@ public class CharacterService(
 
     private static bool HasPartialMage(Character character)
     {
-        return character.PartialClassA == PartialClass.PartialMage
+        return character.PartialClassA == PartialClass.PartialMage 
                || character.PartialClassB == PartialClass.PartialMage;
     }
+
+    private static FocusEffect ParseFocusEffect(FocusEffectDto e) => new(
+        EnumParser.Parse<FocusEffectType>(e.Type, nameof(e.Type)),
+        e.NumericValue,
+        EnumParser.ParseOrDefault(e.ValueType, FocusEffectValueType.Static),
+        EnumParser.ParseOrDefault(e.Condition, FocusEffectCondition.Always),
+        e.TargetSkill is not null ? EnumParser.Parse<SkillName>(e.TargetSkill, nameof(e.TargetSkill)) : null,
+        e.TargetAttribute is not null ? EnumParser.Parse<AttributeName>(e.TargetAttribute, nameof(e.TargetAttribute)) : null,
+        e.Description);
+
+    private static FocusEffectDto MapFocusEffectDto(FocusEffect e) => new()
+    {
+        Type = e.Type.ToString(),
+        NumericValue = e.NumericValue,
+        ValueType = e.ValueType.ToString(),
+        Condition = e.Condition.ToString(),
+        TargetSkill = e.TargetSkill?.ToString(),
+        TargetAttribute = e.TargetAttribute?.ToString(),
+        Description = e.Description
+    };
 
     private static ItemDto MapItemDto(Item item)
     {
@@ -412,7 +479,6 @@ public class CharacterService(
                 CombatSkill = weapon.CombatSkill.ToString(),
                 ShockDamage = weapon.Shock?.Damage,
                 ShockAcThreshold = weapon.Shock?.AcThreshold,
-                IsArmorPiercing = weapon.Tags.HasFlag(WeaponTag.AP) ? true : null,
                 Tags = weapon.Tags.ToString()
             };
         }

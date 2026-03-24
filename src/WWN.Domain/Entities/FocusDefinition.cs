@@ -1,3 +1,5 @@
+using WWN.Domain.ValueObjects;
+
 namespace WWN.Domain.Entities;
 
 public class FocusDefinition
@@ -9,13 +11,17 @@ public class FocusDefinition
     public string? Level2Description { get; private set; }
     public bool HasLevel2 { get; private set; }
     public bool CanTakeMultipleTimes { get; private set; }
+    public List<FocusEffect> Level1Effects { get; private set; } = new();
+    public List<FocusEffect> Level2Effects { get; private set; } = new();
 
     public FocusDefinition(
         string name,
         string level1Description,
         string? level2Description = null,
         string? description = null,
-        bool canTakeMultipleTimes = false)
+        bool canTakeMultipleTimes = false,
+        IEnumerable<FocusEffect>? level1Effects = null,
+        IEnumerable<FocusEffect>? level2Effects = null)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Focus name is required.", nameof(name));
@@ -29,6 +35,8 @@ public class FocusDefinition
         Level2Description = level2Description;
         HasLevel2 = level2Description is not null;
         CanTakeMultipleTimes = canTakeMultipleTimes;
+        Level1Effects = level1Effects?.ToList() ?? new();
+        Level2Effects = level2Effects?.ToList() ?? new();
     }
 
     public void Update(
@@ -36,7 +44,9 @@ public class FocusDefinition
         string? description,
         string level1Description,
         string? level2Description,
-        bool canTakeMultipleTimes)
+        bool canTakeMultipleTimes,
+        IEnumerable<FocusEffect>? level1Effects = null,
+        IEnumerable<FocusEffect>? level2Effects = null)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Focus name is required.", nameof(name));
@@ -49,6 +59,8 @@ public class FocusDefinition
         Level2Description = level2Description;
         HasLevel2 = level2Description is not null;
         CanTakeMultipleTimes = canTakeMultipleTimes;
+        Level1Effects = level1Effects?.ToList() ?? Level1Effects;
+        Level2Effects = level2Effects?.ToList() ?? Level2Effects;
     }
 
     private FocusDefinition() { } // EF Core

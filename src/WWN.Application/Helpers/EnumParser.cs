@@ -11,4 +11,10 @@ public static class EnumParser
 
         return result;
     }
+
+    public static T ParseOrDefault<T>(string? value, T defaultValue) where T : struct, Enum
+    {
+        if (string.IsNullOrWhiteSpace(value)) return defaultValue;
+        return Enum.TryParse<T>(value, ignoreCase: true, out var result) ? result : defaultValue;
+    }
 }

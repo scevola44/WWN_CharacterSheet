@@ -34,6 +34,15 @@ public static class CombatCalculator
         return bab + skillLevel + attrMod + focusBonus;
     }
 
+    public static int GetTotalDamageBonus(Character character, Weapon weapon)
+    {
+        int attrMod = character.GetAttribute(weapon.AttributeModifier).Modifier;
+        int focusBonus = FocusEffectAggregator.SumEffects(
+            character.Foci, FocusEffectType.DamageBonus, character, MapSkillToCondition(weapon.CombatSkill));
+
+        return attrMod + focusBonus;
+    }
+
     public static int GetArmorClass(Character character)
     {
         int baseAc = 10;
@@ -45,7 +54,8 @@ public static class CombatCalculator
         var equippedWeapon = character.GetEquippedWeapon();
         bool twoHandedEquipped = equippedWeapon?.Tags.HasFlag(WeaponTag.TwoHanded) ?? false;
         int shieldBonus = (shield != null && armor != null && !twoHandedEquipped) ? 1 : 0;
-        int focusBonus = FocusEffectAggregator.SumEffects(character.Foci, FocusEffectType.AcBonus);
+        int focusBonus = FocusEffectAggregator.SumEffects(
+            character.Foci, FocusEffectType.AcBonus, character);
 
         return baseAc + armorBonus + dexMod + shieldBonus + focusBonus;
     }
@@ -56,4 +66,12 @@ public static class CombatCalculator
             ? SkillName.Shoot 
             : SkillName.Stab;
     }
+
+    private static FocusEffectCondition MapSkillToCondition(SkillName skill) => skill switch
+    {
+        SkillName.Stab => FocusEffectCondition.StabWeapon,
+        SkillName.Shoot => FocusEffectCondition.ShootWeapon,
+        SkillName.Punch => FocusEffectCondition.PunchWeapon,
+        _ => FocusEffectCondition.Always
+    };
 }

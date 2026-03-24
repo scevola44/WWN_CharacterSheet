@@ -82,6 +82,20 @@ public static class CharacterEndpoints
             return Results.NoContent();
         });
 
+        group.MapPost("/{id:guid}/foci/{focusId:guid}/upgrade", async (Guid id, Guid focusId,
+            UpgradeFocusRequest req, CharacterService svc, CancellationToken ct) =>
+        {
+            var dto = await svc.UpgradeFocusAsync(id, focusId, req, ct);
+            return Results.Ok(dto);
+        });
+
+        group.MapPatch("/{id:guid}/foci/{focusId:guid}/conditional", async (Guid id, Guid focusId,
+            SetFocusConditionalRequest req, CharacterService svc, CancellationToken ct) =>
+        {
+            var dto = await svc.SetFocusConditionalAsync(id, focusId, req.Active, ct);
+            return Results.Ok(dto);
+        });
+
         group.MapPost("/{id:guid}/items", async (Guid id,
             AddItemRequest req, CharacterService svc, CancellationToken ct) =>
         {

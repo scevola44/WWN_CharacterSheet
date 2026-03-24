@@ -22,8 +22,17 @@ export function CombatStats({ character, onUpdate }: {
     }
   };
 
+  const handleConditionalToggle = async (focusId: string, currentActive: boolean) => {
+    const updated = await characterApi.setFocusConditional(character.id, focusId, !currentActive);
+    onUpdate?.(updated);
+  };
+
   const equippedWeapons = character.inventory.filter(
     i => i.itemType === 'Weapon' && i.slotType === 'Equipped'
+  );
+
+  const conditionalFoci = character.foci.filter(
+    f => f.effects.some(e => e.condition === 'Conditional')
   );
 
   return (
@@ -58,15 +67,19 @@ export function CombatStats({ character, onUpdate }: {
           </div>
           {equippedWeapons.map(w => {
             const atkBonus = derivedStats.weaponAttackBonuses[w.id];
+            const dmgBonus = derivedStats.weaponDamageBonuses?.[w.id] ?? 0;
             const currentSkill = w.combatSkill || 'Stab';
             const currentAttr = w.attributeModifier || 'Strength';
+            const dmgDisplay = dmgBonus !== 0
+              ? `${w.damageDie}${dmgBonus > 0 ? `+${dmgBonus}` : dmgBonus}`
+              : w.damageDie;
 
             return (
               <div key={w.id} className="item-row" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <div className="item-info">
                   <div className="item-name">{w.name}</div>
                   <div className="item-meta">
-                    {w.damageDie} dmg | Atk {atkBonus !== undefined ? (atkBonus >= 0 ? `+${atkBonus}` : atkBonus) : '?'}
+                    {dmgDisplay} dmg | Atk {atkBonus !== undefined ? (atkBonus >= 0 ? `+${atkBonus}` : atkBonus) : '?'}
                     {w.shockDamage !== null && ` | Shock ${w.shockDamage}/${w.isArmorPiercing ? 'AP' : w.shockAcThreshold}`}
                   </div>
                 </div>
@@ -102,6 +115,24 @@ export function CombatStats({ character, onUpdate }: {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {conditionalFoci.length > 0 && (
+        <div style={{ marginTop: '0.75rem' }}>
+          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
+            ACTIVE CONDITIONS
+          </div>
+          {conditionalFoci.map(f => (
+            <label key={f.id} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.875rem', cursor: 'pointer', marginBottom: '0.25rem' }}>
+              <input
+                type="checkbox"
+                checked={f.conditionalActive}
+                onChange={() => handleConditionalToggle(f.id, f.conditionalActive)}
+              />
+              {f.name}
+            </label>
+          ))}
         </div>
       )}
     </SectionCard>
