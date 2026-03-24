@@ -81,6 +81,7 @@ public record ItemDto
     public string? CombatSkill { get; init; }
     public int? ShockDamage { get; init; }
     public int? ShockAcThreshold { get; init; }
+    public bool? IsArmorPiercing { get; init; }
     public string? Tags { get; init; }
     public int? AttackBonus { get; init; }
 

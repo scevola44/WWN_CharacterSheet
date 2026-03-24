@@ -42,7 +42,9 @@ public static class CombatCalculator
         var shield = character.GetEquippedShield();
 
         int armorBonus = armor?.AcBonus ?? 0;
-        int shieldBonus = (shield != null && armor != null) ? 1 : 0;
+        var equippedWeapon = character.GetEquippedWeapon();
+        bool twoHandedEquipped = equippedWeapon?.Tags.HasFlag(WeaponTag.TwoHanded) ?? false;
+        int shieldBonus = (shield != null && armor != null && !twoHandedEquipped) ? 1 : 0;
         int focusBonus = FocusEffectAggregator.SumEffects(character.Foci, FocusEffectType.AcBonus);
 
         return baseAc + armorBonus + dexMod + shieldBonus + focusBonus;

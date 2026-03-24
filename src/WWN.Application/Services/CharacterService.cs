@@ -325,6 +325,7 @@ public class CharacterService(
                 CombatSkill = weapon.CombatSkill.ToString(),
                 ShockDamage = weapon.Shock?.Damage,
                 ShockAcThreshold = weapon.Shock?.AcThreshold,
+                IsArmorPiercing = weapon.Tags.HasFlag(WeaponTag.AP) ? true : null,
                 Tags = weapon.Tags.ToString()
             };
         }

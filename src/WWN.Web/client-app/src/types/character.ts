@@ -72,6 +72,7 @@ export interface ItemInfo {
   combatSkill: string | null;
   shockDamage: number | null;
   shockAcThreshold: number | null;
+  isArmorPiercing: boolean | null;
   tags: string | null;
   attackBonus: number | null;
   acBonus: number | null;

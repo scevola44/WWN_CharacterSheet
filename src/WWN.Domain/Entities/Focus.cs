@@ -2,7 +2,6 @@ using WWN.Domain.ValueObjects;
 
 namespace WWN.Domain.Entities;
 
-// TODO since we have the int Level property, it would be best practice to not hard-code logic to manually consider levels 1 and 2, but to be more abstract.
 public class Focus
 {
     public Guid Id { get; private set; }

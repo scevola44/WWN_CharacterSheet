@@ -126,9 +126,15 @@ export function InventoryPanel({ character, onUpdate }: {
                 <label>Tags</label>
                 <select value={form.tags ?? 'Melee'}
                   onChange={e => setForm({ ...form, tags: e.target.value })}>
-                  <option>Melee</option>
-                  <option>Ranged</option>
-                  <option value="Melee, TwoHanded">Two-Handed</option>
+                  <option value="Melee">Melee</option>
+                  <option value="Ranged">Ranged</option>
+                  <option value="Melee, TwoHanded">Melee + Two-Handed</option>
+                  <option value="Melee, AP">Melee + AP</option>
+                  <option value="Ranged, AP">Ranged + AP</option>
+                  <option value="Ranged, Reload">Ranged + Reload</option>
+                  <option value="Ranged, Thrown">Thrown</option>
+                  <option value="Melee, Subtle">Melee + Subtle</option>
+                  <option value="Melee, Long">Melee + Long (Reach)</option>
                 </select>
               </div>
               <div className="form-group">

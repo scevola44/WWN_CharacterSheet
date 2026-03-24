@@ -1,6 +1,5 @@
 namespace WWN.Domain.ValueObjects;
 
-// TODO in Worlds Without Number, skills can also have partial points. Represent this logic with small squares next to the number, which represent the new property.
 public sealed record SkillRank
 {
     public int Level { get; }

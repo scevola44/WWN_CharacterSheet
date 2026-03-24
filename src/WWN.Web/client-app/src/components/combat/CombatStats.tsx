@@ -67,7 +67,7 @@ export function CombatStats({ character, onUpdate }: {
                   <div className="item-name">{w.name}</div>
                   <div className="item-meta">
                     {w.damageDie} dmg | Atk {atkBonus !== undefined ? (atkBonus >= 0 ? `+${atkBonus}` : atkBonus) : '?'}
-                    {w.shockDamage !== null && ` | Shock ${w.shockDamage}/${w.shockAcThreshold}`}
+                    {w.shockDamage !== null && ` | Shock ${w.shockDamage}/${w.isArmorPiercing ? 'AP' : w.shockAcThreshold}`}
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: '0.5rem', fontSize: '0.75rem' }}>
