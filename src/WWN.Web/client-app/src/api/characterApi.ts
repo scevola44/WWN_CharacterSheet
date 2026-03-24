@@ -48,6 +48,9 @@ export const characterApi = {
   removeItem: (id: string, itemId: string) =>
     api.delete(`/${id}/items/${itemId}`),
 
+  updateItem: (id: string, itemId: string, req: AddItemRequest) =>
+    api.put<CharacterDetail>(`/${id}/items/${itemId}`, req).then(r => r.data),
+
   changeSlot: (id: string, itemId: string, slotType: string) =>
     api.put<CharacterDetail>(`/${id}/items/${itemId}/slot`, { slotType }).then(r => r.data),
 

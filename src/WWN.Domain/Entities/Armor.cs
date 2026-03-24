@@ -15,5 +15,12 @@ public class Armor : Item
         IsShield = isShield;
     }
 
+    public void Update(string name, int encumbrance, int acBonus, bool isShield = false, string? description = null)
+    {
+        base.Update(name, encumbrance, 1, description);
+        AcBonus = acBonus;
+        IsShield = isShield;
+    }
+
     private Armor() { } // EF Core
 }

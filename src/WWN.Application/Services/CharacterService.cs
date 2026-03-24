@@ -158,13 +158,69 @@ public class CharacterService(
     }
 
     public async Task RemoveItemAsync(
-        Guid characterId, 
-        Guid itemId, 
+        Guid characterId,
+        Guid itemId,
         CancellationToken cancellationToken = default)
     {
         var character = await GetOrThrow(characterId, cancellationToken);
         character.RemoveItem(itemId);
         await characterRepository.UpdateAsync(character, cancellationToken);
+    }
+
+    public async Task<CharacterDetailDto> UpdateItemAsync(
+        Guid characterId,
+        Guid itemId,
+        UpdateItemRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var character = await GetOrThrow(characterId, cancellationToken);
+        var item = character.Inventory.FirstOrDefault(i => i.Id == itemId);
+        if (item is null)
+            throw new InvalidOperationException($"Item with ID {itemId} not found in character inventory.");
+
+        switch (request.ItemType.ToLower())
+        {
+            case "weapon":
+                if (item is not Weapon weapon)
+                    throw new InvalidOperationException($"Item {itemId} is not a weapon.");
+                weapon.Update(
+                    request.Name,
+                    request.Encumbrance,
+                    new DamageDie(request.DamageDieCount ?? 1, request.DamageDieSides ?? 6),
+                    EnumParser.Parse<AttributeName>(request.AttributeModifier ?? "Strength", nameof(request.AttributeModifier)),
+                    EnumParser.Parse<SkillName>(request.CombatSkill ?? "Stab", nameof(request.CombatSkill)),
+                    ParseWeaponTags(request.Tags),
+                    request is { ShockDamage: not null, ShockAcThreshold: not null }
+                        ? new ShockInfo(request.ShockDamage.Value, request.ShockAcThreshold.Value)
+                        : null,
+                    request.Description);
+                break;
+
+            case "armor":
+                if (item is not Armor armor)
+                    throw new InvalidOperationException($"Item {itemId} is not armor.");
+                armor.Update(
+                    request.Name,
+                    request.Encumbrance,
+                    request.AcBonus ?? 0,
+                    request.IsShield ?? false,
+                    request.Description);
+                break;
+
+            default:
+                item.Update(request.Name, request.Encumbrance, request.Quantity, request.Description);
+                break;
+        }
+
+        await characterRepository.UpdateAsync(character, cancellationToken);
+        return MapToDetailDto(character);
+    }
+
+    private static WeaponTag ParseWeaponTags(string? tags)
+    {
+        return string.IsNullOrWhiteSpace(tags)
+            ? WeaponTag.None
+            : EnumParser.Parse<WeaponTag>(tags, nameof(tags));
     }
 
     public async Task<CharacterDetailDto> ChangeSlotAsync(

@@ -69,6 +69,28 @@ public record AddItemRequest
     public bool? IsShield { get; init; }
 }
 
+public record UpdateItemRequest
+{
+    public string Name { get; init; } = string.Empty;
+    public string? Description { get; init; }
+    public int Encumbrance { get; init; }
+    public int Quantity { get; init; } = 1;
+    public string ItemType { get; init; } = "Item";
+
+    // Weapon fields
+    public int? DamageDieCount { get; init; }
+    public int? DamageDieSides { get; init; }
+    public string? AttributeModifier { get; init; }
+    public string? CombatSkill { get; init; }
+    public int? ShockDamage { get; init; }
+    public int? ShockAcThreshold { get; init; }
+    public string? Tags { get; init; }
+
+    // Armor fields
+    public int? AcBonus { get; init; }
+    public bool? IsShield { get; init; }
+}
+
 public record ChangeSlotRequest
 {
     public string SlotType { get; init; } = string.Empty;

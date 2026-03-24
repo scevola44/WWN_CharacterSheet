@@ -23,5 +23,13 @@ public class Item
         Description = description;
     }
 
+    public virtual void Update(string name, int encumbrance, int quantity, string? description = null)
+    {
+        Name = name;
+        Encumbrance = encumbrance;
+        Quantity = quantity;
+        Description = description;
+    }
+
     protected Item() { } // EF Core
 }
