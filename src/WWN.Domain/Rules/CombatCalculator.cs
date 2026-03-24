@@ -50,16 +50,13 @@ public static class CombatCalculator
     public static int GetTotalShockBonus(Character character, Weapon weapon)
     {
         var condition = MapSkillToCondition(weapon.CombatSkill);
-        int focusDmgBonus = FocusEffectAggregator.SumEffects(
-            character.Foci, FocusEffectType.DamageBonus, character, condition);
-        int abilityDmgBonus = ClassAbilityEffectAggregator.SumEffects(
-            character.ClassAbilities, FocusEffectType.DamageBonus, character, condition);
         int focusShockBonus = FocusEffectAggregator.SumEffects(
             character.Foci, FocusEffectType.ShockBonus, character, condition);
         int abilityShockBonus = ClassAbilityEffectAggregator.SumEffects(
             character.ClassAbilities, FocusEffectType.ShockBonus, character, condition);
 
-        return focusDmgBonus + abilityDmgBonus + focusShockBonus + abilityShockBonus;
+        return weapon.Shock?.Damage + focusShockBonus + abilityShockBonus 
+               ?? 0;
     }
 
     public static int GetArmorClass(Character character)
