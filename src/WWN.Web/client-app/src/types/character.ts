@@ -99,6 +99,7 @@ export interface DerivedStats {
   attributeModifiers: Record<string, number>;
   weaponAttackBonuses: Record<string, number>;
   weaponDamageBonuses: Record<string, number>;
+  weaponShockBonuses: Record<string, number>;
   hitDieModifier: number;
   hpFocusBonus: number;
 }
