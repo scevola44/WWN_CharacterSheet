@@ -29,6 +29,7 @@ public record CharacterDetailDto
     public List<ItemDto> Inventory { get; init; } = new();
     public List<KnownSpellDto> Spellbook { get; init; } = new();
     public SpellSlotInfoDto? SpellSlots { get; init; }
+    public List<ClassAbilityDto> ClassAbilities { get; init; } = new();
     public DerivedStatsDto DerivedStats { get; init; } = null!;
     public string? Notes { get; init; }
 }

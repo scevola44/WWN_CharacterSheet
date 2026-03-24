@@ -27,8 +27,16 @@ export interface CharacterDetail {
   inventory: ItemInfo[];
   spellbook: KnownSpellInfo[];
   spellSlots: SpellSlotInfo | null;
+  classAbilities: ClassAbilityInfo[];
   derivedStats: DerivedStats;
   notes: string | null;
+}
+
+export interface ClassAbilityInfo {
+  name: string;
+  description: string;
+  minLevel: number;
+  classOwner: string;
 }
 
 export interface AttributeInfo {

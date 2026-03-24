@@ -30,12 +30,14 @@ try
     builder.Services.AddScoped<ICharacterRepository, CharacterRepository>();
     builder.Services.AddScoped<ISpellRepository, SpellRepository>();
     builder.Services.AddScoped<IFocusDefinitionRepository, FocusDefinitionRepository>();
+    builder.Services.AddScoped<IClassAbilityRepository, ClassAbilityRepository>();
     builder.Services.AddScoped<CharacterService>();
     builder.Services.AddScoped<SpellService>();
     builder.Services.AddScoped<CharacterSpellService>();
     builder.Services.AddScoped<FocusDefinitionService>();
     builder.Services.AddScoped<FocusDefinitionSeeder>();
     builder.Services.AddScoped<SpellDefinitionSeeder>();
+    builder.Services.AddScoped<ClassAbilitySeeder>();
     builder.Services.AddSingleton<CharacterSheetCalculator>();
 
     // Swagger
@@ -52,7 +54,7 @@ try
     using (var scope = app.Services.CreateScope())
     {
         var dbContext = scope.ServiceProvider.GetRequiredService<WwnDbContext>();
-        await dbContext.Database.EnsureCreatedAsync();
+        await dbContext.Database.MigrateAsync();
 
         // Seed default WWN foci from the Free Edition if the table is empty.
         var focusSeeder = scope.ServiceProvider.GetRequiredService<FocusDefinitionSeeder>();
@@ -61,6 +63,10 @@ try
         // Seed default WWN spells from the Free Edition if the table is empty.
         var spellSeeder = scope.ServiceProvider.GetRequiredService<SpellDefinitionSeeder>();
         await spellSeeder.SeedIfEmptyAsync();
+
+        // Seed default WWN class abilities from the Free Edition if the table is empty.
+        var abilitySeeder = scope.ServiceProvider.GetRequiredService<ClassAbilitySeeder>();
+        await abilitySeeder.SeedIfEmptyAsync();
     }
 
     app.UseMiddleware<ExceptionHandlingMiddleware>();
