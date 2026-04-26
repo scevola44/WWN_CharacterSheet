@@ -27,8 +27,16 @@ export interface CharacterDetail {
   inventory: ItemInfo[];
   spellbook: KnownSpellInfo[];
   spellSlots: SpellSlotInfo | null;
+  classAbilities: ClassAbilityInfo[];
   derivedStats: DerivedStats;
   notes: string | null;
+}
+
+export interface ClassAbilityInfo {
+  name: string;
+  description: string;
+  minLevel: number;
+  classOwner: string;
 }
 
 export interface AttributeInfo {
@@ -48,12 +56,15 @@ export interface FocusInfo {
   id: string;
   name: string;
   level: number;
+  conditionalActive: boolean;
   effects: FocusEffectInfo[];
 }
 
 export interface FocusEffectInfo {
   type: string;
   numericValue: number;
+  valueType: string;
+  condition: string;
   targetSkill: string | null;
   targetAttribute: string | null;
   description: string | null;
@@ -72,6 +83,7 @@ export interface ItemInfo {
   combatSkill: string | null;
   shockDamage: number | null;
   shockAcThreshold: number | null;
+  isArmorPiercing: boolean | null;
   tags: string | null;
   attackBonus: number | null;
   acBonus: number | null;
@@ -86,7 +98,10 @@ export interface DerivedStats {
   mentalSave: number;
   attributeModifiers: Record<string, number>;
   weaponAttackBonuses: Record<string, number>;
+  weaponDamageBonuses: Record<string, number>;
+  weaponShockBonuses: Record<string, number>;
   hitDieModifier: number;
+  hpFocusBonus: number;
 }
 
 export interface CreateCharacterRequest {
@@ -124,6 +139,8 @@ export interface AddFocusRequest {
   effects: {
     type: string;
     numericValue: number;
+    valueType?: string;
+    condition?: string;
     targetSkill?: string;
     targetAttribute?: string;
     description?: string;

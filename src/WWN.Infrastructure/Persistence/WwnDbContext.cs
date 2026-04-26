@@ -9,6 +9,7 @@ public class WwnDbContext(DbContextOptions<WwnDbContext> options) : DbContext(op
     public DbSet<Character> Characters => Set<Character>();
     public DbSet<Spell> Spells => Set<Spell>();
     public DbSet<FocusDefinition> FocusDefinitions => Set<FocusDefinition>();
+    public DbSet<ClassAbilityDefinition> ClassAbilityDefinitions => Set<ClassAbilityDefinition>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

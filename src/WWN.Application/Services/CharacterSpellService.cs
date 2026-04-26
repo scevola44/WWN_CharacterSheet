@@ -47,17 +47,17 @@ public class CharacterSpellService(
         var character = await GetCharacterOrThrow(characterId, cancellationToken);
         character.UseSpellSlot(spellLevel);
         await characterRepository.UpdateAsync(character, cancellationToken);
-        return characterService.MapToDetailDto(character);
+        return await characterService.MapToDetailDtoAsync(character, cancellationToken);
     }
 
     public async Task<CharacterDetailDto> RestoreSpellSlotsAsync(
-        Guid characterId, 
+        Guid characterId,
         CancellationToken cancellationToken = default)
     {
         var character = await GetCharacterOrThrow(characterId, cancellationToken);
         character.RestoreAllSpellSlots();
         await characterRepository.UpdateAsync(character, cancellationToken);
-        return characterService.MapToDetailDto(character);
+        return await characterService.MapToDetailDtoAsync(character, cancellationToken);
     }
 
     private async Task<Domain.Aggregates.Character> GetCharacterOrThrow(

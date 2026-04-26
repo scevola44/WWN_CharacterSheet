@@ -12,12 +12,13 @@ namespace WWN.Application.Services;
 
 public class CharacterService(
     ICharacterRepository characterRepository,
-    CharacterSheetCalculator sheetCalculator)
+    IFocusDefinitionRepository focusDefinitionRepository,
+    IClassAbilityRepository classAbilityRepository)
 {
     public async Task<CharacterDetailDto?> GetCharacterAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var character = await characterRepository.GetByIdAsync(id, cancellationToken);
-        return character is null ? null : MapToDetailDto(character);
+        return character is null ? null : await SyncAndMap(character, cancellationToken);
     }
 
     public async Task<IReadOnlyList<CharacterSummaryDto>> ListCharactersAsync(
@@ -68,7 +69,7 @@ public class CharacterService(
         var attributeName = EnumParser.Parse<AttributeName>(attributeString, nameof(attributeString));
         character.SetAttribute(attributeName, score);
         await characterRepository.UpdateAsync(character, cancellationToken);
-        return MapToDetailDto(character);
+        return await SyncAndMap(character, cancellationToken);
     }
 
     public async Task<CharacterDetailDto> UpdateSkillAsync(
@@ -81,7 +82,7 @@ public class CharacterService(
         var skill = EnumParser.Parse<SkillName>(skillName, nameof(skillName));
         character.SetSkillRank(skill, rank);
         await characterRepository.UpdateAsync(character, cancellationToken);
-        return MapToDetailDto(character);
+        return await SyncAndMap(character, cancellationToken);
     }
 
     public async Task<CharacterDetailDto> AddCustomSkillAsync(
@@ -93,7 +94,7 @@ public class CharacterService(
         var character = await GetOrThrow(characterId, cancellationToken);
         character.AddCustomSkill(name, rank);
         await characterRepository.UpdateAsync(character, cancellationToken);
-        return MapToDetailDto(character);
+        return await SyncAndMap(character, cancellationToken);
     }
 
     public async Task<CharacterDetailDto> SetHpAsync(
@@ -105,7 +106,7 @@ public class CharacterService(
         var character = await GetOrThrow(characterId, cancellationToken);
         character.SetHitPoints(maxHp, currentHp);
         await characterRepository.UpdateAsync(character, cancellationToken);
-        return MapToDetailDto(character);
+        return await SyncAndMap(character, cancellationToken);
     }
 
     public async Task<CharacterDetailDto> SetLevelAsync(
@@ -116,7 +117,7 @@ public class CharacterService(
         var character = await GetOrThrow(characterId, cancellationToken);
         character.SetLevel(level);
         await characterRepository.UpdateAsync(character, cancellationToken);
-        return MapToDetailDto(character);
+        return await SyncAndMap(character, cancellationToken);
     }
 
     public async Task<CharacterDetailDto> AddFocusAsync(
@@ -128,6 +129,8 @@ public class CharacterService(
         var focusEffects = request.Effects.Select(e => new FocusEffect(
             EnumParser.Parse<FocusEffectType>(e.Type, nameof(e.Type)),
             e.NumericValue,
+            EnumParser.Parse<FocusEffectValueType>(e.ValueType, nameof(e.ValueType)),
+            EnumParser.Parse<FocusEffectCondition>(e.Condition, nameof(e.Condition)),
             e.TargetSkill is not null ? EnumParser.Parse<SkillName>(e.TargetSkill, nameof(e.TargetSkill)) : null,
             e.TargetAttribute is not null ? EnumParser.Parse<AttributeName>(e.TargetAttribute, nameof(e.TargetAttribute)) : null,
             e.Description));
@@ -135,7 +138,35 @@ public class CharacterService(
         var focus = new Focus(request.Name, request.Level, focusEffects);
         character.AddFocus(focus);
         await characterRepository.UpdateAsync(character, cancellationToken);
-        return MapToDetailDto(character);
+        return await SyncAndMap(character, cancellationToken);
+    }
+
+    public async Task<CharacterDetailDto> UpgradeFocusAsync(
+        Guid characterId,
+        Guid focusId,
+        UpgradeFocusRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var character = await GetOrThrow(characterId, cancellationToken);
+        var focus = character.Foci.FirstOrDefault(f => f.Id == focusId)
+            ?? throw new KeyNotFoundException($"Focus {focusId} not found on character {characterId}.");
+        focus.UpgradeToLevel2(request.AdditionalEffects.Select(ParseFocusEffect));
+        await characterRepository.UpdateAsync(character, cancellationToken);
+        return await SyncAndMap(character, cancellationToken);
+    }
+
+    public async Task<CharacterDetailDto> SetFocusConditionalAsync(
+        Guid characterId,
+        Guid focusId,
+        bool active,
+        CancellationToken cancellationToken = default)
+    {
+        var character = await GetOrThrow(characterId, cancellationToken);
+        var focus = character.Foci.FirstOrDefault(f => f.Id == focusId)
+            ?? throw new KeyNotFoundException($"Focus {focusId} not found on character {characterId}.");
+        focus.SetConditionalActive(active);
+        await characterRepository.UpdateAsync(character, cancellationToken);
+        return await SyncAndMap(character, cancellationToken);
     }
 
     public async Task RemoveFocusAsync(Guid characterId, Guid focusId, CancellationToken ct = default)
@@ -154,7 +185,7 @@ public class CharacterService(
         var item = ItemFactory.Create(request);
         character.AddItem(item);
         await characterRepository.UpdateAsync(character, cancellationToken);
-        return MapToDetailDto(character);
+        return await SyncAndMap(character, cancellationToken);
     }
 
     public async Task RemoveItemAsync(
@@ -167,6 +198,62 @@ public class CharacterService(
         await characterRepository.UpdateAsync(character, cancellationToken);
     }
 
+    public async Task<CharacterDetailDto> UpdateItemAsync(
+        Guid characterId,
+        Guid itemId,
+        UpdateItemRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var character = await GetOrThrow(characterId, cancellationToken);
+        var item = character.Inventory.FirstOrDefault(i => i.Id == itemId);
+        if (item is null)
+            throw new InvalidOperationException($"Item with ID {itemId} not found in character inventory.");
+
+        switch (request.ItemType.ToLower())
+        {
+            case "weapon":
+                if (item is not Weapon weapon)
+                    throw new InvalidOperationException($"Item {itemId} is not a weapon.");
+                weapon.Update(
+                    request.Name,
+                    request.Encumbrance,
+                    new DamageDie(request.DamageDieCount ?? 1, request.DamageDieSides ?? 6),
+                    EnumParser.Parse<AttributeName>(request.AttributeModifier ?? "Strength", nameof(request.AttributeModifier)),
+                    EnumParser.Parse<SkillName>(request.CombatSkill ?? "Stab", nameof(request.CombatSkill)),
+                    ParseWeaponTags(request.Tags),
+                    request is { ShockDamage: not null, ShockAcThreshold: not null }
+                        ? new ShockInfo(request.ShockDamage.Value, request.ShockAcThreshold.Value)
+                        : null,
+                    request.Description);
+                break;
+
+            case "armor":
+                if (item is not Armor armor)
+                    throw new InvalidOperationException($"Item {itemId} is not armor.");
+                armor.Update(
+                    request.Name,
+                    request.Encumbrance,
+                    request.AcBonus ?? 0,
+                    request.IsShield ?? false,
+                    request.Description);
+                break;
+
+            default:
+                item.Update(request.Name, request.Encumbrance, request.Quantity, request.Description);
+                break;
+        }
+
+        await characterRepository.UpdateAsync(character, cancellationToken);
+        return await MapToDetailDtoAsync(character, cancellationToken);
+    }
+
+    private static WeaponTag ParseWeaponTags(string? tags)
+    {
+        return string.IsNullOrWhiteSpace(tags)
+            ? WeaponTag.None
+            : EnumParser.Parse<WeaponTag>(tags, nameof(tags));
+    }
+
     public async Task<CharacterDetailDto> ChangeSlotAsync(
         Guid characterId, 
         Guid itemId, 
@@ -177,7 +264,7 @@ public class CharacterService(
         var slot = EnumParser.Parse<ItemSlotType>(slotType, nameof(slotType));
         character.ChangeItemSlot(itemId, slot);
         await characterRepository.UpdateAsync(character, cancellationToken);
-        return MapToDetailDto(character);
+        return await SyncAndMap(character, cancellationToken);
     }
 
     public async Task<CharacterDetailDto> UpdateWeaponAttackConfigAsync(
@@ -196,7 +283,7 @@ public class CharacterService(
         var attrName = EnumParser.Parse<AttributeName>(attribute, nameof(attribute));
         weapon.SetCombatConfig(skillName, attrName);
         await characterRepository.UpdateAsync(character, cancellationToken);
-        return MapToDetailDto(character);
+        return await SyncAndMap(character, cancellationToken);
     }
 
     public async Task<CharacterDetailDto> UpdateNotesAsync(
@@ -207,7 +294,7 @@ public class CharacterService(
         var character = await GetOrThrow(characterId, cancellationToken);
         character.SetNotes(notes);
         await characterRepository.UpdateAsync(character, cancellationToken);
-        return MapToDetailDto(character);
+        return await SyncAndMap(character, cancellationToken);
     }
 
     public async Task DeleteCharacterAsync(
@@ -215,6 +302,23 @@ public class CharacterService(
         CancellationToken cancellationToken = default)
     {
         await characterRepository.DeleteAsync(characterId, cancellationToken);
+    }
+
+    private async Task<CharacterDetailDto> SyncAndMap(Character character, CancellationToken cancellationToken)
+    {
+        var definitions = await focusDefinitionRepository.GetAllAsync(cancellationToken);
+        var defsByName = definitions.ToDictionary(d => d.Name, StringComparer.OrdinalIgnoreCase);
+        foreach (var focus in character.Foci)
+        {
+            if (defsByName.TryGetValue(focus.Name, out var def))
+            {
+                var effects = focus.Level >= 2
+                    ? def.Level1Effects.Concat(def.Level2Effects)
+                    : def.Level1Effects;
+                focus.SetEffects(effects);
+            }
+        }
+        return await MapToDetailDtoAsync(character, cancellationToken);
     }
 
     private async Task<Character> GetOrThrow(
@@ -225,8 +329,31 @@ public class CharacterService(
             ?? throw new KeyNotFoundException($"Character {characterId} not found.");
     }
 
-    internal CharacterDetailDto MapToDetailDto(Character character)
+    internal async Task<CharacterDetailDto> MapToDetailDtoAsync(
+        Character character,
+        CancellationToken cancellationToken = default)
     {
+        var allAbilities = await classAbilityRepository.GetAllAsync(cancellationToken);
+        var ownerKeys = GetAbilityOwnerKeys(character);
+
+        var activeAbilities = allAbilities
+            .Where(a => ownerKeys.Contains(a.ClassOwner) && a.MinLevel <= character.Level)
+            .ToList();
+
+        character.LoadClassAbilityDefinitions(activeAbilities);
+
+        var classAbilities = activeAbilities
+            .OrderBy(a => a.MinLevel)
+            .ThenBy(a => a.Name)
+            .Select(a => new ClassAbilityDto
+            {
+                Name = a.Name,
+                Description = a.Description,
+                MinLevel = a.MinLevel,
+                ClassOwner = a.ClassOwner
+            })
+            .ToList();
+
         var calculatedStats = CharacterSheetCalculator.Calculate(character);
         return new CharacterDetailDto
         {
@@ -254,6 +381,8 @@ public class CharacterService(
                 Name = skill.Name.ToString(),
                 CustomName = skill.CustomName,
                 Level = skill.Rank.Level
+                    + FocusEffectAggregator.SumSkillEffects(character.Foci, skill.Name, character)
+                    + ClassAbilityEffectAggregator.SumSkillEffects(character.ClassAbilities, skill.Name, character)
             }).ToList(),
             Foci = character.Foci.Select(focus => new FocusDto
             {
@@ -277,8 +406,20 @@ public class CharacterService(
                 Spell = SpellService.MapToDto(k.Spell)
             }).ToList(),
             SpellSlots = GetSpellSlotsInfo(character),
+            ClassAbilities = classAbilities,
             DerivedStats = calculatedStats
         };
+    }
+
+    private static HashSet<string> GetAbilityOwnerKeys(Character character)
+    {
+        if (character.Class != CharacterClass.Adventurer)
+            return [character.Class.ToString()];
+
+        var keys = new HashSet<string>();
+        if (character.PartialClassA.HasValue) keys.Add(character.PartialClassA.Value.ToString());
+        if (character.PartialClassB.HasValue) keys.Add(character.PartialClassB.Value.ToString());
+        return keys;
     }
 
     private static SpellSlotInfoDto? GetSpellSlotsInfo(Character character)
@@ -302,6 +443,26 @@ public class CharacterService(
         return character.PartialClassA == PartialClass.PartialMage 
                || character.PartialClassB == PartialClass.PartialMage;
     }
+
+    private static FocusEffect ParseFocusEffect(FocusEffectDto e) => new(
+        EnumParser.Parse<FocusEffectType>(e.Type, nameof(e.Type)),
+        e.NumericValue,
+        EnumParser.ParseOrDefault(e.ValueType, FocusEffectValueType.Static),
+        EnumParser.ParseOrDefault(e.Condition, FocusEffectCondition.Always),
+        e.TargetSkill is not null ? EnumParser.Parse<SkillName>(e.TargetSkill, nameof(e.TargetSkill)) : null,
+        e.TargetAttribute is not null ? EnumParser.Parse<AttributeName>(e.TargetAttribute, nameof(e.TargetAttribute)) : null,
+        e.Description);
+
+    private static FocusEffectDto MapFocusEffectDto(FocusEffect e) => new()
+    {
+        Type = e.Type.ToString(),
+        NumericValue = e.NumericValue,
+        ValueType = e.ValueType.ToString(),
+        Condition = e.Condition.ToString(),
+        TargetSkill = e.TargetSkill?.ToString(),
+        TargetAttribute = e.TargetAttribute?.ToString(),
+        Description = e.Description
+    };
 
     private static ItemDto MapItemDto(Item item)
     {

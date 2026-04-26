@@ -2,7 +2,7 @@ using WWN.Domain.Enums;
 
 namespace WWN.Domain.ValueObjects;
 
-public sealed record FocusEffect(
+public sealed record ClassAbilityEffect(
     FocusEffectType Type,
     int NumericValue,
     FocusEffectValueType ValueType = FocusEffectValueType.Static,

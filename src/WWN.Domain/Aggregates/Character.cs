@@ -40,12 +40,14 @@ public class Character
     private readonly List<Focus> _foci = new();
     private readonly List<Item> _inventory = new();
     private readonly List<KnownSpell> _spellbook = new();
+    private List<ClassAbilityDefinition> _classAbilities = new();
 
     public IReadOnlyList<CharacterAttribute> Attributes => _attributes.AsReadOnly();
     public IReadOnlyList<CharacterSkill> Skills => _skills.AsReadOnly();
     public IReadOnlyList<Focus> Foci => _foci.AsReadOnly();
     public IReadOnlyList<Item> Inventory => _inventory.AsReadOnly();
     public IReadOnlyList<KnownSpell> Spellbook => _spellbook.AsReadOnly();
+    public IReadOnlyList<ClassAbilityDefinition> ClassAbilities => _classAbilities.AsReadOnly();
     #endregion Collections
 
     #region Spells
@@ -158,6 +160,11 @@ public class Character
         var focus = _foci.FirstOrDefault(f => f.Id == focusId)
             ?? throw new InvalidOperationException("Focus not found.");
         _foci.Remove(focus);
+    }
+
+    public void LoadClassAbilityDefinitions(IEnumerable<ClassAbilityDefinition> definitions)
+    {
+        _classAbilities = definitions.ToList();
     }
     #endregion Focus mutations
 

@@ -30,5 +30,17 @@ public class Weapon : Item
         AttributeModifier = attribute;
     }
 
+    public void Update(string name, int encumbrance, DamageDie damageDie,
+        AttributeName attributeModifier, SkillName combatSkill, WeaponTag tags,
+        ShockInfo? shock = null, string? description = null)
+    {
+        base.Update(name, encumbrance, 1, description);
+        DamageDie = damageDie;
+        AttributeModifier = attributeModifier;
+        CombatSkill = combatSkill;
+        Tags = tags;
+        Shock = shock;
+    }
+
     private Weapon() { } // EF Core
 }

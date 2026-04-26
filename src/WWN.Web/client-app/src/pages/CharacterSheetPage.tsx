@@ -10,6 +10,7 @@ import { FociPanel } from '../components/foci/FociPanel';
 import { InventoryPanel } from '../components/inventory/InventoryPanel';
 import { SpellsPanel } from '../components/spells/SpellsPanel';
 import { NotesSection } from '../components/notes/NotesSection';
+import { ClassAbilitiesPanel } from '../components/abilities/ClassAbilitiesPanel';
 
 export function CharacterSheetPage() {
   const { id } = useParams<{ id: string }>();
@@ -45,6 +46,7 @@ export function CharacterSheetPage() {
           <AttributePanel character={character} onUpdate={handleUpdate} isEditing={isEditing} />
           <CombatStats character={character} onUpdate={handleUpdate} />
           <HitPointTracker character={character} onUpdate={handleUpdate} />
+          <ClassAbilitiesPanel character={character} />
           <FociPanel character={character} onUpdate={handleUpdate} />
         </div>
         <div className="sheet-col">

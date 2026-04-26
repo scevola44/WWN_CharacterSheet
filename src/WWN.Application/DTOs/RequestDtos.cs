@@ -69,6 +69,28 @@ public record AddItemRequest
     public bool? IsShield { get; init; }
 }
 
+public record UpdateItemRequest
+{
+    public string Name { get; init; } = string.Empty;
+    public string? Description { get; init; }
+    public int Encumbrance { get; init; }
+    public int Quantity { get; init; } = 1;
+    public string ItemType { get; init; } = "Item";
+
+    // Weapon fields
+    public int? DamageDieCount { get; init; }
+    public int? DamageDieSides { get; init; }
+    public string? AttributeModifier { get; init; }
+    public string? CombatSkill { get; init; }
+    public int? ShockDamage { get; init; }
+    public int? ShockAcThreshold { get; init; }
+    public string? Tags { get; init; }
+
+    // Armor fields
+    public int? AcBonus { get; init; }
+    public bool? IsShield { get; init; }
+}
+
 public record ChangeSlotRequest
 {
     public string SlotType { get; init; } = string.Empty;
@@ -92,6 +114,8 @@ public record CreateFocusDefinitionRequest
     public string Level1Description { get; init; } = string.Empty;
     public string? Level2Description { get; init; }
     public bool CanTakeMultipleTimes { get; init; }
+    public List<FocusEffectDto> Level1Effects { get; init; } = new();
+    public List<FocusEffectDto> Level2Effects { get; init; } = new();
 }
 
 public record UpdateFocusDefinitionRequest
@@ -101,6 +125,8 @@ public record UpdateFocusDefinitionRequest
     public string Level1Description { get; init; } = string.Empty;
     public string? Level2Description { get; init; }
     public bool CanTakeMultipleTimes { get; init; }
+    public List<FocusEffectDto> Level1Effects { get; init; } = new();
+    public List<FocusEffectDto> Level2Effects { get; init; } = new();
 }
 
 public record CreateSpellRequest
@@ -122,4 +148,14 @@ public record UpdateSpellRequest
 public record UseSpellSlotRequest
 {
     public int SpellLevel { get; init; }
+}
+
+public record UpgradeFocusRequest
+{
+    public List<FocusEffectDto> AdditionalEffects { get; init; } = new();
+}
+
+public record SetFocusConditionalRequest
+{
+    public bool Active { get; init; }
 }

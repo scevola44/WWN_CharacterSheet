@@ -29,6 +29,7 @@ public record CharacterDetailDto
     public List<ItemDto> Inventory { get; init; } = new();
     public List<KnownSpellDto> Spellbook { get; init; } = new();
     public SpellSlotInfoDto? SpellSlots { get; init; }
+    public List<ClassAbilityDto> ClassAbilities { get; init; } = new();
     public DerivedStatsDto DerivedStats { get; init; } = null!;
     public string? Notes { get; init; }
 }
@@ -53,6 +54,7 @@ public record FocusDto
     public Guid Id { get; init; }
     public string Name { get; init; } = string.Empty;
     public int Level { get; init; }
+    public bool ConditionalActive { get; init; }
     public List<FocusEffectDto> Effects { get; init; } = new();
 }
 
@@ -60,6 +62,8 @@ public record FocusEffectDto
 {
     public string Type { get; init; } = string.Empty;
     public int NumericValue { get; init; }
+    public string ValueType { get; init; } = "Static";
+    public string Condition { get; init; } = "Always";
     public string? TargetSkill { get; init; }
     public string? TargetAttribute { get; init; }
     public string? Description { get; init; }
@@ -81,6 +85,7 @@ public record ItemDto
     public string? CombatSkill { get; init; }
     public int? ShockDamage { get; init; }
     public int? ShockAcThreshold { get; init; }
+    public bool? IsArmorPiercing { get; init; }
     public string? Tags { get; init; }
     public int? AttackBonus { get; init; }
 
@@ -98,6 +103,8 @@ public record FocusDefinitionDto
     public string? Level2Description { get; init; }
     public bool HasLevel2 { get; init; }
     public bool CanTakeMultipleTimes { get; init; }
+    public List<FocusEffectDto> Level1Effects { get; init; } = new();
+    public List<FocusEffectDto> Level2Effects { get; init; } = new();
 }
 
 public record SpellDto

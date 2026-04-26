@@ -12,6 +12,7 @@ public class FocusConfiguration : IEntityTypeConfiguration<Focus>
         builder.HasKey(focus => focus.Id);
         builder.Property(focus => focus.Id).ValueGeneratedNever();
         builder.Property(focus => focus.Name).HasMaxLength(100).IsRequired();
+        builder.Property(focus => focus.ConditionalActive).HasDefaultValue(false);
         builder.OwnsMany(focus => focus.Effects, e =>
         {
             e.ToJson();
