@@ -245,4 +245,54 @@ public class CharacterTests
         character.GetEquippedShield().Should().NotBeNull();
         character.GetEquippedShield()!.IsShield.Should().BeTrue();
     }
+
+    [Fact]
+    public void SetStrain_Valid_UpdatesCurrentStrain()
+    {
+        var character = Character.Create("Test", CharacterClass.Warrior, DefaultScores);
+        character.SetStrain(3);
+        character.CurrentStrain.Should().Be(3);
+    }
+
+    [Fact]
+    public void SetStrain_Zero_IsValid()
+    {
+        var character = Character.Create("Test", CharacterClass.Warrior, DefaultScores);
+        character.SetStrain(5);
+        character.SetStrain(0);
+        character.CurrentStrain.Should().Be(0);
+    }
+
+    [Fact]
+    public void SetStrain_EqualToConScore_IsValid()
+    {
+        // DefaultScores has CON = 10
+        var character = Character.Create("Test", CharacterClass.Warrior, DefaultScores);
+        character.SetStrain(10);
+        character.CurrentStrain.Should().Be(10);
+    }
+
+    [Fact]
+    public void SetStrain_ExceedsConScore_Throws()
+    {
+        // DefaultScores has CON = 10
+        var character = Character.Create("Test", CharacterClass.Warrior, DefaultScores);
+        var act = () => character.SetStrain(11);
+        act.Should().Throw<ArgumentOutOfRangeException>();
+    }
+
+    [Fact]
+    public void SetStrain_Negative_Throws()
+    {
+        var character = Character.Create("Test", CharacterClass.Warrior, DefaultScores);
+        var act = () => character.SetStrain(-1);
+        act.Should().Throw<ArgumentOutOfRangeException>();
+    }
+
+    [Fact]
+    public void SetStrain_DefaultIsZero()
+    {
+        var character = Character.Create("Test", CharacterClass.Warrior, DefaultScores);
+        character.CurrentStrain.Should().Be(0);
+    }
 }

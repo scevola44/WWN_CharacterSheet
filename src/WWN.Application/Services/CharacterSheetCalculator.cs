@@ -43,7 +43,8 @@ public class CharacterSheetCalculator
                 .ToDictionary(w => w.Id, w => CombatCalculator.GetTotalShockBonus(character, w)),
             HitDieModifier = HitPointCalculator.GetHitDieModifier(
                 character.Class, character.PartialClassA, character.PartialClassB),
-            HpFocusBonus = hpFocusBonus + hpAbilityBonus
+            HpFocusBonus = hpFocusBonus + hpAbilityBonus,
+            MaxStrain = character.GetAttribute(AttributeName.Constitution).Score.Value
         };
     }
 }

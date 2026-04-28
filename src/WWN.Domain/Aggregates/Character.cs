@@ -24,7 +24,19 @@ public class Character
     #region HP
     public int MaxHitPoints { get; private set; }
     public int CurrentHitPoints { get; private set; }
-#endregion HP
+    #endregion HP
+
+    #region Strain
+    public int CurrentStrain { get; private set; } = 0;
+
+    public void SetStrain(int current)
+    {
+        var max = GetAttribute(AttributeName.Constitution).Score.Value;
+        if (current < 0) throw new ArgumentOutOfRangeException(nameof(current), "Strain cannot be negative.");
+        if (current > max) throw new ArgumentOutOfRangeException(nameof(current), $"Strain cannot exceed CON score ({max}).");
+        CurrentStrain = current;
+    }
+    #endregion Strain
 
     #region Experience
     public int ExperiencePoints { get; private set; }

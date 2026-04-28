@@ -20,6 +20,7 @@ export interface CharacterDetail {
   level: number;
   maxHitPoints: number;
   currentHitPoints: number;
+  currentStrain: number;
   experiencePoints: number;
   attributes: AttributeInfo[];
   skills: SkillInfo[];
@@ -102,6 +103,7 @@ export interface DerivedStats {
   weaponShockBonuses: Record<string, number>;
   hitDieModifier: number;
   hpFocusBonus: number;
+  maxStrain: number;
 }
 
 export interface CreateCharacterRequest {

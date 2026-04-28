@@ -22,6 +22,7 @@ public record CharacterDetailDto
     public int Level { get; init; }
     public int MaxHitPoints { get; init; }
     public int CurrentHitPoints { get; init; }
+    public int CurrentStrain { get; init; }
     public int ExperiencePoints { get; init; }
     public List<AttributeDto> Attributes { get; init; } = new();
     public List<SkillDto> Skills { get; init; } = new();

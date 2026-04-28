@@ -61,6 +61,13 @@ public static class CharacterEndpoints
             return Results.Ok(dto);
         });
 
+        group.MapPut("/{id:guid}/strain", async (Guid id,
+            SetStrainRequest req, CharacterService svc, CancellationToken ct) =>
+        {
+            var dto = await svc.SetStrainAsync(id, req.CurrentStrain, ct);
+            return Results.Ok(dto);
+        });
+
         group.MapPut("/{id:guid}/level", async (Guid id,
             SetLevelRequest req, CharacterService svc, CancellationToken ct) =>
         {
