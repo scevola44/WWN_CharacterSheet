@@ -15,4 +15,5 @@ public record DerivedStatsDto
     public Dictionary<Guid, int> WeaponShockBonuses { get; init; } = new();
     public int HitDieModifier { get; init; }
     public int HpFocusBonus { get; init; }
+    public int MaxStrain { get; init; }
 }

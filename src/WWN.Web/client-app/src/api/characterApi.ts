@@ -33,6 +33,9 @@ export const characterApi = {
   setHp: (id: string, maxHitPoints: number, currentHitPoints: number) =>
     api.put<CharacterDetail>(`/${id}/hp`, { maxHitPoints, currentHitPoints }).then(r => r.data),
 
+  setStrain: (id: string, currentStrain: number) =>
+    api.put<CharacterDetail>(`/${id}/strain`, { currentStrain }).then(r => r.data),
+
   setLevel: (id: string, level: number) =>
     api.put<CharacterDetail>(`/${id}/level`, { level }).then(r => r.data),
 
