@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using WWN.Application.DTOs;
 using WWN.Application.Services;
 
@@ -39,39 +40,47 @@ public static class SpellEndpoints
             return Results.NoContent();
         });
 
-        var charSpellGroup = app.MapGroup("/api/characters/{charId:guid}/spells").WithTags("Character Spells");
+        var charSpellGroup = app.MapGroup("/api/characters/{charId:guid}/spells")
+            .WithTags("Character Spells")
+            .RequireAuthorization();
 
-        charSpellGroup.MapGet("/", async (Guid charId, CharacterService charSvc, CancellationToken ct) =>
+        charSpellGroup.MapGet("/", async (Guid charId, ClaimsPrincipal principal,
+            CharacterService charSvc, CancellationToken ct) =>
         {
-            var character = await charSvc.GetCharacterAsync(charId, ct);
+            var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var character = await charSvc.GetCharacterAsync(charId, userId, ct);
             return character is not null ? Results.Ok(character) : Results.NotFound();
         });
 
         charSpellGroup.MapPost("/{spellId:guid}", async (Guid charId, Guid spellId,
-            CharacterSpellService svc, CancellationToken ct) =>
+            ClaimsPrincipal principal, CharacterSpellService svc, CancellationToken ct) =>
         {
-            var knownSpell = await svc.LearnSpellAsync(charId, spellId, ct);
+            var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var knownSpell = await svc.LearnSpellAsync(charId, userId, spellId, ct);
             return Results.Created($"/api/characters/{charId}/spells/{spellId}", knownSpell);
         });
 
         charSpellGroup.MapDelete("/{spellId:guid}", async (Guid charId, Guid spellId,
-            CharacterSpellService svc, CancellationToken ct) =>
+            ClaimsPrincipal principal, CharacterSpellService svc, CancellationToken ct) =>
         {
-            await svc.ForgetSpellAsync(charId, spellId, ct);
+            var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            await svc.ForgetSpellAsync(charId, userId, spellId, ct);
             return Results.NoContent();
         });
 
         charSpellGroup.MapPost("/use-slot", async (Guid charId,
-            UseSpellSlotRequest req, CharacterSpellService svc, CancellationToken ct) =>
+            UseSpellSlotRequest req, ClaimsPrincipal principal, CharacterSpellService svc, CancellationToken ct) =>
         {
-            var dto = await svc.UseSpellSlotAsync(charId, req.SpellLevel, ct);
+            var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var dto = await svc.UseSpellSlotAsync(charId, userId, req.SpellLevel, ct);
             return Results.Ok(dto);
         });
 
         charSpellGroup.MapPost("/restore-slots", async (Guid charId,
-            CharacterSpellService svc, CancellationToken ct) =>
+            ClaimsPrincipal principal, CharacterSpellService svc, CancellationToken ct) =>
         {
-            var dto = await svc.RestoreSpellSlotsAsync(charId, ct);
+            var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var dto = await svc.RestoreSpellSlotsAsync(charId, userId, ct);
             return Results.Ok(dto);
         });
     }
