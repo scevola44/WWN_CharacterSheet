@@ -205,12 +205,78 @@ For hosting on your own server without Docker:
 
 ### Docker Deployment
 
-For containerized self-hosting with Docker:
+For containerized self-hosting, we support both Docker Compose and manual Docker setup.
 
 #### Prerequisites
-- Docker installed and running
+- Docker and Docker Compose installed and running
 
-#### Steps
+#### Docker Compose (Recommended)
+
+The easiest way to run the application with Docker:
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/scevola44/WWN_CharacterSheet.git
+   cd WWN_CharacterSheet
+   ```
+
+2. **Start the application:**
+   ```bash
+   docker-compose up -d
+   ```
+   This will automatically build the image and start the container.
+
+3. **Access the application:**
+   - Open your browser and navigate to `http://localhost:5000`
+
+4. **View logs:**
+   ```bash
+   docker-compose logs -f
+   ```
+
+#### Docker Compose Commands
+
+- **Stop the application (keeps data):**
+  ```bash
+  docker-compose stop
+  ```
+
+- **Start the application:**
+  ```bash
+  docker-compose start
+  ```
+
+- **Restart the application:**
+  ```bash
+  docker-compose restart
+  ```
+
+- **Stop and remove containers (keeps data volumes):**
+  ```bash
+  docker-compose down
+  ```
+
+- **Stop and remove everything including data volumes:**
+  ```bash
+  docker-compose down -v
+  ```
+
+#### Customizing Environment Variables
+
+To modify the port or other settings, create a `.env` file in the same directory as `docker-compose.yml`:
+
+```env
+ASPNETCORE_URLS=http://+:8080
+```
+
+Then run:
+```bash
+docker-compose up -d
+```
+
+#### Manual Docker (Alternative)
+
+If you prefer to use Docker without Compose:
 
 1. **Clone the repository:**
    ```bash
@@ -235,6 +301,26 @@ For containerized self-hosting with Docker:
 4. **Access the application:**
    - Open your browser and navigate to `http://localhost:5000`
 
+5. **View logs:**
+   ```bash
+   docker logs wwn-charactersheet
+   ```
+
+6. **Stop the container:**
+   ```bash
+   docker stop wwn-charactersheet
+   ```
+
+7. **Start the container:**
+   ```bash
+   docker start wwn-charactersheet
+   ```
+
+8. **Remove the container (keeps data):**
+   ```bash
+   docker rm wwn-charactersheet
+   ```
+
 #### Data Persistence
 
 The application uses a Docker volume to persist your character data:
@@ -246,28 +332,6 @@ To view volumes:
 ```bash
 docker volume ls | grep wwn-data
 ```
-
-#### Container Management
-
-- **View logs:**
-  ```bash
-  docker logs wwn-charactersheet
-  ```
-
-- **Stop the container:**
-  ```bash
-  docker stop wwn-charactersheet
-  ```
-
-- **Start the container:**
-  ```bash
-  docker start wwn-charactersheet
-  ```
-
-- **Remove the container (keeps data):**
-  ```bash
-  docker rm wwn-charactersheet
-  ```
 
 ### Fly.io Deployment
 

@@ -15,16 +15,17 @@ public class CharacterService(
     IFocusDefinitionRepository focusDefinitionRepository,
     IClassAbilityRepository classAbilityRepository)
 {
-    public async Task<CharacterDetailDto?> GetCharacterAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<CharacterDetailDto?> GetCharacterAsync(Guid id, string userId, CancellationToken cancellationToken = default)
     {
-        var character = await characterRepository.GetByIdAsync(id, cancellationToken);
+        var character = await characterRepository.GetByIdAsync(id, userId, cancellationToken);
         return character is null ? null : await SyncAndMap(character, cancellationToken);
     }
 
     public async Task<IReadOnlyList<CharacterSummaryDto>> ListCharactersAsync(
+        string userId,
         CancellationToken cancellationToken = default)
     {
-        var characters = await characterRepository.GetAllSummariesAsync(cancellationToken);
+        var characters = await characterRepository.GetAllSummariesAsync(userId, cancellationToken);
         return characters.Select(c => new CharacterSummaryDto
         {
             Id = c.Id,
@@ -37,7 +38,8 @@ public class CharacterService(
     }
 
     public async Task<Guid> CreateCharacterAsync(
-        CreateCharacterRequest request, 
+        CreateCharacterRequest request,
+        string userId,
         CancellationToken cancellationToken = default)
     {
         var characterClass = EnumParser.Parse<CharacterClass>(request.Class, nameof(request.Class));
@@ -53,19 +55,20 @@ public class CharacterService(
             kvp => kvp.Value);
 
         var createdCharacter = Character.Create(request.Name, characterClass, attributeScores,
-            request.Background, request.Origin, partialClassA, partialClassB, request.MaxHitPoints);
+            userId, request.Background, request.Origin, partialClassA, partialClassB, request.MaxHitPoints);
 
         await characterRepository.AddAsync(createdCharacter, cancellationToken);
         return createdCharacter.Id;
     }
 
     public async Task<CharacterDetailDto> UpdateAttributeAsync(
-        Guid characterId, 
-        string attributeString, 
+        Guid characterId,
+        string userId,
+        string attributeString,
         int score,
         CancellationToken cancellationToken = default)
     {
-        var character = await GetOrThrow(characterId, cancellationToken);
+        var character = await GetOrThrow(characterId, userId, cancellationToken);
         var attributeName = EnumParser.Parse<AttributeName>(attributeString, nameof(attributeString));
         character.SetAttribute(attributeName, score);
         await characterRepository.UpdateAsync(character, cancellationToken);
@@ -73,12 +76,13 @@ public class CharacterService(
     }
 
     public async Task<CharacterDetailDto> UpdateSkillAsync(
-        Guid charId, 
-        string skillName, 
+        Guid charId,
+        string userId,
+        string skillName,
         int rank,
         CancellationToken cancellationToken = default)
     {
-        var character = await GetOrThrow(charId, cancellationToken);
+        var character = await GetOrThrow(charId, userId, cancellationToken);
         var skill = EnumParser.Parse<SkillName>(skillName, nameof(skillName));
         character.SetSkillRank(skill, rank);
         await characterRepository.UpdateAsync(character, cancellationToken);
@@ -86,24 +90,26 @@ public class CharacterService(
     }
 
     public async Task<CharacterDetailDto> AddCustomSkillAsync(
-        Guid characterId, 
-        string name, 
+        Guid characterId,
+        string userId,
+        string name,
         int rank,
         CancellationToken cancellationToken = default)
     {
-        var character = await GetOrThrow(characterId, cancellationToken);
+        var character = await GetOrThrow(characterId, userId, cancellationToken);
         character.AddCustomSkill(name, rank);
         await characterRepository.UpdateAsync(character, cancellationToken);
         return await SyncAndMap(character, cancellationToken);
     }
 
     public async Task<CharacterDetailDto> SetHpAsync(
-        Guid characterId, 
-        int maxHp, 
+        Guid characterId,
+        string userId,
+        int maxHp,
         int currentHp,
         CancellationToken cancellationToken = default)
     {
-        var character = await GetOrThrow(characterId, cancellationToken);
+        var character = await GetOrThrow(characterId, userId, cancellationToken);
         character.SetHitPoints(maxHp, currentHp);
         await characterRepository.UpdateAsync(character, cancellationToken);
         return await SyncAndMap(character, cancellationToken);
@@ -111,10 +117,11 @@ public class CharacterService(
 
     public async Task<CharacterDetailDto> SetStrainAsync(
         Guid characterId,
+        string userId,
         int currentStrain,
         CancellationToken cancellationToken = default)
     {
-        var character = await GetOrThrow(characterId, cancellationToken);
+        var character = await GetOrThrow(characterId, userId, cancellationToken);
         character.SetStrain(currentStrain);
         await characterRepository.UpdateAsync(character, cancellationToken);
         return await SyncAndMap(character, cancellationToken);
@@ -122,21 +129,23 @@ public class CharacterService(
 
     public async Task<CharacterDetailDto> SetLevelAsync(
         Guid characterId,
+        string userId,
         int level,
         CancellationToken cancellationToken = default)
     {
-        var character = await GetOrThrow(characterId, cancellationToken);
+        var character = await GetOrThrow(characterId, userId, cancellationToken);
         character.SetLevel(level);
         await characterRepository.UpdateAsync(character, cancellationToken);
         return await SyncAndMap(character, cancellationToken);
     }
 
     public async Task<CharacterDetailDto> AddFocusAsync(
-        Guid characterId, 
+        Guid characterId,
+        string userId,
         AddFocusRequest request,
         CancellationToken cancellationToken = default)
     {
-        var character = await GetOrThrow(characterId, cancellationToken);
+        var character = await GetOrThrow(characterId, userId, cancellationToken);
         var focusEffects = request.Effects.Select(e => new FocusEffect(
             EnumParser.Parse<FocusEffectType>(e.Type, nameof(e.Type)),
             e.NumericValue,
@@ -154,11 +163,12 @@ public class CharacterService(
 
     public async Task<CharacterDetailDto> UpgradeFocusAsync(
         Guid characterId,
+        string userId,
         Guid focusId,
         UpgradeFocusRequest request,
         CancellationToken cancellationToken = default)
     {
-        var character = await GetOrThrow(characterId, cancellationToken);
+        var character = await GetOrThrow(characterId, userId, cancellationToken);
         var focus = character.Foci.FirstOrDefault(f => f.Id == focusId)
             ?? throw new KeyNotFoundException($"Focus {focusId} not found on character {characterId}.");
         focus.UpgradeToLevel2(request.AdditionalEffects.Select(ParseFocusEffect));
@@ -168,11 +178,12 @@ public class CharacterService(
 
     public async Task<CharacterDetailDto> SetFocusConditionalAsync(
         Guid characterId,
+        string userId,
         Guid focusId,
         bool active,
         CancellationToken cancellationToken = default)
     {
-        var character = await GetOrThrow(characterId, cancellationToken);
+        var character = await GetOrThrow(characterId, userId, cancellationToken);
         var focus = character.Foci.FirstOrDefault(f => f.Id == focusId)
             ?? throw new KeyNotFoundException($"Focus {focusId} not found on character {characterId}.");
         focus.SetConditionalActive(active);
@@ -180,19 +191,20 @@ public class CharacterService(
         return await SyncAndMap(character, cancellationToken);
     }
 
-    public async Task RemoveFocusAsync(Guid characterId, Guid focusId, CancellationToken ct = default)
+    public async Task RemoveFocusAsync(Guid characterId, string userId, Guid focusId, CancellationToken ct = default)
     {
-        var character = await GetOrThrow(characterId, ct);
+        var character = await GetOrThrow(characterId, userId, ct);
         character.RemoveFocus(focusId);
         await characterRepository.UpdateAsync(character, ct);
     }
 
     public async Task<CharacterDetailDto> AddItemAsync(
-        Guid characterId, 
+        Guid characterId,
+        string userId,
         AddItemRequest request,
         CancellationToken cancellationToken = default)
     {
-        var character = await GetOrThrow(characterId, cancellationToken);
+        var character = await GetOrThrow(characterId, userId, cancellationToken);
         var item = ItemFactory.Create(request);
         character.AddItem(item);
         await characterRepository.UpdateAsync(character, cancellationToken);
@@ -200,22 +212,24 @@ public class CharacterService(
     }
 
     public async Task RemoveItemAsync(
-        Guid characterId, 
-        Guid itemId, 
+        Guid characterId,
+        string userId,
+        Guid itemId,
         CancellationToken cancellationToken = default)
     {
-        var character = await GetOrThrow(characterId, cancellationToken);
+        var character = await GetOrThrow(characterId, userId, cancellationToken);
         character.RemoveItem(itemId);
         await characterRepository.UpdateAsync(character, cancellationToken);
     }
 
     public async Task<CharacterDetailDto> UpdateItemAsync(
         Guid characterId,
+        string userId,
         Guid itemId,
         UpdateItemRequest request,
         CancellationToken cancellationToken = default)
     {
-        var character = await GetOrThrow(characterId, cancellationToken);
+        var character = await GetOrThrow(characterId, userId, cancellationToken);
         var item = character.Inventory.FirstOrDefault(i => i.Id == itemId);
         if (item is null)
             throw new InvalidOperationException($"Item with ID {itemId} not found in character inventory.");
@@ -266,12 +280,13 @@ public class CharacterService(
     }
 
     public async Task<CharacterDetailDto> ChangeSlotAsync(
-        Guid characterId, 
-        Guid itemId, 
+        Guid characterId,
+        string userId,
+        Guid itemId,
         string slotType,
         CancellationToken cancellationToken = default)
     {
-        var character = await GetOrThrow(characterId, cancellationToken);
+        var character = await GetOrThrow(characterId, userId, cancellationToken);
         var slot = EnumParser.Parse<ItemSlotType>(slotType, nameof(slotType));
         character.ChangeItemSlot(itemId, slot);
         await characterRepository.UpdateAsync(character, cancellationToken);
@@ -280,12 +295,13 @@ public class CharacterService(
 
     public async Task<CharacterDetailDto> UpdateWeaponAttackConfigAsync(
         Guid characterId,
+        string userId,
         Guid itemId,
         string skill,
         string attribute,
         CancellationToken cancellationToken = default)
     {
-        var character = await GetOrThrow(characterId, cancellationToken);
+        var character = await GetOrThrow(characterId, userId, cancellationToken);
         var weapon = character.Inventory.OfType<Weapon>().FirstOrDefault(w => w.Id == itemId);
         if (weapon is null)
             throw new InvalidOperationException($"Weapon with ID {itemId} not found in character inventory.");
@@ -299,20 +315,22 @@ public class CharacterService(
 
     public async Task<CharacterDetailDto> UpdateNotesAsync(
         Guid characterId,
+        string userId,
         string? notes,
         CancellationToken cancellationToken = default)
     {
-        var character = await GetOrThrow(characterId, cancellationToken);
+        var character = await GetOrThrow(characterId, userId, cancellationToken);
         character.SetNotes(notes);
         await characterRepository.UpdateAsync(character, cancellationToken);
         return await SyncAndMap(character, cancellationToken);
     }
 
     public async Task DeleteCharacterAsync(
-        Guid characterId, 
+        Guid characterId,
+        string userId,
         CancellationToken cancellationToken = default)
     {
-        await characterRepository.DeleteAsync(characterId, cancellationToken);
+        await characterRepository.DeleteAsync(characterId, userId, cancellationToken);
     }
 
     private async Task<CharacterDetailDto> SyncAndMap(Character character, CancellationToken cancellationToken)
@@ -333,10 +351,11 @@ public class CharacterService(
     }
 
     private async Task<Character> GetOrThrow(
-        Guid characterId, 
+        Guid characterId,
+        string userId,
         CancellationToken cancellationToken)
     {
-        return await characterRepository.GetByIdAsync(characterId, cancellationToken)
+        return await characterRepository.GetByIdAsync(characterId, userId, cancellationToken)
             ?? throw new KeyNotFoundException($"Character {characterId} not found.");
     }
 
@@ -452,7 +471,7 @@ public class CharacterService(
 
     private static bool HasPartialMage(Character character)
     {
-        return character.PartialClassA == PartialClass.PartialMage 
+        return character.PartialClassA == PartialClass.PartialMage
                || character.PartialClassB == PartialClass.PartialMage;
     }
 
@@ -464,17 +483,6 @@ public class CharacterService(
         e.TargetSkill is not null ? EnumParser.Parse<SkillName>(e.TargetSkill, nameof(e.TargetSkill)) : null,
         e.TargetAttribute is not null ? EnumParser.Parse<AttributeName>(e.TargetAttribute, nameof(e.TargetAttribute)) : null,
         e.Description);
-
-    private static FocusEffectDto MapFocusEffectDto(FocusEffect e) => new()
-    {
-        Type = e.Type.ToString(),
-        NumericValue = e.NumericValue,
-        ValueType = e.ValueType.ToString(),
-        Condition = e.Condition.ToString(),
-        TargetSkill = e.TargetSkill?.ToString(),
-        TargetAttribute = e.TargetAttribute?.ToString(),
-        Description = e.Description
-    };
 
     private static ItemDto MapItemDto(Item item)
     {

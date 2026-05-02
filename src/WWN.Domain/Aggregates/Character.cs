@@ -7,7 +7,8 @@ namespace WWN.Domain.Aggregates;
 public class Character
 {
     public Guid Id { get; private set; }
-    
+    public string UserId { get; private set; } = string.Empty;
+
     #region Identity
     public string Name { get; private set; } = string.Empty;
     public string? Background { get; private set; }
@@ -71,12 +72,16 @@ public class Character
 
     public static Character Create(string name, CharacterClass charClass,
         Dictionary<AttributeName, int> scores,
+        string userId,
         string? background = null, string? origin = null,
         PartialClass? partialA = null, PartialClass? partialB = null,
         int maxHitPoints = 1)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Character name is required.", nameof(name));
+
+        if (string.IsNullOrWhiteSpace(userId))
+            throw new ArgumentException("UserId is required.", nameof(userId));
 
         if (charClass == CharacterClass.Adventurer && (partialA is null || partialB is null))
             throw new ArgumentException("Adventurer class requires two partial classes.");
@@ -87,6 +92,7 @@ public class Character
         var character = new Character
         {
             Id = Guid.NewGuid(),
+            UserId = userId,
             Name = name,
             Class = charClass,
             PartialClassA = partialA,

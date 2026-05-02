@@ -1,7 +1,11 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using WWN.Application.Services;
 using WWN.Domain.Interfaces;
+using WWN.Infrastructure.Identity;
 using WWN.Infrastructure.Persistence;
 using WWN.Infrastructure.Repositories;
 using WWN.Web.Endpoints;
@@ -25,6 +29,38 @@ try
     builder.Services.AddDbContext<WwnDbContext>(opt =>
         opt.UseSqlite(builder.Configuration.GetConnectionString("Default")
             ?? "Data Source=wwn_characters.db"));
+
+    // Identity — use AddIdentityCore (not AddIdentity) to avoid cookie auth overriding JWT
+    builder.Services.AddIdentityCore<AppUser>(options =>
+    {
+        options.Password.RequireDigit = false;
+        options.Password.RequireLowercase = false;
+        options.Password.RequireUppercase = false;
+        options.Password.RequireNonAlphanumeric = false;
+        options.Password.RequiredLength = 6;
+    })
+    .AddEntityFrameworkStores<WwnDbContext>();
+
+    // JWT Authentication
+    var jwtKey = builder.Configuration["Jwt:Key"]
+        ?? throw new InvalidOperationException("Jwt:Key is not configured.");
+    builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                ValidAudience = builder.Configuration["Jwt:Audience"],
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+                ClockSkew = TimeSpan.Zero
+            };
+        });
+
+    builder.Services.AddAuthorization();
 
     // Services
     builder.Services.AddScoped<ICharacterRepository, CharacterRepository>();
@@ -72,6 +108,8 @@ try
     app.UseMiddleware<ExceptionHandlingMiddleware>();
     app.UseCors();
     app.UseSerilogRequestLogging();
+    app.UseAuthentication();
+    app.UseAuthorization();
 
     if (app.Environment.IsDevelopment())
     {
@@ -81,6 +119,7 @@ try
 
     app.UseDefaultFiles();
     app.UseStaticFiles();
+    app.MapAuthEndpoints();
     app.MapCharacterEndpoints();
     app.MapSpellEndpoints();
     app.MapFocusDefinitionEndpoints();
