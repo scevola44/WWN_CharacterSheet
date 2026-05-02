@@ -34,6 +34,11 @@ public record SetHpRequest
     public int CurrentHitPoints { get; init; }
 }
 
+public record SetStrainRequest
+{
+    public int CurrentStrain { get; init; }
+}
+
 public record SetLevelRequest
 {
     public int Level { get; init; }

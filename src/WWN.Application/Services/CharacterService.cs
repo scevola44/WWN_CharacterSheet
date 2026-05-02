@@ -109,8 +109,19 @@ public class CharacterService(
         return await SyncAndMap(character, cancellationToken);
     }
 
+    public async Task<CharacterDetailDto> SetStrainAsync(
+        Guid characterId,
+        int currentStrain,
+        CancellationToken cancellationToken = default)
+    {
+        var character = await GetOrThrow(characterId, cancellationToken);
+        character.SetStrain(currentStrain);
+        await characterRepository.UpdateAsync(character, cancellationToken);
+        return await SyncAndMap(character, cancellationToken);
+    }
+
     public async Task<CharacterDetailDto> SetLevelAsync(
-        Guid characterId, 
+        Guid characterId,
         int level,
         CancellationToken cancellationToken = default)
     {
@@ -367,6 +378,7 @@ public class CharacterService(
             Level = character.Level,
             MaxHitPoints = character.MaxHitPoints,
             CurrentHitPoints = character.CurrentHitPoints,
+            CurrentStrain = character.CurrentStrain,
             ExperiencePoints = character.ExperiencePoints,
             Notes = character.Notes,
             Attributes = character.Attributes.Select(attribute => new AttributeDto

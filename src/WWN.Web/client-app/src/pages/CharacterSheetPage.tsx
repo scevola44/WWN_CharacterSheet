@@ -5,6 +5,7 @@ import { IdentitySection } from '../components/identity/IdentitySection';
 import { AttributePanel } from '../components/attributes/AttributePanel';
 import { SkillPanel } from '../components/skills/SkillPanel';
 import { HitPointTracker } from '../components/combat/HitPointTracker';
+import { StrainTracker } from '../components/combat/StrainTracker';
 import { CombatStats } from '../components/combat/CombatStats';
 import { FociPanel } from '../components/foci/FociPanel';
 import { InventoryPanel } from '../components/inventory/InventoryPanel';
@@ -46,6 +47,7 @@ export function CharacterSheetPage() {
           <AttributePanel character={character} onUpdate={handleUpdate} isEditing={isEditing} />
           <CombatStats character={character} onUpdate={handleUpdate} />
           <HitPointTracker character={character} onUpdate={handleUpdate} />
+          <StrainTracker character={character} onUpdate={handleUpdate} />
           <ClassAbilitiesPanel character={character} />
           <FociPanel character={character} onUpdate={handleUpdate} />
         </div>
