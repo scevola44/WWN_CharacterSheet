@@ -10,6 +10,8 @@ public class CharacterConfiguration : IEntityTypeConfiguration<Character>
     {
         builder.ToTable("Characters");
         builder.HasKey(character => character.Id);
+        builder.Property(character => character.UserId).HasMaxLength(450).IsRequired();
+        builder.HasIndex(character => character.UserId);
         builder.Property(character => character.Name).HasMaxLength(200).IsRequired();
         builder.Property(character => character.Background).HasMaxLength(200);
         builder.Property(character => character.Origin).HasMaxLength(200);
