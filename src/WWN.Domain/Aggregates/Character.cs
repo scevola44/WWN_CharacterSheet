@@ -53,6 +53,7 @@ public class Character
     private readonly List<Focus> _foci = new();
     private readonly List<Item> _inventory = new();
     private readonly List<KnownSpell> _spellbook = new();
+    private readonly List<KnownArt> _knownArts = new();
     private List<ClassAbilityDefinition> _classAbilities = new();
 
     public IReadOnlyList<CharacterAttribute> Attributes => _attributes.AsReadOnly();
@@ -60,12 +61,19 @@ public class Character
     public IReadOnlyList<Focus> Foci => _foci.AsReadOnly();
     public IReadOnlyList<Item> Inventory => _inventory.AsReadOnly();
     public IReadOnlyList<KnownSpell> Spellbook => _spellbook.AsReadOnly();
+    public IReadOnlyList<KnownArt> KnownArts => _knownArts.AsReadOnly();
     public IReadOnlyList<ClassAbilityDefinition> ClassAbilities => _classAbilities.AsReadOnly();
     #endregion Collections
 
     #region Spells
     public int[] SpellSlotsUsed { get; private set; } = [0, 0, 0, 0, 0, 0];
     #endregion Spells
+
+    #region Effort
+    public int EffortCommittedScene { get; private set; }
+    public int EffortCommittedDay { get; private set; }
+    public int EffortCommittedSustained { get; private set; }
+    #endregion Effort
 
     #region Constructors
     private Character() { } // EF Core
@@ -328,4 +336,67 @@ public class Character
         SpellSlotsUsed = [0, 0, 0, 0, 0, 0];
     }
     #endregion Spell mutations
+
+    #region Art mutations
+    public void LearnArt(KnownArt knownArt)
+    {
+        if (knownArt == null)
+            throw new ArgumentNullException(nameof(knownArt));
+        if (_knownArts.Any(a => a.ArtId == knownArt.ArtId))
+            throw new InvalidOperationException("Character already knows this art.");
+        _knownArts.Add(knownArt);
+    }
+
+    public void ForgetArt(Guid artId)
+    {
+        var knownArt = _knownArts.FirstOrDefault(a => a.ArtId == artId)
+            ?? throw new InvalidOperationException("Art not found in known arts.");
+        _knownArts.Remove(knownArt);
+    }
+    #endregion Art mutations
+
+    #region Effort mutations
+    public void CommitEffort(EffortCommitment commitment, int maxEffort, int amount = 1)
+    {
+        if (amount < 1) throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be at least 1.");
+        var totalCommitted = EffortCommittedScene + EffortCommittedDay + EffortCommittedSustained;
+        if (totalCommitted + amount > maxEffort)
+            throw new InvalidOperationException("Not enough free effort to commit.");
+
+        switch (commitment)
+        {
+            case EffortCommitment.Scene:
+                EffortCommittedScene += amount;
+                break;
+            case EffortCommitment.Day:
+                EffortCommittedDay += amount;
+                break;
+            case EffortCommitment.Sustained:
+                EffortCommittedSustained += amount;
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(commitment));
+        }
+    }
+
+    public void EndScene()
+    {
+        EffortCommittedScene = 0;
+    }
+
+    public void RestForDay()
+    {
+        EffortCommittedScene = 0;
+        EffortCommittedDay = 0;
+        RestoreAllSpellSlots();
+    }
+
+    public void ReleaseSustainedEffort(int amount = 1)
+    {
+        if (amount < 1) throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be at least 1.");
+        if (amount > EffortCommittedSustained)
+            throw new InvalidOperationException("Cannot release more sustained effort than is committed.");
+        EffortCommittedSustained -= amount;
+    }
+    #endregion Effort mutations
 }

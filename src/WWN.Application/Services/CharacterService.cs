@@ -437,8 +437,27 @@ public class CharacterService(
                 Spell = SpellService.MapToDto(k.Spell)
             }).ToList(),
             SpellSlots = GetSpellSlotsInfo(character),
+            Arts = character.KnownArts.Select(k => new KnownArtDto
+            {
+                Id = k.Id,
+                ArtId = k.ArtId,
+                Art = ArtService.MapToDto(k.Art)
+            }).ToList(),
+            Effort = GetEffortInfo(character),
             ClassAbilities = classAbilities,
             DerivedStats = calculatedStats
+        };
+    }
+
+    private static EffortInfoDto? GetEffortInfo(Character character)
+    {
+        if (!EffortPoolCalculator.HasArts(character)) return null;
+        return new EffortInfoDto
+        {
+            Max = EffortPoolCalculator.CalculateMax(character),
+            Scene = character.EffortCommittedScene,
+            Day = character.EffortCommittedDay,
+            Sustained = character.EffortCommittedSustained
         };
     }
 

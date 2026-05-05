@@ -10,6 +10,7 @@ import { CombatStats } from '../components/combat/CombatStats';
 import { FociPanel } from '../components/foci/FociPanel';
 import { InventoryPanel } from '../components/inventory/InventoryPanel';
 import { SpellsPanel } from '../components/spells/SpellsPanel';
+import { ArtsPanel } from '../components/arts/ArtsPanel';
 import { NotesSection } from '../components/notes/NotesSection';
 import { ClassAbilitiesPanel } from '../components/abilities/ClassAbilitiesPanel';
 
@@ -59,6 +60,10 @@ export function CharacterSheetPage() {
 
       <div className="sheet-full">
         <SpellsPanel character={character} onUpdate={handleUpdate} />
+      </div>
+
+      <div className="sheet-full">
+        <ArtsPanel character={character} onUpdate={handleUpdate} />
       </div>
 
       <NotesSection character={character} onUpdate={handleUpdate} />

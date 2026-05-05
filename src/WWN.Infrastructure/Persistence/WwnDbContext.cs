@@ -10,6 +10,7 @@ public class WwnDbContext(DbContextOptions<WwnDbContext> options) : IdentityDbCo
 {
     public DbSet<Character> Characters => Set<Character>();
     public DbSet<Spell> Spells => Set<Spell>();
+    public DbSet<Art> Arts => Set<Art>();
     public DbSet<FocusDefinition> FocusDefinitions => Set<FocusDefinition>();
     public DbSet<ClassAbilityDefinition> ClassAbilityDefinitions => Set<ClassAbilityDefinition>();
 

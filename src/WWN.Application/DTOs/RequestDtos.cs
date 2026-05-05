@@ -155,6 +155,37 @@ public record UseSpellSlotRequest
     public int SpellLevel { get; init; }
 }
 
+public record CreateArtRequest
+{
+    public string Name { get; init; } = string.Empty;
+    public string Description { get; init; } = string.Empty;
+    public string? Summary { get; init; }
+    public int MinLevel { get; init; } = 1;
+    public string? EffortCost { get; init; }
+    public string Source { get; init; } = "Mage";
+}
+
+public record UpdateArtRequest
+{
+    public string Name { get; init; } = string.Empty;
+    public string Description { get; init; } = string.Empty;
+    public string? Summary { get; init; }
+    public int MinLevel { get; init; } = 1;
+    public string? EffortCost { get; init; }
+    public string Source { get; init; } = "Mage";
+}
+
+public record CommitEffortRequest
+{
+    public string Commitment { get; init; } = string.Empty;
+    public int Amount { get; init; } = 1;
+}
+
+public record ReleaseSustainedRequest
+{
+    public int Amount { get; init; } = 1;
+}
+
 public record UpgradeFocusRequest
 {
     public List<FocusEffectDto> AdditionalEffects { get; init; } = new();

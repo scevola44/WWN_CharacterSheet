@@ -30,6 +30,8 @@ public record CharacterDetailDto
     public List<ItemDto> Inventory { get; init; } = new();
     public List<KnownSpellDto> Spellbook { get; init; } = new();
     public SpellSlotInfoDto? SpellSlots { get; init; }
+    public List<KnownArtDto> Arts { get; init; } = new();
+    public EffortInfoDto? Effort { get; init; }
     public List<ClassAbilityDto> ClassAbilities { get; init; } = new();
     public DerivedStatsDto DerivedStats { get; init; } = null!;
     public string? Notes { get; init; }
@@ -128,4 +130,30 @@ public record SpellSlotInfoDto
 {
     public int[] Available { get; init; } = new int[6];
     public int[] Used { get; init; } = new int[6];
+}
+
+public record ArtDto
+{
+    public Guid Id { get; init; }
+    public string Name { get; init; } = string.Empty;
+    public string Description { get; init; } = string.Empty;
+    public string? Summary { get; init; }
+    public int MinLevel { get; init; }
+    public string? EffortCost { get; init; }
+    public string Source { get; init; } = string.Empty;
+}
+
+public record KnownArtDto
+{
+    public Guid Id { get; init; }
+    public Guid ArtId { get; init; }
+    public ArtDto Art { get; init; } = null!;
+}
+
+public record EffortInfoDto
+{
+    public int Max { get; init; }
+    public int Scene { get; init; }
+    public int Day { get; init; }
+    public int Sustained { get; init; }
 }
