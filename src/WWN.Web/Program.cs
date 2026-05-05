@@ -10,6 +10,7 @@ using WWN.Infrastructure.Persistence;
 using WWN.Infrastructure.Repositories;
 using WWN.Web.Endpoints;
 using WWN.Web.Middleware;
+using WWN.Web.Services;
 
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(new ConfigurationBuilder()
@@ -62,6 +63,10 @@ try
 
     builder.Services.AddAuthorization();
 
+    // App info service for branch tracking
+    var appInfo = new AppInfoService(builder.Configuration);
+    builder.Services.AddSingleton(appInfo);
+
     // Services
     builder.Services.AddScoped<ICharacterRepository, CharacterRepository>();
     builder.Services.AddScoped<ISpellRepository, SpellRepository>();
@@ -85,6 +90,8 @@ try
         p.WithOrigins("http://localhost:5173").AllowAnyHeader().AllowAnyMethod()));
 
     var app = builder.Build();
+
+    Log.Information("Application started - Branch: {Branch}, Environment: {Environment}", appInfo.Branch, appInfo.Environment);
 
     // Auto-migrate
     using (var scope = app.Services.CreateScope())
@@ -123,6 +130,7 @@ try
     app.MapCharacterEndpoints();
     app.MapSpellEndpoints();
     app.MapFocusDefinitionEndpoints();
+    app.MapDiagnosticsEndpoints();
     app.MapFallbackToFile("index.html");
 
     app.Run();
