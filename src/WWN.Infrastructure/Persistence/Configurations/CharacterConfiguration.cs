@@ -44,16 +44,26 @@ public class CharacterConfiguration : IEntityTypeConfiguration<Character>
                .HasForeignKey(k => k.CharacterId)
                .OnDelete(DeleteBehavior.Cascade);
 
+        builder.HasMany(character => character.KnownArts)
+               .WithOne()
+               .HasForeignKey(k => k.CharacterId)
+               .OnDelete(DeleteBehavior.Cascade);
+
         builder.Property(character => character.SpellSlotsUsed)
                .HasConversion(
                    v => string.Join(',', v),
                    v => v.Split(',').Select(int.Parse).ToArray())
                .HasColumnType("TEXT");
 
+        builder.Property(character => character.EffortCommittedScene);
+        builder.Property(character => character.EffortCommittedDay);
+        builder.Property(character => character.EffortCommittedSustained);
+
         builder.Navigation(character => character.Attributes).UsePropertyAccessMode(PropertyAccessMode.Field);
         builder.Navigation(character => character.Skills).UsePropertyAccessMode(PropertyAccessMode.Field);
         builder.Navigation(character => character.Foci).UsePropertyAccessMode(PropertyAccessMode.Field);
         builder.Navigation(character => character.Inventory).UsePropertyAccessMode(PropertyAccessMode.Field);
         builder.Navigation(character => character.Spellbook).UsePropertyAccessMode(PropertyAccessMode.Field);
+        builder.Navigation(character => character.KnownArts).UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

@@ -65,14 +65,18 @@ try
     // Services
     builder.Services.AddScoped<ICharacterRepository, CharacterRepository>();
     builder.Services.AddScoped<ISpellRepository, SpellRepository>();
+    builder.Services.AddScoped<IArtRepository, ArtRepository>();
     builder.Services.AddScoped<IFocusDefinitionRepository, FocusDefinitionRepository>();
     builder.Services.AddScoped<IClassAbilityRepository, ClassAbilityRepository>();
     builder.Services.AddScoped<CharacterService>();
     builder.Services.AddScoped<SpellService>();
+    builder.Services.AddScoped<ArtService>();
     builder.Services.AddScoped<CharacterSpellService>();
+    builder.Services.AddScoped<CharacterArtService>();
     builder.Services.AddScoped<FocusDefinitionService>();
     builder.Services.AddScoped<FocusDefinitionSeeder>();
     builder.Services.AddScoped<SpellDefinitionSeeder>();
+    builder.Services.AddScoped<ArtDefinitionSeeder>();
     builder.Services.AddScoped<ClassAbilitySeeder>();
     builder.Services.AddSingleton<CharacterSheetCalculator>();
 
@@ -100,6 +104,10 @@ try
         var spellSeeder = scope.ServiceProvider.GetRequiredService<SpellDefinitionSeeder>();
         await spellSeeder.SeedIfEmptyAsync();
 
+        // Seed default WWN arts from the Free Edition if the table is empty.
+        var artSeeder = scope.ServiceProvider.GetRequiredService<ArtDefinitionSeeder>();
+        await artSeeder.SeedIfEmptyAsync();
+
         // Seed default WWN class abilities from the Free Edition if the table is empty.
         var abilitySeeder = scope.ServiceProvider.GetRequiredService<ClassAbilitySeeder>();
         await abilitySeeder.SeedIfEmptyAsync();
@@ -122,6 +130,7 @@ try
     app.MapAuthEndpoints();
     app.MapCharacterEndpoints();
     app.MapSpellEndpoints();
+    app.MapArtEndpoints();
     app.MapFocusDefinitionEndpoints();
     app.MapFallbackToFile("index.html");
 
