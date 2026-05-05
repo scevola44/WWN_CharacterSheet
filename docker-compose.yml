@@ -10,6 +10,10 @@ services:
       - wwn-data:/data
     environment:
       ASPNETCORE_URLS: http://+:5000
+      # Branch name for informational/documentation purposes
+      # Set this to match the branch you have checked out locally
+      # Example: BRANCH=main or BRANCH=develop
+      BRANCH: ${BRANCH:-main}
 
 volumes:
   wwn-data:
