@@ -55,7 +55,7 @@ public class CharacterService(
             kvp => kvp.Value);
 
         var createdCharacter = Character.Create(request.Name, characterClass, attributeScores,
-            userId, request.Background, request.Origin, partialClassA, partialClassB, request.MaxHitPoints);
+            userId, request.Background, request.Origin, partialClassA, partialClassB, request.MaxHitPoints, request.Level);
 
         await characterRepository.AddAsync(createdCharacter, cancellationToken);
         return createdCharacter.Id;
@@ -135,6 +135,18 @@ public class CharacterService(
     {
         var character = await GetOrThrow(characterId, userId, cancellationToken);
         character.SetLevel(level);
+        await characterRepository.UpdateAsync(character, cancellationToken);
+        return await SyncAndMap(character, cancellationToken);
+    }
+
+    public async Task<CharacterDetailDto> LevelUpAsync(
+        Guid characterId,
+        string userId,
+        int hpGain,
+        CancellationToken cancellationToken = default)
+    {
+        var character = await GetOrThrow(characterId, userId, cancellationToken);
+        character.LevelUp(hpGain);
         await characterRepository.UpdateAsync(character, cancellationToken);
         return await SyncAndMap(character, cancellationToken);
     }

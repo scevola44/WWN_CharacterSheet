@@ -132,6 +132,48 @@ public class CharacterEndpointTests : IClassFixture<CharacterEndpointTests.Custo
     }
 
     [Fact]
+    public async Task POST_CreateCharacter_WithLevel_PersistsLevel()
+    {
+        var req = new CreateCharacterRequest
+        {
+            Name = "Veteran",
+            Class = "Warrior",
+            Level = 5,
+            MaxHitPoints = 25,
+            Attributes = new Dictionary<string, int>
+            {
+                ["Strength"] = 14,
+                ["Dexterity"] = 12,
+                ["Constitution"] = 12,
+                ["Intelligence"] = 10,
+                ["Wisdom"] = 10,
+                ["Charisma"] = 10
+            }
+        };
+        var createResponse = await _client.PostAsJsonAsync("/api/characters", req);
+        createResponse.StatusCode.Should().Be(HttpStatusCode.Created);
+        var id = (await createResponse.Content.ReadFromJsonAsync<IdResponse>())!.Id;
+
+        var dto = await _client.GetFromJsonAsync<CharacterDetailDto>($"/api/characters/{id}");
+        dto!.Level.Should().Be(5);
+    }
+
+    [Fact]
+    public async Task POST_LevelUp_IncrementsLevelAndAddsHp()
+    {
+        var id = await CreateTestCharacter();
+        var before = await _client.GetFromJsonAsync<CharacterDetailDto>($"/api/characters/{id}");
+
+        var response = await _client.PostAsJsonAsync($"/api/characters/{id}/levelup",
+            new LevelUpRequest { HpGain = 5 });
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var dto = await response.Content.ReadFromJsonAsync<CharacterDetailDto>();
+        dto!.Level.Should().Be(before!.Level + 1);
+        dto.MaxHitPoints.Should().Be(before.MaxHitPoints + 5);
+        dto.CurrentHitPoints.Should().Be(before.CurrentHitPoints + 5);
+    }
+
+    [Fact]
     public async Task PUT_SetHp_Returns200()
     {
         var id = await CreateTestCharacter();

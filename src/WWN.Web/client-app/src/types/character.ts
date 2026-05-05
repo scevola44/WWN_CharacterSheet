@@ -118,6 +118,7 @@ export interface CreateCharacterRequest {
   partialClassB?: string;
   attributes: Record<string, number>;
   maxHitPoints?: number;
+  level?: number;
 }
 
 export interface AddItemRequest {

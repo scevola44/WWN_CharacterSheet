@@ -19,6 +19,7 @@ export function CharacterCreatePage() {
     Object.fromEntries(ATTRIBUTES.map(a => [a, 10]))
   );
   const [maxHitPoints, setMaxHitPoints] = useState(6);
+  const [level, setLevel] = useState(1);
   const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -34,6 +35,7 @@ export function CharacterCreatePage() {
         partialClassA: charClass === 'Adventurer' ? partialA : undefined,
         partialClassB: charClass === 'Adventurer' ? partialB : undefined,
         maxHitPoints,
+        level,
       };
       const id = await characterApi.create(req);
       navigate(`/character/${id}`);
@@ -84,15 +86,25 @@ export function CharacterCreatePage() {
               </div>
             </div>
           )}
-          <div className="form-group">
-            <label>Max Hit Points *</label>
-            <input
-              type="number"
-              min={1}
-              value={maxHitPoints}
-              onChange={e => setMaxHitPoints(+e.target.value)}
-              required
-            />
+          <div className="form-row">
+            <div className="form-group">
+              <label>Level *</label>
+              <select value={level} onChange={e => setLevel(+e.target.value)}>
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(l => (
+                  <option key={l} value={l}>{l}</option>
+                ))}
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Max Hit Points *</label>
+              <input
+                type="number"
+                min={1}
+                value={maxHitPoints}
+                onChange={e => setMaxHitPoints(+e.target.value)}
+                required
+              />
+            </div>
           </div>
         </div>
 
