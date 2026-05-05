@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.OpenApi;
 using WWN.Web.Services;
 
 namespace WWN.Web.Endpoints;
