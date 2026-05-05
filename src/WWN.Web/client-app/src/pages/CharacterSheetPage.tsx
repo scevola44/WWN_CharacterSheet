@@ -40,7 +40,7 @@ export function CharacterSheetPage() {
       </div>
 
       <div className="sheet-full" style={{ marginTop: '0.5rem' }}>
-        <IdentitySection character={character} />
+        <IdentitySection character={character} onUpdate={handleUpdate} />
       </div>
 
       <div className="sheet-columns">

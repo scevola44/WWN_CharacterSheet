@@ -83,13 +83,17 @@ public class Character
         string userId,
         string? background = null, string? origin = null,
         PartialClass? partialA = null, PartialClass? partialB = null,
-        int maxHitPoints = 1)
+        int maxHitPoints = 1,
+        int level = 1)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Character name is required.", nameof(name));
 
         if (string.IsNullOrWhiteSpace(userId))
             throw new ArgumentException("UserId is required.", nameof(userId));
+
+        if (level < 1 || level > 10)
+            throw new ArgumentOutOfRangeException(nameof(level), "Level must be 1-10.");
 
         if (charClass == CharacterClass.Adventurer && (partialA is null || partialB is null))
             throw new ArgumentException("Adventurer class requires two partial classes.");
@@ -107,7 +111,7 @@ public class Character
             PartialClassB = partialB,
             Background = background,
             Origin = origin,
-            Level = 1,
+            Level = level,
             MaxHitPoints = maxHitPoints < 1 ? 1 : maxHitPoints,
             CurrentHitPoints = maxHitPoints < 1 ? 1 : maxHitPoints,
             ExperiencePoints = 0
@@ -282,6 +286,18 @@ public class Character
         if (level < 1 || level > 10)
             throw new ArgumentOutOfRangeException(nameof(level), "Level must be 1-10.");
         Level = level;
+    }
+
+    public void LevelUp(int hpGain)
+    {
+        if (Level >= 10)
+            throw new InvalidOperationException("Already at max level.");
+        if (hpGain < 1)
+            throw new ArgumentOutOfRangeException(nameof(hpGain), "HP gain must be at least 1.");
+
+        Level += 1;
+        MaxHitPoints += hpGain;
+        CurrentHitPoints += hpGain;
     }
 
     public void SetExperiencePoints(int xp)

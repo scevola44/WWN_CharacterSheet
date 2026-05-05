@@ -39,6 +39,9 @@ export const characterApi = {
   setLevel: (id: string, level: number) =>
     api.put<CharacterDetail>(`/${id}/level`, { level }).then(r => r.data),
 
+  levelUp: (id: string, hpGain: number) =>
+    api.post<CharacterDetail>(`/${id}/levelup`, { hpGain }).then(r => r.data),
+
   addFocus: (id: string, req: AddFocusRequest) =>
     api.post<CharacterDetail>(`/${id}/foci`, req).then(r => r.data),
 

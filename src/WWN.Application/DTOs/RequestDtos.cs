@@ -10,6 +10,7 @@ public record CreateCharacterRequest
     public string? PartialClassB { get; init; }
     public Dictionary<string, int> Attributes { get; init; } = new();
     public int MaxHitPoints { get; init; } = 1;
+    public int Level { get; init; } = 1;
 }
 
 public record UpdateAttributeRequest
@@ -42,6 +43,11 @@ public record SetStrainRequest
 public record SetLevelRequest
 {
     public int Level { get; init; }
+}
+
+public record LevelUpRequest
+{
+    public int HpGain { get; init; }
 }
 
 public record AddFocusRequest

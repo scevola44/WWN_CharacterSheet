@@ -214,6 +214,53 @@ public class CharacterTests
     }
 
     [Fact]
+    public void Create_WithLevel_SetsLevel()
+    {
+        var character = Character.Create("Test", CharacterClass.Warrior, DefaultScores,
+            userId: "user-1", level: 5);
+        character.Level.Should().Be(5);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(11)]
+    public void Create_LevelOutOfRange_Throws(int level)
+    {
+        var act = () => Character.Create("Test", CharacterClass.Warrior, DefaultScores,
+            userId: "user-1", level: level);
+        act.Should().Throw<ArgumentOutOfRangeException>();
+    }
+
+    [Fact]
+    public void LevelUp_IncrementsLevelAndAddsHp()
+    {
+        var character = Character.Create("Test", CharacterClass.Warrior, DefaultScores,
+            userId: "user-1", maxHitPoints: 6);
+        character.LevelUp(5);
+        character.Level.Should().Be(2);
+        character.MaxHitPoints.Should().Be(11);
+        character.CurrentHitPoints.Should().Be(11);
+    }
+
+    [Fact]
+    public void LevelUp_AtMaxLevel_Throws()
+    {
+        var character = Character.Create("Test", CharacterClass.Warrior, DefaultScores,
+            userId: "user-1", level: 10);
+        var act = () => character.LevelUp(4);
+        act.Should().Throw<InvalidOperationException>();
+    }
+
+    [Fact]
+    public void LevelUp_HpGainBelow1_Throws()
+    {
+        var character = Character.Create("Test", CharacterClass.Warrior, DefaultScores,
+            userId: "user-1");
+        var act = () => character.LevelUp(0);
+        act.Should().Throw<ArgumentOutOfRangeException>();
+    }
+
+    [Fact]
     public void GetEquippedWeapon_ReturnsEquippedWeapon()
     {
         var character = Character.Create("Test", CharacterClass.Warrior, DefaultScores);
