@@ -9,8 +9,9 @@ services:
     volumes:
       - ./data:/app/db
     environment:
-      ASPNETCORE_URLS: http://+:5000
+      ASPNETCORE_HTTP_PORTS: "5000"
       ConnectionStrings__Default: "Data Source=/app/db/wwn_characters.db"
+      DataProtection__KeysPath: /app/db/keys
       # Branch name for informational/documentation purposes
       # Set this to match the branch you have checked out locally
       # Example: BRANCH=main or BRANCH=develop

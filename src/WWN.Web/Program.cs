@@ -1,5 +1,6 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
@@ -84,6 +85,12 @@ try
     builder.Services.AddScoped<ArtDefinitionSeeder>();
     builder.Services.AddScoped<ClassAbilitySeeder>();
     builder.Services.AddSingleton<CharacterSheetCalculator>();
+
+    // DataProtection — persist keys to the mounted volume so they survive container restarts
+    var dpKeysPath = builder.Configuration["DataProtection:KeysPath"]
+        ?? Path.Combine(builder.Environment.ContentRootPath, "keys");
+    builder.Services.AddDataProtection()
+        .PersistKeysToFileSystem(new DirectoryInfo(dpKeysPath));
 
     // Swagger
     builder.Services.AddEndpointsApiExplorer();
