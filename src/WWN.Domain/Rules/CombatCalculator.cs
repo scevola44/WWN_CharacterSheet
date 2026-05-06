@@ -12,6 +12,9 @@ public static class CombatCalculator
         if (charClass == CharacterClass.Warrior)
             return level;
 
+        if (charClass == CharacterClass.Mage)
+            return level / 5;
+
         bool hasPartialWarrior = partialA == PartialClass.PartialWarrior ||
                                  partialB == PartialClass.PartialWarrior;
 
