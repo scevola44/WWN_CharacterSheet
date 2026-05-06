@@ -110,6 +110,17 @@ public class CharacterArtsTests
     }
 
     [Fact]
+    public void RestForDay_DoesNotChangeStrain()
+    {
+        var character = NewMage();
+        character.SetStrain(3);
+
+        character.RestForDay();
+
+        character.CurrentStrain.Should().Be(3);
+    }
+
+    [Fact]
     public void ReleaseSustainedEffort_DecrementsSustainedOnly()
     {
         var character = NewMage();
