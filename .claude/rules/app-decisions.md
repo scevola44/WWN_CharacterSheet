@@ -77,8 +77,8 @@ Format for each entry:
 **Detail**: `RestForDay` does not heal HP. Pick a rule: full heal? `level × 1` HP? Fraction of max? Then implement and document.
 
 ### System Strain decay on rest
-**Source**: Open.
-**Detail**: Choose a rate (e.g., −1 per day of safe rest, full reset on a week of rest). Add to `RestForDay` or a dedicated method.
+**Source**: App-specific.
+**Detail**: Strain does **not** auto-decrement on rest. It is decremented manually via the `+1 / −1` controls in `StrainTracker`. `RestForDay()` does not touch `CurrentStrain`. The UI warns at max strain and labels it "Decremented manually".
 
 ### Encumbrance totals and capacity
 **Source**: Open.
