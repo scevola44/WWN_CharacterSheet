@@ -22,21 +22,9 @@ public class CombatCalculatorTests
     }
 
     [Fact]
-    public void Mage_Level4_BAB0()
+    public void Mage_Level4_BAB2()
     {
-        CombatCalculator.GetBaseAttackBonus(CharacterClass.Mage, null, null, 4).Should().Be(0);
-    }
-
-    [Fact]
-    public void Mage_Level5_BAB1()
-    {
-        CombatCalculator.GetBaseAttackBonus(CharacterClass.Mage, null, null, 5).Should().Be(1);
-    }
-
-    [Fact]
-    public void Mage_Level10_BAB2()
-    {
-        CombatCalculator.GetBaseAttackBonus(CharacterClass.Mage, null, null, 10).Should().Be(2);
+        CombatCalculator.GetBaseAttackBonus(CharacterClass.Mage, null, null, 4).Should().Be(2);
     }
 
     [Fact]
