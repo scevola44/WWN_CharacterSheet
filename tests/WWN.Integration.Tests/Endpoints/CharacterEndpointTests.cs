@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -54,6 +55,16 @@ public class CharacterEndpointTests : IClassFixture<CharacterEndpointTests.Custo
 
         protected override void ConfigureWebHost(Microsoft.AspNetCore.Hosting.IWebHostBuilder builder)
         {
+            builder.ConfigureAppConfiguration((_, config) =>
+            {
+                // The real signing key lives in user-secrets / env vars; supply a deterministic
+                // one here so Program.cs can boot during integration tests.
+                config.AddInMemoryCollection(new Dictionary<string, string?>
+                {
+                    ["Jwt:Key"] = "test-only-signing-key-must-be-at-least-32-chars-long"
+                });
+            });
+
             builder.ConfigureServices(services =>
             {
                 // Override authentication with test handler instead of JWT
