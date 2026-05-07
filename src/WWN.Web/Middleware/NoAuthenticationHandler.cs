@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.Options;
 using System.Text.Encodings.Web;
 
 namespace WWN.Web.Middleware;
