@@ -1,5 +1,6 @@
 using WWN.Domain.Entities;
 using WWN.Domain.Enums;
+using WWN.Domain.Rules;
 using WWN.Domain.ValueObjects;
 
 namespace WWN.Domain.Aggregates;
@@ -100,6 +101,9 @@ public class Character
 
         if (charClass != CharacterClass.Adventurer && (partialA is not null || partialB is not null))
             throw new ArgumentException("Only Adventurer class uses partial classes.");
+
+        if (charClass == CharacterClass.Adventurer && partialA == partialB)
+            throw new ArgumentException("Adventurer's two partial classes must be distinct.");
 
         var character = new Character
         {
@@ -339,6 +343,14 @@ public class Character
     {
         if (spellLevel < 1 || spellLevel > 6)
             throw new ArgumentOutOfRangeException(nameof(spellLevel), "Spell level must be 1-6.");
+        if (!EffortPoolCalculator.HasArts(this))
+            throw new InvalidOperationException("Character has no spellcasting capability.");
+
+        var effectiveClass = Class == CharacterClass.Mage ? CharacterClass.Mage : CharacterClass.Adventurer;
+        var intMod = GetAttribute(AttributeName.Intelligence).Modifier;
+        var max = SpellSlotCalculator.CalculateSlots(effectiveClass, Level, intMod)[spellLevel - 1];
+        if (SpellSlotsUsed[spellLevel - 1] >= max)
+            throw new InvalidOperationException($"No spell slots remaining at level {spellLevel}.");
 
         // EF Core's change tracker uses reference equality for arrays — mutating in place
         // won't trigger an update. Cloning forces a new reference so the change is persisted.
@@ -375,6 +387,8 @@ public class Character
     public void CommitEffort(EffortCommitment commitment, int maxEffort, int amount = 1)
     {
         if (amount < 1) throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be at least 1.");
+        if (!EffortPoolCalculator.HasArts(this))
+            throw new InvalidOperationException("Character has no Effort pool.");
         var totalCommitted = EffortCommittedScene + EffortCommittedDay + EffortCommittedSustained;
         if (totalCommitted + amount > maxEffort)
             throw new InvalidOperationException("Not enough free effort to commit.");

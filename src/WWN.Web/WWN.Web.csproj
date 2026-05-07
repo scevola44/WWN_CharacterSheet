@@ -19,6 +19,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latestmajor</LangVersion>
+    <UserSecretsId>34e7e66d-a07b-44ac-b19c-4fc547426ae3</UserSecretsId>
   </PropertyGroup>
 
   <Target Name="BuildClientApp" BeforeTargets="Build" Condition="'$(Configuration)' != 'Release'">
