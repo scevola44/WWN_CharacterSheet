@@ -1,17 +1,37 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Security.Claims;
 using FluentAssertions;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using WWN.Application.DTOs;
 using WWN.Infrastructure.Persistence;
 
 namespace WWN.Integration.Tests.Endpoints;
 
 public class CharacterEndpointTests : IClassFixture<CharacterEndpointTests.CustomFactory>, IDisposable
+{
+    private class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
+    {
+        public TestAuthHandler(IOptionsMonitor<AuthenticationSchemeOptions> options,
+            ILoggerFactory logger, UrlEncoder encoder)
+            : base(options, logger, encoder) { }
+
+        protected override Task<AuthenticateResult> HandleAuthenticateAsync()
+        {
+            var claims = new[] { new Claim(ClaimTypes.NameIdentifier, "test-user-id") };
+            var identity = new ClaimsIdentity(claims, "Test");
+            var principal = new ClaimsPrincipal(identity);
+            var ticket = new AuthenticationTicket(principal, "Test");
+            return Task.FromResult(AuthenticateResult.Success(ticket));
+        }
+    }
+
 {
     private readonly HttpClient _client;
     private readonly SqliteConnection _connection;
@@ -28,18 +48,19 @@ public class CharacterEndpointTests : IClassFixture<CharacterEndpointTests.Custo
 
         protected override void ConfigureWebHost(Microsoft.AspNetCore.Hosting.IWebHostBuilder builder)
         {
-            builder.ConfigureAppConfiguration((_, config) =>
-            {
-                // The real signing key lives in user-secrets / env vars; supply a deterministic
-                // one here so Program.cs can boot during integration tests.
-                config.AddInMemoryCollection(new Dictionary<string, string?>
-                {
-                    ["Jwt:Key"] = "test-only-signing-key-must-be-at-least-32-chars-long"
-                });
-            });
-
             builder.ConfigureServices(services =>
             {
+                // Override authentication with test handler instead of JWT
+                services.AddAuthentication("Test")
+                    .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("Test", null);
+
+                services.Configure<AuthenticationOptions>(o =>
+                {
+                    o.DefaultAuthenticateScheme = "Test";
+                    o.DefaultChallengeScheme = "Test";
+                });
+
+                // Replace DbContext with in-memory SQLite
                 var descriptor = services.SingleOrDefault(d =>
                     d.ServiceType == typeof(DbContextOptions<WwnDbContext>));
                 if (descriptor != null) services.Remove(descriptor);
@@ -118,7 +139,7 @@ public class CharacterEndpointTests : IClassFixture<CharacterEndpointTests.Custo
         dto.DerivedStats.Should().NotBeNull();
         dto.DerivedStats.ArmorClass.Should().BeGreaterThan(0);
         dto.Attributes.Should().HaveCount(6);
-        dto.Skills.Should().HaveCount(16);
+        dto.Skills.Should().HaveCount(21);
     }
 
     [Fact]
