@@ -358,7 +358,7 @@ public class CharacterService(
     {
         var definitions = await cache.GetOrCreateAsync(
             FocusDefsKey,
-            entry => { entry.Set(s_defCacheOptions); return focusDefinitionRepository.GetAllAsync(cancellationToken); })
+            entry => { entry.SetOptions(s_defCacheOptions); return focusDefinitionRepository.GetAllAsync(cancellationToken); })
             ?? [];
         var defsByName = definitions.ToDictionary(d => d.Name, StringComparer.OrdinalIgnoreCase);
         foreach (var focus in character.Foci)
@@ -389,7 +389,7 @@ public class CharacterService(
     {
         var allAbilities = await cache.GetOrCreateAsync(
             ClassAbilitiesKey,
-            entry => { entry.Set(s_defCacheOptions); return classAbilityRepository.GetAllAsync(cancellationToken); })
+            entry => { entry.SetOptions(s_defCacheOptions); return classAbilityRepository.GetAllAsync(cancellationToken); })
             ?? [];
         var ownerKeys = GetAbilityOwnerKeys(character);
 
