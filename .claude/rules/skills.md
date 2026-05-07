@@ -4,11 +4,13 @@ Source: free WWN rules, paraphrased.
 
 ## Skill list
 
-WWN base skills (16, plus an open `Custom` slot):
+WWN base skills (21, plus an open `Custom` slot):
 
-`Connect, Know, Lead, Magic, Notice, Perform, Pray, Punch, Ride, Sail, Shoot, Sneak, Stab, Survive, Trade, Work`
+`Administer, Connect, Convince, Craft, Exert, Heal, Know, Lead, Magic, Notice, Perform, Pray, Punch, Ride, Sail, Shoot, Sneak, Stab, Survive, Trade, Work`
 
 See `SkillName` enum (`src/WWN.Domain/Enums/SkillName.cs:1`).
+
+> **Enum ordering note**: The original 16 values (Connect through Work, ordinals 0–15) must not be reordered — `FocusEffect.TargetSkill` and `ClassAbilityEffect.TargetSkill` are stored as integers in JSON blobs. The 5 added skills are appended at ordinals 16–20, with `Custom` at 21.
 
 ## Ranks
 
@@ -46,7 +48,7 @@ check = 2d6 + rank + attribute_mod + focus_skill_bonus + ability_skill_bonus
 
 ## UI implications
 
-- Skill panel groups all 16 base skills + custom skills.
+- Skill panel groups all 21 base skills + custom skills.
 - Surface the attribute-pairing choice when rolling — currently the UI does not roll, but if it ever does, a dropdown of "(skill) + (attribute)" is required.
 - For level-up: show "available skill points" with rank-up cost preview.
 

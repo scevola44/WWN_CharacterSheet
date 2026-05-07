@@ -29,8 +29,9 @@ const CONDITIONS = [
 ];
 
 const SKILLS = [
-  'Connect', 'Know', 'Lead', 'Magic', 'Notice', 'Perform', 'Pray',
-  'Punch', 'Ride', 'Sail', 'Shoot', 'Sneak', 'Stab', 'Survive', 'Trade', 'Work',
+  'Administer', 'Connect', 'Convince', 'Craft', 'Exert', 'Heal', 'Know',
+  'Lead', 'Magic', 'Notice', 'Perform', 'Pray', 'Punch', 'Ride', 'Sail',
+  'Shoot', 'Sneak', 'Stab', 'Survive', 'Trade', 'Work',
 ];
 
 const ATTRIBUTES = ['Strength', 'Dexterity', 'Constitution', 'Intelligence', 'Wisdom', 'Charisma'];
