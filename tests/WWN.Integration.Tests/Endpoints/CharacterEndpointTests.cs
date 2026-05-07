@@ -1,13 +1,14 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Security.Claims;
+using System.Text.Encodings.Web;
 using FluentAssertions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using WWN.Application.DTOs;
 using WWN.Infrastructure.Persistence;
@@ -32,7 +33,6 @@ public class CharacterEndpointTests : IClassFixture<CharacterEndpointTests.Custo
         }
     }
 
-{
     private readonly HttpClient _client;
     private readonly SqliteConnection _connection;
 
@@ -42,6 +42,12 @@ public class CharacterEndpointTests : IClassFixture<CharacterEndpointTests.Custo
 
         public CustomFactory()
         {
+            // Environment variables are read by WebApplication.CreateBuilder immediately,
+            // before Program.cs evaluates builder.Configuration["Jwt:Key"].
+            // ConfigureAppConfiguration callbacks are deferred until app.Build() and arrive too late.
+            Environment.SetEnvironmentVariable("Jwt__Key", "integration-test-secret-key-long-enough-for-hmacsha256");
+            Environment.SetEnvironmentVariable("Jwt__Issuer", "test-issuer");
+            Environment.SetEnvironmentVariable("Jwt__Audience", "test-audience");
             Connection = new SqliteConnection("Data Source=:memory:");
             Connection.Open();
         }
