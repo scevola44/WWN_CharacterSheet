@@ -16,6 +16,8 @@ public class CharacterRepository(WwnDbContext dbContext) : ICharacterRepository
             .Include(character => character.Inventory)
             .Include(character => character.Spellbook)
             .ThenInclude(k => k.Spell)
+            .Include(character => character.KnownArts)
+            .ThenInclude(k => k.Art)
             .FirstOrDefaultAsync(character => character.Id == characterId && character.UserId == userId, cancellationToken);
     }
 

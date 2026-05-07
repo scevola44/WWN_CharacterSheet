@@ -5,6 +5,7 @@ import { CharacterListPage } from './pages/CharacterListPage';
 import { CharacterCreatePage } from './pages/CharacterCreatePage';
 import { CharacterSheetPage } from './pages/CharacterSheetPage';
 import { SpellDatabasePage } from './pages/SpellDatabasePage';
+import { ArtDatabasePage } from './pages/ArtDatabasePage';
 import { FocusDatabasePage } from './pages/FocusDatabasePage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
@@ -29,6 +30,9 @@ function NavBar() {
             </NavLink>
             <NavLink to="/spells" className={({ isActive }) => isActive ? 'tab active' : 'tab'}>
               Spells
+            </NavLink>
+            <NavLink to="/arts" className={({ isActive }) => isActive ? 'tab active' : 'tab'}>
+              Arts
             </NavLink>
           </>
         )}
@@ -65,6 +69,7 @@ function AppRoutes() {
           <Route path="/new" element={<CharacterCreatePage />} />
           <Route path="/character/:id" element={<CharacterSheetPage />} />
           <Route path="/spells" element={<SpellDatabasePage />} />
+          <Route path="/arts" element={<ArtDatabasePage />} />
           <Route path="/foci" element={<FocusDatabasePage />} />
         </Route>
 

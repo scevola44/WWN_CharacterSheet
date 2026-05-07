@@ -91,6 +91,14 @@ public static class CharacterEndpoints
             return Results.Ok(dto);
         });
 
+        group.MapPost("/{id:guid}/levelup", async (Guid id,
+            LevelUpRequest req, ClaimsPrincipal principal, CharacterService svc, CancellationToken ct) =>
+        {
+            var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var dto = await svc.LevelUpAsync(id, userId, req.HpGain, ct);
+            return Results.Ok(dto);
+        });
+
         group.MapPost("/{id:guid}/foci", async (Guid id,
             AddFocusRequest req, ClaimsPrincipal principal, CharacterService svc, CancellationToken ct) =>
         {

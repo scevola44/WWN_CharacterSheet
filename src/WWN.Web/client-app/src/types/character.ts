@@ -1,4 +1,5 @@
 import type { Spell } from './spell';
+import type { KnownArt, EffortInfo } from './art';
 
 export interface CharacterSummary {
   id: string;
@@ -28,6 +29,8 @@ export interface CharacterDetail {
   inventory: ItemInfo[];
   spellbook: KnownSpellInfo[];
   spellSlots: SpellSlotInfo | null;
+  arts: KnownArt[];
+  effort: EffortInfo | null;
   classAbilities: ClassAbilityInfo[];
   derivedStats: DerivedStats;
   notes: string | null;
@@ -115,6 +118,7 @@ export interface CreateCharacterRequest {
   partialClassB?: string;
   attributes: Record<string, number>;
   maxHitPoints?: number;
+  level?: number;
 }
 
 export interface AddItemRequest {

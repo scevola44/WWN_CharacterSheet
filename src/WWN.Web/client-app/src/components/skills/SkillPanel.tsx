@@ -20,7 +20,13 @@ export function SkillPanel({ character, onUpdate, isEditing }: {
   return (
     <SectionCard title="Skills">
       <div className="skill-grid">
-        {character.skills.map(skill => {
+        {[...character.skills]
+          .sort((a, b) => {
+            const nameA = a.name === 'Custom' ? (a.customName || 'Custom') : a.name;
+            const nameB = b.name === 'Custom' ? (b.customName || 'Custom') : b.name;
+            return nameA.localeCompare(nameB);
+          })
+          .map(skill => {
           const display = skill.name === 'Custom' ? skill.customName || 'Custom' : skill.name;
           return (
             <div key={skill.id} className="skill-row">

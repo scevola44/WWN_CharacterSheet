@@ -1,5 +1,6 @@
 using WWN.Domain.Entities;
 using WWN.Domain.Enums;
+using WWN.Domain.Rules;
 using WWN.Domain.ValueObjects;
 
 namespace WWN.Domain.Aggregates;
@@ -53,6 +54,7 @@ public class Character
     private readonly List<Focus> _foci = new();
     private readonly List<Item> _inventory = new();
     private readonly List<KnownSpell> _spellbook = new();
+    private readonly List<KnownArt> _knownArts = new();
     private List<ClassAbilityDefinition> _classAbilities = new();
 
     public IReadOnlyList<CharacterAttribute> Attributes => _attributes.AsReadOnly();
@@ -60,12 +62,19 @@ public class Character
     public IReadOnlyList<Focus> Foci => _foci.AsReadOnly();
     public IReadOnlyList<Item> Inventory => _inventory.AsReadOnly();
     public IReadOnlyList<KnownSpell> Spellbook => _spellbook.AsReadOnly();
+    public IReadOnlyList<KnownArt> KnownArts => _knownArts.AsReadOnly();
     public IReadOnlyList<ClassAbilityDefinition> ClassAbilities => _classAbilities.AsReadOnly();
     #endregion Collections
 
     #region Spells
     public int[] SpellSlotsUsed { get; private set; } = [0, 0, 0, 0, 0, 0];
     #endregion Spells
+
+    #region Effort
+    public int EffortCommittedScene { get; private set; }
+    public int EffortCommittedDay { get; private set; }
+    public int EffortCommittedSustained { get; private set; }
+    #endregion Effort
 
     #region Constructors
     private Character() { } // EF Core
@@ -75,7 +84,8 @@ public class Character
         string userId,
         string? background = null, string? origin = null,
         PartialClass? partialA = null, PartialClass? partialB = null,
-        int maxHitPoints = 1)
+        int maxHitPoints = 1,
+        int level = 1)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Character name is required.", nameof(name));
@@ -83,11 +93,17 @@ public class Character
         if (string.IsNullOrWhiteSpace(userId))
             throw new ArgumentException("UserId is required.", nameof(userId));
 
+        if (level < 1 || level > 10)
+            throw new ArgumentOutOfRangeException(nameof(level), "Level must be 1-10.");
+
         if (charClass == CharacterClass.Adventurer && (partialA is null || partialB is null))
             throw new ArgumentException("Adventurer class requires two partial classes.");
 
         if (charClass != CharacterClass.Adventurer && (partialA is not null || partialB is not null))
             throw new ArgumentException("Only Adventurer class uses partial classes.");
+
+        if (charClass == CharacterClass.Adventurer && partialA == partialB)
+            throw new ArgumentException("Adventurer's two partial classes must be distinct.");
 
         var character = new Character
         {
@@ -99,7 +115,7 @@ public class Character
             PartialClassB = partialB,
             Background = background,
             Origin = origin,
-            Level = 1,
+            Level = level,
             MaxHitPoints = maxHitPoints < 1 ? 1 : maxHitPoints,
             CurrentHitPoints = maxHitPoints < 1 ? 1 : maxHitPoints,
             ExperiencePoints = 0
@@ -276,6 +292,18 @@ public class Character
         Level = level;
     }
 
+    public void LevelUp(int hpGain)
+    {
+        if (Level >= 10)
+            throw new InvalidOperationException("Already at max level.");
+        if (hpGain < 1)
+            throw new ArgumentOutOfRangeException(nameof(hpGain), "HP gain must be at least 1.");
+
+        Level += 1;
+        MaxHitPoints += hpGain;
+        CurrentHitPoints += hpGain;
+    }
+
     public void SetExperiencePoints(int xp)
     {
         if (xp < 0) throw new ArgumentOutOfRangeException(nameof(xp));
@@ -315,6 +343,14 @@ public class Character
     {
         if (spellLevel < 1 || spellLevel > 6)
             throw new ArgumentOutOfRangeException(nameof(spellLevel), "Spell level must be 1-6.");
+        if (!EffortPoolCalculator.HasArts(this))
+            throw new InvalidOperationException("Character has no spellcasting capability.");
+
+        var effectiveClass = Class == CharacterClass.Mage ? CharacterClass.Mage : CharacterClass.Adventurer;
+        var intMod = GetAttribute(AttributeName.Intelligence).Modifier;
+        var max = SpellSlotCalculator.CalculateSlots(effectiveClass, Level, intMod)[spellLevel - 1];
+        if (SpellSlotsUsed[spellLevel - 1] >= max)
+            throw new InvalidOperationException($"No spell slots remaining at level {spellLevel}.");
 
         // EF Core's change tracker uses reference equality for arrays — mutating in place
         // won't trigger an update. Cloning forces a new reference so the change is persisted.
@@ -328,4 +364,69 @@ public class Character
         SpellSlotsUsed = [0, 0, 0, 0, 0, 0];
     }
     #endregion Spell mutations
+
+    #region Art mutations
+    public void LearnArt(KnownArt knownArt)
+    {
+        if (knownArt == null)
+            throw new ArgumentNullException(nameof(knownArt));
+        if (_knownArts.Any(a => a.ArtId == knownArt.ArtId))
+            throw new InvalidOperationException("Character already knows this art.");
+        _knownArts.Add(knownArt);
+    }
+
+    public void ForgetArt(Guid artId)
+    {
+        var knownArt = _knownArts.FirstOrDefault(a => a.ArtId == artId)
+            ?? throw new InvalidOperationException("Art not found in known arts.");
+        _knownArts.Remove(knownArt);
+    }
+    #endregion Art mutations
+
+    #region Effort mutations
+    public void CommitEffort(EffortCommitment commitment, int maxEffort, int amount = 1)
+    {
+        if (amount < 1) throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be at least 1.");
+        if (!EffortPoolCalculator.HasArts(this))
+            throw new InvalidOperationException("Character has no Effort pool.");
+        var totalCommitted = EffortCommittedScene + EffortCommittedDay + EffortCommittedSustained;
+        if (totalCommitted + amount > maxEffort)
+            throw new InvalidOperationException("Not enough free effort to commit.");
+
+        switch (commitment)
+        {
+            case EffortCommitment.Scene:
+                EffortCommittedScene += amount;
+                break;
+            case EffortCommitment.Day:
+                EffortCommittedDay += amount;
+                break;
+            case EffortCommitment.Sustained:
+                EffortCommittedSustained += amount;
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(commitment));
+        }
+    }
+
+    public void EndScene()
+    {
+        EffortCommittedScene = 0;
+    }
+
+    public void RestForDay()
+    {
+        EffortCommittedScene = 0;
+        EffortCommittedDay = 0;
+        RestoreAllSpellSlots();
+    }
+
+    public void ReleaseSustainedEffort(int amount = 1)
+    {
+        if (amount < 1) throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be at least 1.");
+        if (amount > EffortCommittedSustained)
+            throw new InvalidOperationException("Cannot release more sustained effort than is committed.");
+        EffortCommittedSustained -= amount;
+    }
+    #endregion Effort mutations
 }

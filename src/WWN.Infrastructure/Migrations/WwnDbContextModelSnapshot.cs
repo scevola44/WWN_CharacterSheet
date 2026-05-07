@@ -230,6 +230,15 @@ namespace WWN.Infrastructure.Migrations
                     b.Property<int>("CurrentStrain")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("EffortCommittedDay")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("EffortCommittedScene")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("EffortCommittedSustained")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("ExperiencePoints")
                         .HasColumnType("INTEGER");
 
@@ -507,6 +516,62 @@ namespace WWN.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Spells", (string)null);
+                });
+
+            modelBuilder.Entity("WWN.Domain.Entities.Art", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("EffortCost")
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("MinLevel")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Summary")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Arts", (string)null);
+                });
+
+            modelBuilder.Entity("WWN.Domain.Entities.KnownArt", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("ArtId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CharacterId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ArtId");
+
+                    b.HasIndex("CharacterId");
+
+                    b.ToTable("KnownArts", (string)null);
                 });
 
             modelBuilder.Entity("WWN.Domain.Entities.Armor", b =>
@@ -866,6 +931,23 @@ namespace WWN.Infrastructure.Migrations
                     b.Navigation("Spell");
                 });
 
+            modelBuilder.Entity("WWN.Domain.Entities.KnownArt", b =>
+                {
+                    b.HasOne("WWN.Domain.Aggregates.Character", null)
+                        .WithMany("KnownArts")
+                        .HasForeignKey("CharacterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WWN.Domain.Entities.Art", "Art")
+                        .WithMany()
+                        .HasForeignKey("ArtId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Art");
+                });
+
             modelBuilder.Entity("WWN.Domain.Entities.Weapon", b =>
                 {
                     b.OwnsOne("WWN.Domain.ValueObjects.DamageDie", "DamageDie", b1 =>
@@ -925,6 +1007,8 @@ namespace WWN.Infrastructure.Migrations
                     b.Navigation("Foci");
 
                     b.Navigation("Inventory");
+
+                    b.Navigation("KnownArts");
 
                     b.Navigation("Skills");
 

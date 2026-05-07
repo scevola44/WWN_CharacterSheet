@@ -1,7 +1,13 @@
+import { useState } from 'react';
 import { SectionCard } from '../layout/SectionCard';
+import { LevelUpModal } from './LevelUpModal';
 import type { CharacterDetail } from '../../types/character';
 
-export function IdentitySection({ character }: { character: CharacterDetail }) {
+export function IdentitySection({ character, onUpdate }: {
+  character: CharacterDetail;
+  onUpdate?: (updated: CharacterDetail) => void;
+}) {
+  const [showLevelUp, setShowLevelUp] = useState(false);
   const classDisplay = character.class === 'Adventurer'
     ? `Adventurer (${character.partialClassA} / ${character.partialClassB})`
     : character.class;
@@ -19,13 +25,25 @@ export function IdentitySection({ character }: { character: CharacterDetail }) {
         </div>
         <div className="form-group">
           <label>Level</label>
-          <strong>{character.level}</strong>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <strong>{character.level}</strong>
+            {onUpdate && character.level < 10 && (
+              <button className="sm secondary" onClick={() => setShowLevelUp(true)}>Level Up</button>
+            )}
+          </div>
         </div>
         <div className="form-group">
           <label>XP</label>
           <strong>{character.experiencePoints}</strong>
         </div>
       </div>
+      {showLevelUp && onUpdate && (
+        <LevelUpModal
+          character={character}
+          onClose={() => setShowLevelUp(false)}
+          onUpdate={onUpdate}
+        />
+      )}
       {(character.background || character.origin) && (
         <div className="form-row">
           {character.background && (

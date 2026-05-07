@@ -53,12 +53,23 @@ export function StrainTracker({ character, onUpdate }: {
           )}
         </div>
         <div className="hp-bar">
-          <div className="hp-fill" style={{ width: `${pct}%` }} />
+          <div
+            className="hp-fill"
+            style={{
+              width: `${pct}%`,
+              backgroundColor: character.currentStrain >= maxStrain ? 'var(--danger, #c0392b)' : undefined,
+            }}
+          />
         </div>
         <button className="sm secondary" onClick={() => handleDelta(1)}>+1</button>
       </div>
-      <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
-        Max = CON score ({maxStrain}) | Recovers 1 per night's rest
+      {character.currentStrain >= maxStrain && (
+        <div style={{ fontSize: '0.8rem', color: 'var(--danger, #c0392b)', marginTop: '0.5rem' }}>
+          Max strain reached — cannot receive further strain-causing effects
+        </div>
+      )}
+      <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+        Max = CON score ({maxStrain}) | Decremented manually
       </div>
     </SectionCard>
   );
