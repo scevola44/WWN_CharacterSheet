@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.OpenApi;
 using WWN.Web.Services;
 
 namespace WWN.Web.Endpoints;
@@ -8,8 +7,7 @@ public static class DiagnosticsEndpoints
     public static void MapDiagnosticsEndpoints(this WebApplication app)
     {
         var group = app.MapGroup("/api/diagnostics")
-            .WithName("Diagnostics")
-            .WithOpenApi();
+            .WithName("Diagnostics");
 
         group.MapGet("/info", GetInfo)
             .Produces<InfoResponse>()
