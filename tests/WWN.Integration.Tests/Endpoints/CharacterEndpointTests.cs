@@ -32,7 +32,6 @@ public class CharacterEndpointTests : IClassFixture<CharacterEndpointTests.Custo
         }
     }
 
-{
     private readonly HttpClient _client;
     private readonly SqliteConnection _connection;
 
