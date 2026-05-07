@@ -413,6 +413,22 @@ The application respects the following environment variables:
 - **ASPNETCORE_ENVIRONMENT:** Set to `Production` for production deployments (default: `Development`)
 - **ASPNETCORE_URLS:** Configure the listening URL (default: `http://0.0.0.0:5000`)
 - **ConnectionStrings__DefaultConnection:** SQLite database path (default: `./wwn_characters.db`)
+- **Jwt__Key:** **Required.** HMAC-SHA256 signing key for issued JWTs. Use a high-entropy value (e.g. `openssl rand -base64 32`). The application refuses to start if it is not configured. See "JWT signing key" below for local-dev setup.
+
+### JWT signing key
+
+The signing key is **not** committed; the app reads `Jwt:Key` from configuration and fails fast if it is missing.
+
+- **Local development:** use the .NET user-secrets store (the `WWN.Web` project has a `<UserSecretsId>` set):
+
+  ```bash
+  dotnet user-secrets set "Jwt:Key" "$(openssl rand -base64 32)" \
+      --project src/WWN.Web
+  ```
+
+- **Production / Docker / Fly / Render:** set the `Jwt__Key` environment variable. ASP.NET Core's configuration provider maps `Jwt__Key` to the `Jwt:Key` key.
+
+> The previous default value (`wwn-character-sheet-dev-secret-key-change-in-production`) was committed to source and is considered burned — rotate any deployment that may have used it.
 
 ### Port Configuration
 

@@ -4,6 +4,7 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using WWN.Application.DTOs;
 using WWN.Infrastructure.Persistence;
@@ -27,6 +28,16 @@ public class CharacterEndpointTests : IClassFixture<CharacterEndpointTests.Custo
 
         protected override void ConfigureWebHost(Microsoft.AspNetCore.Hosting.IWebHostBuilder builder)
         {
+            builder.ConfigureAppConfiguration((_, config) =>
+            {
+                // The real signing key lives in user-secrets / env vars; supply a deterministic
+                // one here so Program.cs can boot during integration tests.
+                config.AddInMemoryCollection(new Dictionary<string, string?>
+                {
+                    ["Jwt:Key"] = "test-only-signing-key-must-be-at-least-32-chars-long"
+                });
+            });
+
             builder.ConfigureServices(services =>
             {
                 var descriptor = services.SingleOrDefault(d =>

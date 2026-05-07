@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import type { Spell, CreateSpellRequest, UpdateSpellRequest } from '../types/spell';
 import { spellsApi } from '../api/spellApi';
 import { SpellForm } from '../components/spells/SpellForm';
@@ -17,16 +17,17 @@ export function SpellDatabasePage() {
   });
   const [editForm, setEditForm] = useState<UpdateSpellRequest | null>(null);
 
+  // Initial load: loading starts true; no synchronous setState in the effect body.
   useEffect(() => {
-    refreshSpells();
+    spellsApi.list().then(setSpells).finally(() => setLoading(false));
   }, []);
 
-  const refreshSpells = async () => {
+  const refreshSpells = useCallback(async () => {
     setLoading(true);
     const data = await spellsApi.list();
     setSpells(data);
     setLoading(false);
-  };
+  }, []);
 
   const handleAddSpell = async () => {
     if (!form.name.trim() || !form.description.trim()) {

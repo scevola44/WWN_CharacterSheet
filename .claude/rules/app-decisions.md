@@ -48,6 +48,10 @@ Format for each entry:
 **Source**: WWN-derived.
 **Detail**: `Character.Create` rejects Adventurer without both partials, and rejects non-Adventurer with any partials.
 
+### Adventurer's two partial classes must be distinct
+**Source**: WWN-derived.
+**Detail**: `Character.Create` rejects `(PartialMage, PartialMage)` and any other duplicate pair. See `src/WWN.Domain/Aggregates/Character.cs:105-106`.
+
 ### Magic eligibility = Mage OR Adventurer with Partial Mage
 **Source**: WWN-derived (simplified).
 **Detail**: Both High Magic (spells/slots) and Low Magic (Arts/Effort) gate on the same predicate (`EffortPoolCalculator.HasArts`). The rulebook's distinct Mage traditions are flattened into a single "magical" capability for now.
@@ -91,10 +95,6 @@ Format for each entry:
 ### Skill-point economy
 **Source**: Open.
 **Detail**: No `AvailableSkillPoints` on `Character`. Decide cost-per-rank table, level-up grants per class, Expert bonus, and whether attribute increases from skill points are supported.
-
-### Distinct partial classes
-**Source**: Open.
-**Detail**: Domain does not enforce `PartialClassA != PartialClassB`. Decide whether duplicates are allowed; if not, add validation in `Character.Create`.
 
 ### Heavy armor / spell failure
 **Source**: Open.

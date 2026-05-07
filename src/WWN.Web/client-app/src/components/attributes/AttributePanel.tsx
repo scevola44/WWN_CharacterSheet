@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { SectionCard } from '../layout/SectionCard';
 import { characterApi } from '../../api/characterApi';
 import type { CharacterDetail } from '../../types/character';
@@ -13,6 +13,9 @@ export function AttributePanel({ character, onUpdate, isEditing }: {
   const [editing, setEditing] = useState<string | null>(null);
   const [editVal, setEditVal] = useState('');
 
+  // Derived: suppress editing UI when not in editing mode
+  const activeEditing = isEditing ? editing : null;
+
   const handleSave = async (name: string) => {
     const score = parseInt(editVal);
     if (score >= 3 && score <= 18) {
@@ -21,10 +24,6 @@ export function AttributePanel({ character, onUpdate, isEditing }: {
     }
     setEditing(null);
   };
-
-  useEffect(() => {
-    if (!isEditing) setEditing(null);
-  }, [isEditing]);
 
   const handleClick = (attr: { name: string; score: number }) => {
     if (!isEditing) return;
@@ -43,7 +42,7 @@ export function AttributePanel({ character, onUpdate, isEditing }: {
             style={isEditing ? undefined : { cursor: 'default' }}
           >
             <div className="label">{attr.name.substring(0, 3)}</div>
-            {isEditing && editing === attr.name ? (
+            {isEditing && activeEditing === attr.name ? (
               <input
                 type="number"
                 value={editVal}

@@ -19,7 +19,8 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [token, setToken] = useState<string | null>(() => localStorage.getItem(TOKEN_KEY));
-  const [isLoading, setIsLoading] = useState(true);
+  // Start loading only when there's a stored token to validate; otherwise we're already done.
+  const [isLoading, setIsLoading] = useState(() => !!localStorage.getItem(TOKEN_KEY));
 
   // Sync token to axios interceptor whenever it changes
   useEffect(() => {
@@ -29,10 +30,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // On mount, validate any stored token by calling /me
   useEffect(() => {
     const storedToken = localStorage.getItem(TOKEN_KEY);
-    if (!storedToken) {
-      setIsLoading(false);
-      return;
-    }
+    if (!storedToken) return; // isLoading already false from lazy init
 
     authApi.me(storedToken)
       .then(authUser => {
@@ -73,6 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth(): AuthContextValue {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error('useAuth must be used inside AuthProvider');
