@@ -48,7 +48,7 @@ public class CharacterEndpointTests : IClassFixture<CharacterEndpointTests.Custo
 
         protected override void ConfigureWebHost(Microsoft.AspNetCore.Hosting.IWebHostBuilder builder)
         {
-            builder.ConfigureAppConfiguration(config =>
+            builder.ConfigureAppConfiguration((_, config) =>
             {
                 config.AddInMemoryCollection(new Dictionary<string, string?>
                 {
