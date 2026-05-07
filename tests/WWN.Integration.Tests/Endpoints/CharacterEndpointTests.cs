@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -43,22 +42,18 @@ public class CharacterEndpointTests : IClassFixture<CharacterEndpointTests.Custo
 
         public CustomFactory()
         {
+            // Environment variables are read by WebApplication.CreateBuilder immediately,
+            // before Program.cs evaluates builder.Configuration["Jwt:Key"].
+            // ConfigureAppConfiguration callbacks are deferred until app.Build() and arrive too late.
+            Environment.SetEnvironmentVariable("Jwt__Key", "integration-test-secret-key-long-enough-for-hmacsha256");
+            Environment.SetEnvironmentVariable("Jwt__Issuer", "test-issuer");
+            Environment.SetEnvironmentVariable("Jwt__Audience", "test-audience");
             Connection = new SqliteConnection("Data Source=:memory:");
             Connection.Open();
         }
 
         protected override void ConfigureWebHost(Microsoft.AspNetCore.Hosting.IWebHostBuilder builder)
         {
-            builder.ConfigureAppConfiguration((_, config) =>
-            {
-                config.AddInMemoryCollection(new Dictionary<string, string?>
-                {
-                    ["Jwt:Key"] = "integration-test-secret-key-long-enough-for-hmacsha256",
-                    ["Jwt:Issuer"] = "test-issuer",
-                    ["Jwt:Audience"] = "test-audience"
-                });
-            });
-
             builder.ConfigureServices(services =>
             {
                 // Override authentication with test handler instead of JWT
