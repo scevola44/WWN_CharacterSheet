@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Caching.Memory;
 using WWN.Application.DTOs;
 using WWN.Application.Factories;
 using WWN.Application.Helpers;
@@ -13,8 +14,13 @@ namespace WWN.Application.Services;
 public class CharacterService(
     ICharacterRepository characterRepository,
     IFocusDefinitionRepository focusDefinitionRepository,
-    IClassAbilityRepository classAbilityRepository)
+    IClassAbilityRepository classAbilityRepository,
+    IMemoryCache cache)
 {
+    internal const string FocusDefsKey = "focus-definitions";
+    internal const string ClassAbilitiesKey = "class-abilities";
+    private static readonly MemoryCacheEntryOptions s_defCacheOptions =
+        new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromMinutes(5));
     public async Task<CharacterDetailDto?> GetCharacterAsync(Guid id, string userId, CancellationToken cancellationToken = default)
     {
         var character = await characterRepository.GetByIdAsync(id, userId, cancellationToken);
@@ -139,16 +145,19 @@ public class CharacterService(
         return await SyncAndMap(character, cancellationToken);
     }
 
-    public async Task<CharacterDetailDto> LevelUpAsync(
+    public Task<CharacterDetailDto> LevelUpAsync(
         Guid characterId,
         string userId,
         int hpGain,
         CancellationToken cancellationToken = default)
     {
-        var character = await GetOrThrow(characterId, userId, cancellationToken);
-        character.LevelUp(hpGain);
-        await characterRepository.UpdateAsync(character, cancellationToken);
-        return await SyncAndMap(character, cancellationToken);
+        return characterRepository.ExecuteInTransactionAsync(async () =>
+        {
+            var character = await GetOrThrow(characterId, userId, cancellationToken);
+            character.LevelUp(hpGain);
+            await characterRepository.UpdateAsync(character, cancellationToken);
+            return await SyncAndMap(character, cancellationToken);
+        }, cancellationToken);
     }
 
     public async Task<CharacterDetailDto> AddFocusAsync(
@@ -347,7 +356,10 @@ public class CharacterService(
 
     private async Task<CharacterDetailDto> SyncAndMap(Character character, CancellationToken cancellationToken)
     {
-        var definitions = await focusDefinitionRepository.GetAllAsync(cancellationToken);
+        var definitions = await cache.GetOrCreateAsync(
+            FocusDefsKey,
+            entry => { entry.Set(s_defCacheOptions); return focusDefinitionRepository.GetAllAsync(cancellationToken); })
+            ?? [];
         var defsByName = definitions.ToDictionary(d => d.Name, StringComparer.OrdinalIgnoreCase);
         foreach (var focus in character.Foci)
         {
@@ -375,7 +387,10 @@ public class CharacterService(
         Character character,
         CancellationToken cancellationToken = default)
     {
-        var allAbilities = await classAbilityRepository.GetAllAsync(cancellationToken);
+        var allAbilities = await cache.GetOrCreateAsync(
+            ClassAbilitiesKey,
+            entry => { entry.Set(s_defCacheOptions); return classAbilityRepository.GetAllAsync(cancellationToken); })
+            ?? [];
         var ownerKeys = GetAbilityOwnerKeys(character);
 
         var activeAbilities = allAbilities

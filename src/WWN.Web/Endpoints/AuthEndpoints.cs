@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -9,7 +10,7 @@ namespace WWN.Web.Endpoints;
 
 public static class AuthEndpoints
 {
-    public static void MapAuthEndpoints(this WebApplication app)
+    public static void MapAuthEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/auth").WithTags("Auth");
 
@@ -80,5 +81,10 @@ public static class AuthEndpoints
     }
 }
 
-public record RegisterRequest(string Email, string Password);
-public record LoginRequest(string Email, string Password);
+public record RegisterRequest(
+    [property: Required, EmailAddress] string Email,
+    [property: Required] string Password);
+
+public record LoginRequest(
+    [property: Required] string Email,
+    [property: Required] string Password);

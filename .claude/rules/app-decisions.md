@@ -60,9 +60,13 @@ Format for each entry:
 **Source**: App-specific.
 **Detail**: `SpellSlotCalculator.CalculateSlots` adds positive INT mod to the 1st-level slot count for Mages, **not** Partial Mages. **Verify against rulebook.**
 
+### All saves use 16 − level − attribute_mod
+**Source**: WWN-derived.
+**Detail**: Physical = 16−level−max(STR,CON), Evasion = 16−level−max(DEX,INT), Mental = 16−level−max(WIS,CHA). There is no "generalist" formula. The `isSpecialist` parameter has been removed from `SavingThrowCalculator`. A Luck save (16−level, no attribute mod) exists in the rulebook but is not yet modeled.
+
 ### Adventurer-with-Partial-Warrior BAB = level/2 + 1
-**Source**: App-specific (questionable).
-**Detail**: `CombatCalculator.GetBaseAttackBonus` gives this case a small edge over the default `level/2`. **Verify against rulebook.** WWN's official partial-warrior BAB rule should be checked before relying on this.
+**Source**: App-specific (confirmed project choice).
+**Detail**: `CombatCalculator.GetBaseAttackBonus` gives this case a slight edge over the baseline half-progression (`level/2`). The exact rulebook BAB table for Partial Warrior should be verified before building further level-up logic on top of this formula.
 
 ### Spell-slot usage clones the array
 **Source**: App-specific (EF Core constraint).
@@ -71,10 +75,6 @@ Format for each entry:
 ---
 
 ## Open / undecided (TODOs)
-
-### Specialist save assignment per class
-**Source**: Open.
-**Detail**: `SavingThrowCalculator.GetBaseSave` accepts `isSpecialist` as a parameter, but no class→save mapping is encoded. Decide which class is "specialist" in which save (Warrior=Physical? Expert=Evasion? Mage=Mental? Adventurer=?), then either persist it on the character or derive from class + partials.
 
 ### HP recovery on rest
 **Source**: Open.

@@ -7,26 +7,16 @@ namespace WWN.Domain.Tests.Rules;
 
 public class SavingThrowCalculatorTests
 {
+    // WWN uses 16 - level for all saves (Physical, Evasion, Mental).
     [Theory]
-    [InlineData(0, false, 15)]
-    [InlineData(1, false, 15)]
-    [InlineData(2, false, 14)]
-    [InlineData(3, false, 14)]
-    [InlineData(4, false, 13)]
-    [InlineData(10, false, 10)]
-    public void GetBaseSave_NonSpecialist_ReturnsExpected(int level, bool specialist, int expected)
+    [InlineData(0, 16)]
+    [InlineData(1, 15)]
+    [InlineData(2, 14)]
+    [InlineData(5, 11)]
+    [InlineData(10, 6)]
+    public void GetBaseSave_ReturnsExpected(int level, int expected)
     {
-        SavingThrowCalculator.GetBaseSave(level, specialist).Should().Be(expected);
-    }
-
-    [Theory]
-    [InlineData(0, true, 16)]
-    [InlineData(1, true, 15)]
-    [InlineData(5, true, 11)]
-    [InlineData(10, true, 6)]
-    public void GetBaseSave_Specialist_ReturnsExpected(int level, bool specialist, int expected)
-    {
-        SavingThrowCalculator.GetBaseSave(level, specialist).Should().Be(expected);
+        SavingThrowCalculator.GetBaseSave(level).Should().Be(expected);
     }
 
     [Fact]
@@ -56,10 +46,10 @@ public class SavingThrowCalculatorTests
     [Fact]
     public void GetSaveTarget_CombinesBaseAndModifier()
     {
-        // Level 2 non-specialist: base 14, STR 16 (+1) -> target 13
+        // Level 2: base = 16 - 2 = 14, STR 16 (+1) -> target 14 - 1 = 13
         var character = CreateCharacter(str: 16);
         character.SetLevel(2);
-        SavingThrowCalculator.GetSaveTarget(SaveType.Physical, character, false).Should().Be(13);
+        SavingThrowCalculator.GetSaveTarget(SaveType.Physical, character).Should().Be(13);
     }
 
     private static Character CreateCharacter(

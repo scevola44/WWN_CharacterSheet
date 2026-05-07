@@ -5,7 +5,7 @@ namespace WWN.Web.Endpoints;
 
 public static class FocusDefinitionEndpoints
 {
-    public static void MapFocusDefinitionEndpoints(this WebApplication app)
+    public static void MapFocusDefinitionEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/focus-definitions").WithTags("Focus Definitions");
 

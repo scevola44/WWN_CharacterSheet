@@ -9,4 +9,5 @@ public interface ICharacterRepository
     Task AddAsync(Character character, CancellationToken cancellationToken = default);
     Task UpdateAsync(Character character, CancellationToken cancellationToken = default);
     Task DeleteAsync(Guid characterId, string userId, CancellationToken ct = default);
+    Task<T> ExecuteInTransactionAsync<T>(Func<Task<T>> action, CancellationToken ct = default);
 }

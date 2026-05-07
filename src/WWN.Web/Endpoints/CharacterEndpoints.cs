@@ -6,7 +6,7 @@ namespace WWN.Web.Endpoints;
 
 public static class CharacterEndpoints
 {
-    public static void MapCharacterEndpoints(this WebApplication app)
+    public static void MapCharacterEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/characters")
             .WithTags("Characters")
