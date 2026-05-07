@@ -70,5 +70,6 @@ public class CharacterConfiguration : IEntityTypeConfiguration<Character>
         builder.Navigation(character => character.Inventory).UsePropertyAccessMode(PropertyAccessMode.Field);
         builder.Navigation(character => character.Spellbook).UsePropertyAccessMode(PropertyAccessMode.Field);
         builder.Navigation(character => character.KnownArts).UsePropertyAccessMode(PropertyAccessMode.Field);
+        builder.Navigation(character => character.ClassAbilities).UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }
