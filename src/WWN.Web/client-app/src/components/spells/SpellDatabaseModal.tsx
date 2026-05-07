@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import type { Spell } from '../../types/spell';
 import type { CharacterDetail } from '../../types/character';
 import { spellsApi } from '../../api/spellApi';
@@ -9,29 +9,25 @@ export function SpellDatabaseModal({ character, onLearn, onClose }: {
   onClose: () => void;
 }) {
   const [spells, setSpells] = useState<Spell[]>([]);
-  const [filteredSpells, setFilteredSpells] = useState<Spell[]>([]);
   const [filterLevel, setFilterLevel] = useState<number | 'all'>('all');
   const [searchName, setSearchName] = useState('');
   const [loading, setLoading] = useState(true);
-
-  const knownSpellIds = new Set(character.spellbook.map(s => s.spellId));
 
   useEffect(() => {
     spellsApi.list().then(setSpells).finally(() => setLoading(false));
   }, []);
 
-  useEffect(() => {
+  const filteredSpells = useMemo(() => {
+    const knownSpellIds = new Set(character.spellbook.map(s => s.spellId));
     let filtered = spells.filter(s => !knownSpellIds.has(s.id));
-
     if (filterLevel !== 'all') {
       filtered = filtered.filter(s => s.spellLevel === filterLevel);
     }
     if (searchName) {
       filtered = filtered.filter(s => s.name.toLowerCase().includes(searchName.toLowerCase()));
     }
-
-    setFilteredSpells(filtered);
-  }, [spells, filterLevel, searchName, knownSpellIds]);
+    return filtered;
+  }, [spells, filterLevel, searchName, character.spellbook]);
 
   const handleLearn = async (spellId: string) => {
     await spellsApi.learnSpell(character.id, spellId);

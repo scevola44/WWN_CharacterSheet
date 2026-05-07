@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import type { FocusDefinition, FocusEffectTemplate } from '../../types/focusDefinition';
 import type { CharacterDetail } from '../../types/character';
 import { focusDefinitionApi } from '../../api/focusDefinitionApi';
@@ -29,7 +29,6 @@ export function FocusDatabaseModal({ character, onAdd, onClose }: {
   onClose: () => void;
 }) {
   const [foci, setFoci] = useState<FocusDefinition[]>([]);
-  const [filtered, setFiltered] = useState<FocusDefinition[]>([]);
   const [searchName, setSearchName] = useState('');
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -40,11 +39,9 @@ export function FocusDatabaseModal({ character, onAdd, onClose }: {
     focusDefinitionApi.list().then(setFoci).finally(() => setLoading(false));
   }, []);
 
-  useEffect(() => {
+  const filtered = useMemo(() => {
     const search = searchName.toLowerCase();
-    setFiltered(
-      foci.filter(fd => !search || fd.name.toLowerCase().includes(search))
-    );
+    return foci.filter(fd => !search || fd.name.toLowerCase().includes(search));
   }, [foci, searchName]);
 
   const getCharacterFocusLevel = (focusName: string): number =>

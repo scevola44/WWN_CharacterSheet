@@ -20,6 +20,13 @@ public class CharacterArtsTests
     private static Character NewMage() =>
         Character.Create("Mage", CharacterClass.Mage, DefaultScores, "user-1");
 
+    private static Character NewWarrior() =>
+        Character.Create("Warrior", CharacterClass.Warrior, DefaultScores, "user-1");
+
+    private static Character NewPartialMageAdventurer() =>
+        Character.Create("Adv", CharacterClass.Adventurer, DefaultScores, "user-1",
+            partialA: PartialClass.PartialWarrior, partialB: PartialClass.PartialMage);
+
     [Fact]
     public void LearnArt_AddsToKnownArts()
     {
@@ -134,6 +141,49 @@ public class CharacterArtsTests
     {
         var character = NewMage();
         var act = () => character.ReleaseSustainedEffort();
+        act.Should().Throw<InvalidOperationException>();
+    }
+
+    [Fact]
+    public void CommitEffort_NonCaster_Throws()
+    {
+        var character = NewWarrior();
+        var act = () => character.CommitEffort(EffortCommitment.Scene, maxEffort: 3);
+        act.Should().Throw<InvalidOperationException>();
+    }
+
+    [Fact]
+    public void CommitEffort_AdventurerWithPartialMage_Succeeds()
+    {
+        var character = NewPartialMageAdventurer();
+        character.CommitEffort(EffortCommitment.Scene, maxEffort: 3);
+        character.EffortCommittedScene.Should().Be(1);
+    }
+
+    [Fact]
+    public void UseSpellSlot_NonCaster_Throws()
+    {
+        var character = NewWarrior();
+        var act = () => character.UseSpellSlot(1);
+        act.Should().Throw<InvalidOperationException>();
+    }
+
+    [Fact]
+    public void UseSpellSlot_BeyondMax_Throws()
+    {
+        // Level-1 Mage with INT 10 (mod 0) has exactly 1 slot at level 1.
+        var character = NewMage();
+        character.UseSpellSlot(1);
+        var act = () => character.UseSpellSlot(1);
+        act.Should().Throw<InvalidOperationException>();
+    }
+
+    [Fact]
+    public void UseSpellSlot_PartialMageAdventurerAtLevel1_HasNoSlots_Throws()
+    {
+        // Partial Mage Adventurer at level 1 has 0 slots — first call must fail.
+        var character = NewPartialMageAdventurer();
+        var act = () => character.UseSpellSlot(1);
         act.Should().Throw<InvalidOperationException>();
     }
 }

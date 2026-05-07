@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import type {
   FocusDefinition,
   CreateFocusDefinitionRequest,
@@ -26,16 +26,17 @@ export function FocusDatabasePage() {
   const [form, setForm] = useState<CreateFocusDefinitionRequest>(emptyForm);
   const [editForm, setEditForm] = useState<UpdateFocusDefinitionRequest | null>(null);
 
+  // Initial load: loading starts true; no synchronous setState in the effect body.
   useEffect(() => {
-    refresh();
+    focusDefinitionApi.list().then(setFoci).finally(() => setLoading(false));
   }, []);
 
-  const refresh = async () => {
+  const refresh = useCallback(async () => {
     setLoading(true);
     const data = await focusDefinitionApi.list();
     setFoci(data);
     setLoading(false);
-  };
+  }, []);
 
   const handleAdd = async () => {
     if (!form.name.trim() || !form.level1Description.trim()) {

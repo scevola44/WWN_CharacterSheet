@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import type { Art, CreateArtRequest, UpdateArtRequest } from '../types/art';
 import { artsApi } from '../api/artApi';
 import { ArtForm } from '../components/arts/ArtForm';
@@ -19,16 +19,17 @@ export function ArtDatabasePage() {
   });
   const [editForm, setEditForm] = useState<UpdateArtRequest | null>(null);
 
+  // Initial load: loading starts true; no synchronous setState in the effect body.
   useEffect(() => {
-    refreshArts();
+    artsApi.list().then(setArts).finally(() => setLoading(false));
   }, []);
 
-  const refreshArts = async () => {
+  const refreshArts = useCallback(async () => {
     setLoading(true);
     const data = await artsApi.list();
     setArts(data);
     setLoading(false);
-  };
+  }, []);
 
   const handleAddArt = async () => {
     if (!form.name.trim() || !form.description.trim()) {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import type { Art } from '../../types/art';
 import type { CharacterDetail } from '../../types/character';
 import { artsApi } from '../../api/artApi';
@@ -9,33 +9,27 @@ export function ArtDatabaseModal({ character, onLearn, onClose }: {
   onClose: () => void;
 }) {
   const [arts, setArts] = useState<Art[]>([]);
-  const [filteredArts, setFilteredArts] = useState<Art[]>([]);
   const [searchName, setSearchName] = useState('');
   const [filterEffort, setFilterEffort] = useState<string>('all');
   const [loading, setLoading] = useState(true);
-
-  const knownArtIds = new Set(character.arts.map(a => a.artId));
 
   useEffect(() => {
     artsApi.list().then(setArts).finally(() => setLoading(false));
   }, []);
 
-  useEffect(() => {
+  const filteredArts = useMemo(() => {
+    const knownArtIds = new Set(character.arts.map(a => a.artId));
     let filtered = arts.filter(a => !knownArtIds.has(a.id) && a.minLevel <= character.level);
-
     if (filterEffort !== 'all') {
-      if (filterEffort === 'none') {
-        filtered = filtered.filter(a => a.effortCost == null);
-      } else {
-        filtered = filtered.filter(a => a.effortCost === filterEffort);
-      }
+      filtered = filterEffort === 'none'
+        ? filtered.filter(a => a.effortCost == null)
+        : filtered.filter(a => a.effortCost === filterEffort);
     }
     if (searchName) {
       filtered = filtered.filter(a => a.name.toLowerCase().includes(searchName.toLowerCase()));
     }
-
-    setFilteredArts(filtered);
-  }, [arts, filterEffort, searchName, knownArtIds, character.level]);
+    return filtered;
+  }, [arts, filterEffort, searchName, character.arts, character.level]);
 
   const handleLearn = async (artId: string) => {
     await artsApi.learnArt(character.id, artId);
