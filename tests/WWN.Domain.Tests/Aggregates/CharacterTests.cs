@@ -31,7 +31,7 @@ public class CharacterTests
     public void Create_Initializes16Skills_AtMinus1()
     {
         var character = Character.Create("Test", CharacterClass.Warrior, DefaultScores, "user-1");
-        character.Skills.Should().HaveCount(16);
+        character.Skills.Should().HaveCount(21);
         character.Skills.Should().AllSatisfy(s => s.Rank.Level.Should().Be(-1));
     }
 
@@ -109,7 +109,7 @@ public class CharacterTests
     {
         var character = Character.Create("Test", CharacterClass.Warrior, DefaultScores, "user-1");
         character.AddCustomSkill("Alchemy", 0);
-        character.Skills.Should().HaveCount(17);
+        character.Skills.Should().HaveCount(22);
         character.Skills.Last().CustomName.Should().Be("Alchemy");
     }
 
