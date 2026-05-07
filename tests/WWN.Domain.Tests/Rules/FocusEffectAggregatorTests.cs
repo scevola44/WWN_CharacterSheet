@@ -12,7 +12,7 @@ public class FocusEffectAggregatorTests
     private static Character MinimalCharacter()
     {
         var scores = Enum.GetValues<AttributeName>().ToDictionary(a => a, _ => 10);
-        return Character.Create("Test", CharacterClass.Expert, scores);
+        return Character.Create("Test", CharacterClass.Expert, scores, "user-1");
     }
 
     [Fact]
@@ -127,7 +127,7 @@ public class FocusEffectAggregatorTests
     public void ValueType_Level_UsesCharacterLevel()
     {
         var scores = Enum.GetValues<AttributeName>().ToDictionary(a => a, _ => 10);
-        var character = Character.Create("Test", CharacterClass.Warrior, scores);
+        var character = Character.Create("Test", CharacterClass.Warrior, scores, "user-1");
         character.SetLevel(5);
 
         var foci = new[]

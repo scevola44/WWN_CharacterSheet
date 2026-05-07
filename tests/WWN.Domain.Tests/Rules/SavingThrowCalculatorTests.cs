@@ -74,6 +74,6 @@ public class SavingThrowCalculatorTests
             [AttributeName.Intelligence] = intel,
             [AttributeName.Wisdom] = wis,
             [AttributeName.Charisma] = cha
-        });
+        }, "user-1");
     }
 }
