@@ -48,6 +48,16 @@ public class CharacterEndpointTests : IClassFixture<CharacterEndpointTests.Custo
 
         protected override void ConfigureWebHost(Microsoft.AspNetCore.Hosting.IWebHostBuilder builder)
         {
+            builder.ConfigureAppConfiguration(config =>
+            {
+                config.AddInMemoryCollection(new Dictionary<string, string?>
+                {
+                    ["Jwt:Key"] = "integration-test-secret-key-long-enough-for-hmacsha256",
+                    ["Jwt:Issuer"] = "test-issuer",
+                    ["Jwt:Audience"] = "test-audience"
+                });
+            });
+
             builder.ConfigureServices(services =>
             {
                 // Override authentication with test handler instead of JWT
