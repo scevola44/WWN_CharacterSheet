@@ -70,15 +70,18 @@ public class CharacterArtService(
         return await characterService.MapToDetailDtoAsync(character, cancellationToken);
     }
 
-    public async Task<CharacterDetailDto> RestForDayAsync(
+    public Task<CharacterDetailDto> RestForDayAsync(
         Guid characterId,
         string userId,
         CancellationToken cancellationToken = default)
     {
-        var character = await GetCharacterOrThrow(characterId, userId, cancellationToken);
-        character.RestForDay();
-        await characterRepository.UpdateAsync(character, cancellationToken);
-        return await characterService.MapToDetailDtoAsync(character, cancellationToken);
+        return characterRepository.ExecuteInTransactionAsync(async () =>
+        {
+            var character = await GetCharacterOrThrow(characterId, userId, cancellationToken);
+            character.RestForDay();
+            await characterRepository.UpdateAsync(character, cancellationToken);
+            return await characterService.MapToDetailDtoAsync(character, cancellationToken);
+        }, cancellationToken);
     }
 
     public async Task<CharacterDetailDto> ReleaseSustainedAsync(

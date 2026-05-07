@@ -18,6 +18,8 @@ public class Armor : Item
     public void Update(string name, int encumbrance, int acBonus, bool isShield = false, string? description = null)
     {
         base.Update(name, encumbrance, 1, description);
+        if (acBonus < -2 || acBonus > 20)
+            throw new ArgumentOutOfRangeException(nameof(acBonus), "AC bonus must be between -2 and 20.");
         AcBonus = acBonus;
         IsShield = isShield;
     }

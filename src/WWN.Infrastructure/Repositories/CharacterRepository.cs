@@ -54,4 +54,20 @@ public class CharacterRepository(WwnDbContext dbContext) : ICharacterRepository
             await dbContext.SaveChangesAsync(ct);
         }
     }
+
+    public async Task<T> ExecuteInTransactionAsync<T>(Func<Task<T>> action, CancellationToken ct = default)
+    {
+        await using var tx = await dbContext.Database.BeginTransactionAsync(ct);
+        try
+        {
+            var result = await action();
+            await tx.CommitAsync(ct);
+            return result;
+        }
+        catch
+        {
+            await tx.RollbackAsync(ct);
+            throw;
+        }
+    }
 }

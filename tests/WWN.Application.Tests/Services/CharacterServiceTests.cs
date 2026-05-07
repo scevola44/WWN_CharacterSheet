@@ -1,4 +1,6 @@
 using FluentAssertions;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 using NSubstitute;
 using WWN.Application.DTOs;
 using WWN.Application.Services;
@@ -31,10 +33,19 @@ public class CharacterServiceTests
         _classAbilityRepository.GetAllAsync(Arg.Any<CancellationToken>())
             .Returns(Task.FromResult<IReadOnlyList<ClassAbilityDefinition>>(Array.Empty<ClassAbilityDefinition>()));
 
+        // ExecuteInTransactionAsync should simply invoke the action.
+        _characterRepository
+            .ExecuteInTransactionAsync(
+                Arg.Any<Func<Task<CharacterDetailDto>>>(),
+                Arg.Any<CancellationToken>())
+            .Returns(ci => ci.ArgAt<Func<Task<CharacterDetailDto>>>(0)());
+
+        var cache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
         _service = new CharacterService(
             _characterRepository,
             _focusDefinitionRepository,
-            _classAbilityRepository);
+            _classAbilityRepository,
+            cache);
     }
 
     private static Dictionary<string, int> DefaultAttributeStrings() => new()

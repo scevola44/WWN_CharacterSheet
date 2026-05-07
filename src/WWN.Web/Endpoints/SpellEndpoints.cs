@@ -6,7 +6,7 @@ namespace WWN.Web.Endpoints;
 
 public static class SpellEndpoints
 {
-    public static void MapSpellEndpoints(this WebApplication app)
+    public static void MapSpellEndpoints(this IEndpointRouteBuilder app)
     {
         var spellGroup = app.MapGroup("/api/spells").WithTags("Spells");
 

@@ -85,6 +85,8 @@ try
     builder.Services.AddScoped<ArtDefinitionSeeder>();
     builder.Services.AddScoped<ClassAbilitySeeder>();
     builder.Services.AddSingleton<CharacterSheetCalculator>();
+    builder.Services.AddMemoryCache();
+    builder.Services.AddScoped<ValidationFilter>();
 
     // DataProtection — persist keys to the mounted volume so they survive container restarts
     var dpKeysPath = builder.Configuration["DataProtection:KeysPath"]
@@ -141,12 +143,15 @@ try
 
     app.UseDefaultFiles();
     app.UseStaticFiles();
-    app.MapAuthEndpoints();
-    app.MapCharacterEndpoints();
-    app.MapSpellEndpoints();
-    app.MapArtEndpoints();
-    app.MapFocusDefinitionEndpoints();
-    app.MapDiagnosticsEndpoints();
+
+    var root = app.MapGroup("").AddEndpointFilter<ValidationFilter>();
+    root.MapAuthEndpoints();
+    root.MapCharacterEndpoints();
+    root.MapSpellEndpoints();
+    root.MapArtEndpoints();
+    root.MapFocusDefinitionEndpoints();
+    root.MapDiagnosticsEndpoints();
+
     app.MapFallbackToFile("index.html");
 
     app.Run();

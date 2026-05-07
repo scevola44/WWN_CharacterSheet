@@ -5,12 +5,9 @@ namespace WWN.Domain.Rules;
 
 public static class SavingThrowCalculator
 {
-    public static int GetBaseSave(int level, bool isSpecialist)
-    {
-        return isSpecialist
-            ? 16 - level
-            : 15 - (level / 2);
-    }
+    // All WWN saves use 16 - level - attribute_mod (Physical, Evasion, Mental).
+    // There is no generalist formula; the old isSpecialist parameter has been removed.
+    public static int GetBaseSave(int level) => 16 - level;
 
     public static int GetSaveModifier(SaveType type, Character character)
     {
@@ -29,8 +26,8 @@ public static class SavingThrowCalculator
         };
     }
 
-    public static int GetSaveTarget(SaveType type, Character character, bool isSpecialist)
+    public static int GetSaveTarget(SaveType type, Character character)
     {
-        return GetBaseSave(character.Level, isSpecialist) - GetSaveModifier(type, character);
+        return GetBaseSave(character.Level) - GetSaveModifier(type, character);
     }
 }
