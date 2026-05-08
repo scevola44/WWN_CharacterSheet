@@ -387,6 +387,8 @@ public class Character
     public void CommitEffort(EffortCommitment commitment, int maxEffort, int amount = 1)
     {
         if (amount < 1) throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be at least 1.");
+        if (commitment == EffortCommitment.None)
+            throw new ArgumentException("Cannot commit Effort with commitment 'None'.", nameof(commitment));
         if (!EffortPoolCalculator.HasArts(this))
             throw new InvalidOperationException("Character has no Effort pool.");
         var totalCommitted = EffortCommittedScene + EffortCommittedDay + EffortCommittedSustained;

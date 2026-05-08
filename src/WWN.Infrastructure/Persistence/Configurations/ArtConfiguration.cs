@@ -15,6 +15,6 @@ public class ArtConfiguration : IEntityTypeConfiguration<Art>
         builder.Property(art => art.Summary).HasMaxLength(500);
         builder.Property(art => art.MinLevel).IsRequired();
         builder.Property(art => art.Source).HasMaxLength(50).IsRequired();
-        builder.Property(art => art.EffortCost).HasConversion<string>().HasMaxLength(20);
+        builder.Property(art => art.EffortCost).IsRequired();
     }
 }

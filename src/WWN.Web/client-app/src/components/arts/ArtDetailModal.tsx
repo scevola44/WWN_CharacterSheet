@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { Art, UpdateArtRequest } from '../../types/art';
 import { artsApi } from '../../api/artApi';
 import { ArtForm } from './ArtForm';
+import { useEffortCommitment } from '../../contexts/LookupsContext';
 
 export function ArtDetailModal({ art, onClose, onSaved }: {
   art: Art;
@@ -17,6 +18,7 @@ export function ArtDetailModal({ art, onClose, onSaved }: {
     effortCost: art.effortCost,
     source: art.source,
   });
+  const effort = useEffortCommitment(art.effortCost);
 
   const handleSave = async () => {
     const updated = await artsApi.update(art.id, editForm);
@@ -43,7 +45,7 @@ export function ArtDetailModal({ art, onClose, onSaved }: {
         ) : (
           <>
             <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>
-              Min Level {art.minLevel} · {art.effortCost ? `Effort: ${art.effortCost}` : 'No effort cost'} · {art.source}
+              Min Level {art.minLevel} · Effort: {effort?.displayName ?? '—'} · {art.source}
             </div>
 
             {art.summary && (

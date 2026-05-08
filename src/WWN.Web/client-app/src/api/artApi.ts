@@ -4,7 +4,6 @@ import type {
   KnownArt,
   CreateArtRequest,
   UpdateArtRequest,
-  EffortCommitment,
 } from '../types/art';
 import type { CharacterDetail } from '../types/character';
 import { applyDevErrorInterceptor } from './apiInterceptor';
@@ -33,7 +32,7 @@ export const artsApi = {
   forgetArt: (charId: string, artId: string) =>
     charArtApi.delete(`/${charId}/arts/${artId}`),
 
-  commitEffort: (charId: string, commitment: EffortCommitment, amount = 1) =>
+  commitEffort: (charId: string, commitment: number, amount = 1) =>
     charArtApi.post<CharacterDetail>(`/${charId}/arts/commit-effort`, { commitment, amount })
       .then(r => r.data),
 

@@ -161,6 +161,14 @@ public class CharacterArtsTests
     }
 
     [Fact]
+    public void CommitEffort_None_Throws()
+    {
+        var character = NewMage();
+        var act = () => character.CommitEffort(EffortCommitment.None, maxEffort: 3);
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
     public void UseSpellSlot_NonCaster_Throws()
     {
         var character = NewWarrior();
