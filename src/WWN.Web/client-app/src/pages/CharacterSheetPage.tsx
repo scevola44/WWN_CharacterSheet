@@ -51,19 +51,13 @@ export function CharacterSheetPage() {
           <StrainTracker character={character} onUpdate={handleUpdate} />
           <ClassAbilitiesPanel character={character} />
           <FociPanel character={character} onUpdate={handleUpdate} />
+          <SpellsPanel character={character} onUpdate={handleUpdate} />
+          <ArtsPanel character={character} onUpdate={handleUpdate} />
         </div>
         <div className="sheet-col">
           <SkillPanel character={character} onUpdate={handleUpdate} isEditing={isEditing} />
           <InventoryPanel character={character} onUpdate={handleUpdate} />
         </div>
-      </div>
-
-      <div className="sheet-full">
-        <SpellsPanel character={character} onUpdate={handleUpdate} />
-      </div>
-
-      <div className="sheet-full">
-        <ArtsPanel character={character} onUpdate={handleUpdate} />
       </div>
 
       <NotesSection character={character} onUpdate={handleUpdate} />
