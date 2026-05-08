@@ -1,5 +1,6 @@
 import './MobileBookmarks.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import {
   faUser,
   faChessKnight,
@@ -11,7 +12,7 @@ import {
 interface Bookmark {
   label: string;
   sectionId: string;
-  icon: any;
+  icon: IconDefinition;
 }
 
 const BOOKMARKS: Bookmark[] = [
