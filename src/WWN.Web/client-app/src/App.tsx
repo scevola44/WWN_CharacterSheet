@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { ProtectedRoute } from './components/common/ProtectedRoute';
 import { Sidebar } from './components/navigation/Sidebar';
 import { CharacterListPage } from './pages/CharacterListPage';
@@ -14,6 +17,21 @@ import { RegisterPage } from './pages/RegisterPage';
 import { ErrorDetailModal } from './components/common/ErrorDetailModal';
 import './App.css';
 
+function ThemeToggle() {
+  const { theme, toggleTheme } = useTheme();
+  const isDark = theme === 'dark';
+  return (
+    <button
+      className="theme-toggle"
+      onClick={toggleTheme}
+      aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+      title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+    >
+      <FontAwesomeIcon icon={isDark ? faSun : faMoon} />
+    </button>
+  );
+}
+
 function Header({ onMenuToggle }: { onMenuToggle: () => void }) {
   return (
     <header className="main-header">
@@ -25,6 +43,7 @@ function Header({ onMenuToggle }: { onMenuToggle: () => void }) {
       <Link to="/" style={{ textDecoration: 'none' }}>
         <h1>WWN Character Sheet</h1>
       </Link>
+      <ThemeToggle />
     </header>
   );
 }
@@ -63,12 +82,14 @@ function AppRoutes() {
 function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <ErrorDetailModal />
-        <div className="app">
-          <AppRoutes />
-        </div>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <ErrorDetailModal />
+          <div className="app">
+            <AppRoutes />
+          </div>
+        </AuthProvider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 }

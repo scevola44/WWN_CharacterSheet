@@ -6,12 +6,20 @@
     <link rel="manifest" href="/manifest.json" />
     <link rel="apple-touch-icon" href="/icon-notext.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#000000" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1a1a2e" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4ede0" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <title>WWN Character Sheet</title>
-    <script type="module" crossorigin src="/assets/index-BD9aKqyW.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-D_PbUKYy.css">
+    <script>
+      (function () {
+        var s = localStorage.getItem('wwn-theme');
+        var t = s || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', t);
+      })();
+    </script>
+    <script type="module" crossorigin src="/assets/index-BKmDmTFA.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-Ea84Bofv.css">
   </head>
   <body>
     <div id="root"></div>
