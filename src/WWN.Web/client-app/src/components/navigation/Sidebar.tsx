@@ -1,4 +1,6 @@
 import { NavLink } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPeopleGroup, faHandSparkles, faHatWizard, faLeaf, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../../contexts/AuthContext';
 import './Sidebar.css';
 
@@ -21,7 +23,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
   return (
     <>
-      {isOpen && <div className="sidebar-overlay" onClick={onClose} />}
+      <div className={`sidebar-overlay ${isOpen ? 'visible' : ''}`} onClick={onClose} />
       <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
         <nav className="sidebar-nav">
           {user && (
@@ -32,7 +34,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
                 onClick={handleNavClick}
               >
-                <span className="icon">👥</span>
+                <FontAwesomeIcon icon={faPeopleGroup} className="icon" />
                 Characters
               </NavLink>
               <NavLink
@@ -40,7 +42,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
                 onClick={handleNavClick}
               >
-                <span className="icon">⚡</span>
+                <FontAwesomeIcon icon={faHandSparkles} className="icon" />
                 Foci
               </NavLink>
               <NavLink
@@ -48,7 +50,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
                 onClick={handleNavClick}
               >
-                <span className="icon">✨</span>
+                <FontAwesomeIcon icon={faHatWizard} className="icon" />
                 Spells
               </NavLink>
               <NavLink
@@ -56,7 +58,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
                 onClick={handleNavClick}
               >
-                <span className="icon">🎨</span>
+                <FontAwesomeIcon icon={faLeaf} className="icon" />
                 Arts
               </NavLink>
             </div>
@@ -64,7 +66,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           {user && (
             <div className="nav-actions">
               <button className="logout-btn" onClick={handleLogout}>
-                <span className="icon">🚪</span>
+                <FontAwesomeIcon icon={faRightFromBracket} className="icon" />
                 Sign Out
               </button>
             </div>
