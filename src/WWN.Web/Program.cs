@@ -72,12 +72,14 @@ try
     builder.Services.AddScoped<ICharacterRepository, CharacterRepository>();
     builder.Services.AddScoped<ISpellRepository, SpellRepository>();
     builder.Services.AddScoped<IArtRepository, ArtRepository>();
+    builder.Services.AddScoped<IArtSourceRepository, ArtSourceRepository>();
     builder.Services.AddScoped<IFocusDefinitionRepository, FocusDefinitionRepository>();
     builder.Services.AddScoped<IClassAbilityRepository, ClassAbilityRepository>();
     builder.Services.AddScoped<CharacterService>();
     builder.Services.AddScoped<SpellService>();
     builder.Services.AddScoped<ArtService>();
-    builder.Services.AddSingleton<LookupsService>();
+    builder.Services.AddScoped<ArtSourceService>();
+    builder.Services.AddScoped<LookupsService>();
     builder.Services.AddScoped<CharacterSpellService>();
     builder.Services.AddScoped<CharacterArtService>();
     builder.Services.AddScoped<FocusDefinitionService>();
@@ -153,6 +155,7 @@ try
     root.MapFocusDefinitionEndpoints();
     root.MapDiagnosticsEndpoints();
     root.MapLookupsEndpoints();
+    root.MapArtSourceEndpoints();
 
     app.MapFallbackToFile("index.html");
 

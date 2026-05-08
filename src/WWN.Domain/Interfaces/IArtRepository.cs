@@ -10,4 +10,5 @@ public interface IArtRepository
     Task UpdateAsync(Art art, CancellationToken cancellationToken = default);
     Task DeleteAsync(Guid artId, CancellationToken cancellationToken = default);
     Task<bool> AnyAsync(CancellationToken cancellationToken = default);
+    Task<bool> AnyWithSourceIdAsync(int sourceId, CancellationToken cancellationToken = default);
 }

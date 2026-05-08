@@ -208,8 +208,8 @@ public record CreateArtRequest
     [Range(1, 10)]
     public int MinLevel { get; init; } = 1;
     public int EffortCost { get; init; }
-    [Required]
-    public string Source { get; init; } = "Mage";
+    [Range(1, int.MaxValue)]
+    public int SourceId { get; init; } = 1;
 }
 
 public record UpdateArtRequest
@@ -222,8 +222,26 @@ public record UpdateArtRequest
     [Range(1, 10)]
     public int MinLevel { get; init; } = 1;
     public int EffortCost { get; init; }
-    [Required]
-    public string Source { get; init; } = "Mage";
+    [Range(1, int.MaxValue)]
+    public int SourceId { get; init; } = 1;
+}
+
+public record CreateArtSourceRequest
+{
+    [Required, StringLength(50)]
+    public string Code { get; init; } = string.Empty;
+    [Required, StringLength(100)]
+    public string DisplayName { get; init; } = string.Empty;
+    public string? Description { get; init; }
+    public int SortOrder { get; init; }
+}
+
+public record UpdateArtSourceRequest
+{
+    [Required, StringLength(100)]
+    public string DisplayName { get; init; } = string.Empty;
+    public string? Description { get; init; }
+    public int SortOrder { get; init; }
 }
 
 public record CommitEffortRequest

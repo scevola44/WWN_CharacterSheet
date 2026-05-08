@@ -1,5 +1,5 @@
 import type { UpdateArtRequest } from '../../types/art';
-import { useEffortCommitments } from '../../contexts/LookupsContext';
+import { useEffortCommitments, useArtSources } from '../../contexts/LookupsContext';
 
 export function ArtForm({
   values,
@@ -15,6 +15,7 @@ export function ArtForm({
   submitLabel: string;
 }) {
   const effortOptions = useEffortCommitments();
+  const sourceOptions = useArtSources();
 
   return (
     <>
@@ -51,12 +52,14 @@ export function ArtForm({
         </div>
         <div className="form-group" style={{ flex: 1 }}>
           <label>Source</label>
-          <input
-            type="text"
-            value={values.source}
-            onChange={e => onChange({ ...values, source: e.target.value })}
-            placeholder="Mage / PartialMage"
-          />
+          <select
+            value={values.sourceId}
+            onChange={e => onChange({ ...values, sourceId: parseInt(e.target.value) })}
+          >
+            {sourceOptions.map(o => (
+              <option key={o.id} value={o.id}>{o.displayName}</option>
+            ))}
+          </select>
         </div>
       </div>
       <div className="form-group">

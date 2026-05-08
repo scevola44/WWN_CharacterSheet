@@ -12,4 +12,5 @@ public record LookupValueDto
 public record LookupsDto
 {
     public IReadOnlyList<LookupValueDto> EffortCommitment { get; init; } = Array.Empty<LookupValueDto>();
+    public IReadOnlyList<LookupValueDto> ArtSources { get; init; } = Array.Empty<LookupValueDto>();
 }
