@@ -1,0 +1,130 @@
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  display: none;
+}
+
+.sidebar-overlay.visible {
+  display: block;
+}
+
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  width: 250px;
+  background: var(--surface);
+  border-right: 2px solid var(--primary);
+  padding-top: 1rem;
+  z-index: 1000;
+  transition: transform 0.3s ease-out;
+  overflow-y: auto;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 0 0.5rem;
+}
+
+.nav-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+  font-size: 0.95rem;
+}
+
+.nav-link:hover {
+  color: var(--text);
+  background: var(--surface-alt);
+}
+
+.nav-link.active {
+  color: var(--primary);
+  background: var(--surface-alt);
+  font-weight: 600;
+}
+
+.nav-link .icon {
+  font-size: 1.2rem;
+  min-width: 1.5rem;
+  text-align: center;
+}
+
+.nav-actions {
+  padding: 1rem 0.5rem 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.logout-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+  font-size: 0.95rem;
+  justify-content: flex-start;
+}
+
+.logout-btn:hover {
+  color: var(--text);
+  background: var(--surface);
+  border-color: var(--primary);
+}
+
+.logout-btn .icon {
+  font-size: 1.2rem;
+  min-width: 1.5rem;
+  text-align: center;
+}
+
+/* Desktop: sidebar always visible */
+@media (min-width: 769px) {
+  .sidebar {
+    position: relative;
+    height: auto;
+    border-right: 2px solid var(--primary);
+  }
+
+  .sidebar-overlay {
+    display: none !important;
+  }
+}
+
+/* Mobile: hamburger menu */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .sidebar-overlay.visible {
+    display: block;
+  }
+}
