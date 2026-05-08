@@ -77,6 +77,7 @@ try
     builder.Services.AddScoped<CharacterService>();
     builder.Services.AddScoped<SpellService>();
     builder.Services.AddScoped<ArtService>();
+    builder.Services.AddSingleton<LookupsService>();
     builder.Services.AddScoped<CharacterSpellService>();
     builder.Services.AddScoped<CharacterArtService>();
     builder.Services.AddScoped<FocusDefinitionService>();
@@ -151,6 +152,7 @@ try
     root.MapArtEndpoints();
     root.MapFocusDefinitionEndpoints();
     root.MapDiagnosticsEndpoints();
+    root.MapLookupsEndpoints();
 
     app.MapFallbackToFile("index.html");
 

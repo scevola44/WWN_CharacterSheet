@@ -2,6 +2,9 @@ import { useState, useEffect, useMemo } from 'react';
 import type { Art } from '../../types/art';
 import type { CharacterDetail } from '../../types/character';
 import { artsApi } from '../../api/artApi';
+import { useEffortCommitments, useLookups } from '../../contexts/LookupsContext';
+
+const ALL_FILTER = -1;
 
 export function ArtDatabaseModal({ character, onLearn, onClose }: {
   character: CharacterDetail;
@@ -10,8 +13,10 @@ export function ArtDatabaseModal({ character, onLearn, onClose }: {
 }) {
   const [arts, setArts] = useState<Art[]>([]);
   const [searchName, setSearchName] = useState('');
-  const [filterEffort, setFilterEffort] = useState<string>('all');
+  const [filterEffort, setFilterEffort] = useState<number>(ALL_FILTER);
   const [loading, setLoading] = useState(true);
+  const effortOptions = useEffortCommitments();
+  const { effortCommitmentById } = useLookups();
 
   useEffect(() => {
     artsApi.list().then(setArts).finally(() => setLoading(false));
@@ -20,10 +25,8 @@ export function ArtDatabaseModal({ character, onLearn, onClose }: {
   const filteredArts = useMemo(() => {
     const knownArtIds = new Set(character.arts.map(a => a.artId));
     let filtered = arts.filter(a => !knownArtIds.has(a.id) && a.minLevel <= character.level);
-    if (filterEffort !== 'all') {
-      filtered = filterEffort === 'none'
-        ? filtered.filter(a => a.effortCost == null)
-        : filtered.filter(a => a.effortCost === filterEffort);
+    if (filterEffort !== ALL_FILTER) {
+      filtered = filtered.filter(a => a.effortCost === filterEffort);
     }
     if (searchName) {
       filtered = filtered.filter(a => a.name.toLowerCase().includes(searchName.toLowerCase()));
@@ -56,12 +59,11 @@ export function ArtDatabaseModal({ character, onLearn, onClose }: {
 
         <div className="form-group">
           <label>Effort</label>
-          <select value={filterEffort} onChange={e => setFilterEffort(e.target.value)}>
-            <option value="all">Any cost</option>
-            <option value="none">No effort</option>
-            <option value="Scene">Scene</option>
-            <option value="Day">Day</option>
-            <option value="Sustained">Sustained</option>
+          <select value={filterEffort} onChange={e => setFilterEffort(parseInt(e.target.value))}>
+            <option value={ALL_FILTER}>Any cost</option>
+            {effortOptions.map(o => (
+              <option key={o.id} value={o.id}>{o.displayName}</option>
+            ))}
           </select>
         </div>
 
@@ -77,7 +79,7 @@ export function ArtDatabaseModal({ character, onLearn, onClose }: {
                   <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: 'bold' }}>{art.name}</div>
                     <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-                      Min Level {art.minLevel} · {art.effortCost ? `Effort: ${art.effortCost}` : 'No effort'}
+                      Min Level {art.minLevel} · Effort: {effortCommitmentById.get(art.effortCost)?.displayName ?? '—'}
                     </div>
                     {art.summary && (
                       <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>

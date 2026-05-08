@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
+import { LookupsProvider } from './contexts/LookupsContext';
 import { ProtectedRoute } from './components/common/ProtectedRoute';
 import { Sidebar } from './components/navigation/Sidebar';
 import { CharacterListPage } from './pages/CharacterListPage';
@@ -84,10 +85,12 @@ function App() {
     <BrowserRouter>
       <ThemeProvider>
         <AuthProvider>
-          <ErrorDetailModal />
-          <div className="app">
-            <AppRoutes />
-          </div>
+          <LookupsProvider>
+            <ErrorDetailModal />
+            <div className="app">
+              <AppRoutes />
+            </div>
+          </LookupsProvider>
         </AuthProvider>
       </ThemeProvider>
     </BrowserRouter>

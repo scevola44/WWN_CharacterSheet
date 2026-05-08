@@ -7,6 +7,7 @@ import type { CharacterDetail } from '../../types/character';
 import type { Art } from '../../types/art';
 import { artsApi } from '../../api/artApi';
 import { characterApi } from '../../api/characterApi';
+import { useLookups } from '../../contexts/LookupsContext';
 
 export function ArtsPanel({ character, onUpdate }: {
   character: CharacterDetail;
@@ -14,6 +15,7 @@ export function ArtsPanel({ character, onUpdate }: {
 }) {
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedArt, setSelectedArt] = useState<Art | null>(null);
+  const { effortCommitmentById } = useLookups();
 
   const isMage = character.class === 'Mage';
   const isPartialMage =
@@ -57,7 +59,7 @@ export function ArtsPanel({ character, onUpdate }: {
                   </button>
                   {known.art.summary && <span style={{ fontSize: '0.7rem', marginLeft: '0.5rem', color: 'var(--primary)' }}>({known.art.summary})</span>}
                   <span style={{ fontSize: '0.7rem', marginLeft: '0.5rem', color: 'var(--text-muted)' }}>
-                    L{known.art.minLevel} · {known.art.effortCost ? `E:${known.art.effortCost}` : 'no effort'}
+                    L{known.art.minLevel} · {effortCommitmentById.get(known.art.effortCost)?.displayName ?? '—'}
                   </span>
                 </div>
                 <button

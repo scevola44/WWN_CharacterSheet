@@ -1,4 +1,6 @@
-export type EffortCommitment = 'Scene' | 'Day' | 'Sustained';
+// EffortCommitment is now a lookup (see LookupsContext / /api/lookups).
+// Wire format is the integer id from the EffortCommitment enum:
+//   None=0, Scene=1, Day=2, Sustained=3.
 
 export interface Art {
   id: string;
@@ -6,7 +8,7 @@ export interface Art {
   description: string;
   summary: string | null;
   minLevel: number;
-  effortCost: EffortCommitment | null;
+  effortCost: number;
   source: string;
 }
 
@@ -21,7 +23,7 @@ export interface CreateArtRequest {
   description: string;
   summary?: string;
   minLevel: number;
-  effortCost?: EffortCommitment | null;
+  effortCost: number;
   source: string;
 }
 
@@ -35,7 +37,7 @@ export interface EffortInfo {
 }
 
 export interface CommitEffortRequest {
-  commitment: EffortCommitment;
+  commitment: number;
   amount?: number;
 }
 

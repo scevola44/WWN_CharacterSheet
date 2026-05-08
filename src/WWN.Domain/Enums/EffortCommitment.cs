@@ -2,7 +2,8 @@ namespace WWN.Domain.Enums;
 
 public enum EffortCommitment
 {
-    Scene,
-    Day,
-    Sustained
+    None = 0,
+    Scene = 1,
+    Day = 2,
+    Sustained = 3
 }

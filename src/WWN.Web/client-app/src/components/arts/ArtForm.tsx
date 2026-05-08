@@ -1,11 +1,5 @@
-import type { UpdateArtRequest, EffortCommitment } from '../../types/art';
-
-const EFFORT_OPTIONS: { value: EffortCommitment | ''; label: string }[] = [
-  { value: '', label: 'No effort' },
-  { value: 'Scene', label: 'Scene' },
-  { value: 'Day', label: 'Day' },
-  { value: 'Sustained', label: 'Sustained' },
-];
+import type { UpdateArtRequest } from '../../types/art';
+import { useEffortCommitments } from '../../contexts/LookupsContext';
 
 export function ArtForm({
   values,
@@ -20,6 +14,8 @@ export function ArtForm({
   onCancel: () => void;
   submitLabel: string;
 }) {
+  const effortOptions = useEffortCommitments();
+
   return (
     <>
       <div className="form-group">
@@ -45,16 +41,11 @@ export function ArtForm({
         <div className="form-group" style={{ flex: 1 }}>
           <label>Effort Cost</label>
           <select
-            value={values.effortCost ?? ''}
-            onChange={e =>
-              onChange({
-                ...values,
-                effortCost: (e.target.value || null) as EffortCommitment | null,
-              })
-            }
+            value={values.effortCost}
+            onChange={e => onChange({ ...values, effortCost: parseInt(e.target.value) })}
           >
-            {EFFORT_OPTIONS.map(o => (
-              <option key={o.value} value={o.value}>{o.label}</option>
+            {effortOptions.map(o => (
+              <option key={o.id} value={o.id}>{o.displayName}</option>
             ))}
           </select>
         </div>

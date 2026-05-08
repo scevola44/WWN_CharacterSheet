@@ -1,5 +1,4 @@
 using WWN.Application.DTOs;
-using WWN.Application.Helpers;
 using WWN.Domain.Entities;
 using WWN.Domain.Enums;
 using WWN.Domain.Interfaces;
@@ -47,12 +46,16 @@ public class CharacterArtService(
     public async Task<CharacterDetailDto> CommitEffortAsync(
         Guid characterId,
         string userId,
-        string commitment,
+        int commitment,
         int amount,
         CancellationToken cancellationToken = default)
     {
         var character = await GetCharacterOrThrow(characterId, userId, cancellationToken);
-        var kind = EnumParser.Parse<EffortCommitment>(commitment, nameof(commitment));
+        var kind = (EffortCommitment)commitment;
+        if (!Enum.IsDefined(kind))
+            throw new ArgumentException(
+                $"'{commitment}' is not a valid EffortCommitment id.",
+                nameof(commitment));
         var max = EffortPoolCalculator.CalculateMax(character);
         character.CommitEffort(kind, max, amount);
         await characterRepository.UpdateAsync(character, cancellationToken);

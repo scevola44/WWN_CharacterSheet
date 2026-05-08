@@ -2,22 +2,27 @@ import { useEffect, useState, useCallback } from 'react';
 import type { Art, CreateArtRequest, UpdateArtRequest } from '../types/art';
 import { artsApi } from '../api/artApi';
 import { ArtForm } from '../components/arts/ArtForm';
+import { useEffortCommitments, useLookups } from '../contexts/LookupsContext';
+
+const ALL_FILTER = -1;
 
 export function ArtDatabasePage() {
   const [arts, setArts] = useState<Art[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [filterEffort, setFilterEffort] = useState<string>('all');
+  const [filterEffort, setFilterEffort] = useState<number>(ALL_FILTER);
   const [editingArtId, setEditingArtId] = useState<string | null>(null);
   const [form, setForm] = useState<CreateArtRequest>({
     name: '',
     description: '',
     summary: '',
     minLevel: 1,
-    effortCost: null,
+    effortCost: 0,
     source: 'Mage',
   });
   const [editForm, setEditForm] = useState<UpdateArtRequest | null>(null);
+  const effortOptions = useEffortCommitments();
+  const { effortCommitmentById } = useLookups();
 
   // Initial load: loading starts true; no synchronous setState in the effect body.
   useEffect(() => {
@@ -41,7 +46,7 @@ export function ArtDatabasePage() {
       ...form,
       summary: form.summary || undefined,
     });
-    setForm({ name: '', description: '', summary: '', minLevel: 1, effortCost: null, source: 'Mage' });
+    setForm({ name: '', description: '', summary: '', minLevel: 1, effortCost: 0, source: 'Mage' });
     setShowForm(false);
     refreshArts();
   };
@@ -83,8 +88,7 @@ export function ArtDatabasePage() {
   };
 
   const filteredArts = arts.filter(a => {
-    if (filterEffort === 'all') return true;
-    if (filterEffort === 'none') return a.effortCost == null;
+    if (filterEffort === ALL_FILTER) return true;
     return a.effortCost === filterEffort;
   });
 
@@ -110,12 +114,11 @@ export function ArtDatabasePage() {
 
       <div>
         <label>Filter by Effort</label>
-        <select value={filterEffort} onChange={e => setFilterEffort(e.target.value)}>
-          <option value="all">Any cost</option>
-          <option value="none">No effort</option>
-          <option value="Scene">Scene</option>
-          <option value="Day">Day</option>
-          <option value="Sustained">Sustained</option>
+        <select value={filterEffort} onChange={e => setFilterEffort(parseInt(e.target.value))}>
+          <option value={ALL_FILTER}>Any cost</option>
+          {effortOptions.map(o => (
+            <option key={o.id} value={o.id}>{o.displayName}</option>
+          ))}
         </select>
       </div>
 
@@ -146,7 +149,7 @@ export function ArtDatabasePage() {
                     <div>
                       <h3 style={{ margin: 0 }}>{art.name}</h3>
                       <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-                        Min Level {art.minLevel} · {art.effortCost ? `Effort: ${art.effortCost}` : 'No effort'} · {art.source}
+                        Min Level {art.minLevel} · Effort: {effortCommitmentById.get(art.effortCost)?.displayName ?? '—'} · {art.source}
                       </div>
                       {art.summary && (
                         <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
