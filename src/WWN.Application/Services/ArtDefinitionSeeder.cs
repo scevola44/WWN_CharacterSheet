@@ -27,7 +27,7 @@ public class ArtDefinitionSeeder(IArtRepository artRepository)
                 "impression of any standing magics or magical items you focus on. The effect lasts " +
                 "while you concentrate on it.",
             minLevel: 1,
-            source: "Mage",
+            sourceId: 1,
             summary: "Perceive magic at a glance.");
 
         yield return new Art(
@@ -36,7 +36,7 @@ public class ArtDefinitionSeeder(IArtRepository artRepository)
                 "You can read and understand magical scripts and runes. Most workings reveal their " +
                 "general purpose, though deeply hidden secrets may resist this Art.",
             minLevel: 1,
-            source: "Mage",
+            sourceId: 1,
             summary: "Comprehend written magic.");
 
         yield return new Art(
@@ -46,7 +46,7 @@ public class ArtDefinitionSeeder(IArtRepository artRepository)
                 "You can pinpoint the source of any active magic within sight and identify the most " +
                 "powerful standing dweomer in the area.",
             minLevel: 1,
-            source: "Mage",
+            sourceId: 1,
             effortCost: EffortCommitment.Scene,
             summary: "Pinpoint magical sources for a scene.");
 
@@ -57,7 +57,7 @@ public class ArtDefinitionSeeder(IArtRepository artRepository)
                 "you can perceive. Make an opposed Wis/Magic check against the caster's relevant " +
                 "Magic check; if you win, the spell fails entirely.",
             minLevel: 1,
-            source: "Mage",
+            sourceId: 1,
             effortCost: EffortCommitment.Day,
             summary: "Cancel an enemy spell.");
 
@@ -68,7 +68,7 @@ public class ArtDefinitionSeeder(IArtRepository artRepository)
                 "committed, you gain a bonus equal to half your Magic skill (rounded up) to all " +
                 "Mental saving throws against magical effects.",
             minLevel: 1,
-            source: "Mage",
+            sourceId: 1,
             effortCost: EffortCommitment.Sustained,
             summary: "Sustained bonus to Mental saves vs. magic.");
 
@@ -79,7 +79,7 @@ public class ArtDefinitionSeeder(IArtRepository artRepository)
                 "level higher for the purposes of duration, range, or damage, at the GM's " +
                 "discretion.",
             minLevel: 3,
-            source: "Mage",
+            sourceId: 1,
             effortCost: EffortCommitment.Day,
             summary: "Empower a spell at the cost of Effort.");
 
@@ -90,7 +90,7 @@ public class ArtDefinitionSeeder(IArtRepository artRepository)
                 "equal to your character level plus your Magic skill. Each target may benefit from " +
                 "this Art only once per day.",
             minLevel: 1,
-            source: "Mage",
+            sourceId: 1,
             effortCost: EffortCommitment.Scene,
             summary: "Heal a creature on touch.");
 
@@ -101,7 +101,7 @@ public class ArtDefinitionSeeder(IArtRepository artRepository)
                 "with hit dice equal to or less than twice your character level make a Mental save " +
                 "or obey reasonable commands until the scene ends or the Effort is released.",
             minLevel: 2,
-            source: "Mage",
+            sourceId: 1,
             effortCost: EffortCommitment.Scene,
             summary: "Compel nearby undead.");
 
@@ -113,7 +113,7 @@ public class ArtDefinitionSeeder(IArtRepository artRepository)
                 "your direction for one round. No Effort cost for trivial requests; Commit Effort " +
                 "for the scene to sustain a larger working.",
             minLevel: 1,
-            source: "Mage",
+            sourceId: 1,
             effortCost: EffortCommitment.Scene,
             summary: "Move or shape elements briefly.");
 
@@ -123,7 +123,7 @@ public class ArtDefinitionSeeder(IArtRepository artRepository)
                 "Commit Effort for the day as an Instant action when you make a Magic skill check. " +
                 "Add your character level to the result of the check.",
             minLevel: 1,
-            source: "Mage",
+            sourceId: 1,
             effortCost: EffortCommitment.Day,
             summary: "Boost a Magic check by your level.");
     }

@@ -8,4 +8,5 @@ export interface LookupValue {
 
 export interface Lookups {
   effortCommitment: LookupValue[];
+  artSources: LookupValue[];
 }

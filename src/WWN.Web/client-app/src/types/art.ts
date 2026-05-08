@@ -9,7 +9,7 @@ export interface Art {
   summary: string | null;
   minLevel: number;
   effortCost: number;
-  source: string;
+  sourceId: number;
 }
 
 export interface KnownArt {
@@ -24,7 +24,7 @@ export interface CreateArtRequest {
   summary?: string;
   minLevel: number;
   effortCost: number;
-  source: string;
+  sourceId: number;
 }
 
 export type UpdateArtRequest = CreateArtRequest;

@@ -27,7 +27,7 @@ public class ArtService(IArtRepository artRepository)
             request.Name,
             request.Description,
             request.MinLevel,
-            request.Source,
+            request.SourceId,
             ToEffortCommitment(request.EffortCost),
             request.Summary);
         await artRepository.AddAsync(art, cancellationToken);
@@ -46,7 +46,7 @@ public class ArtService(IArtRepository artRepository)
             request.Name,
             request.Description,
             request.MinLevel,
-            request.Source,
+            request.SourceId,
             ToEffortCommitment(request.EffortCost),
             request.Summary);
         await artRepository.UpdateAsync(art, cancellationToken);
@@ -68,7 +68,7 @@ public class ArtService(IArtRepository artRepository)
             Summary = art.Summary,
             MinLevel = art.MinLevel,
             EffortCost = (int)art.EffortCost,
-            Source = art.Source
+            SourceId = art.SourceId
         };
     }
 

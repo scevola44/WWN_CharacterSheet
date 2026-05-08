@@ -149,7 +149,7 @@ public record ArtDto
     public string? Summary { get; init; }
     public int MinLevel { get; init; }
     public int EffortCost { get; init; }
-    public string Source { get; init; } = string.Empty;
+    public int SourceId { get; init; }
 }
 
 public record KnownArtDto

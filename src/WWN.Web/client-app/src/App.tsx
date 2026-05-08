@@ -12,6 +12,7 @@ import { CharacterCreatePage } from './pages/CharacterCreatePage';
 import { CharacterSheetPage } from './pages/CharacterSheetPage';
 import { SpellDatabasePage } from './pages/SpellDatabasePage';
 import { ArtDatabasePage } from './pages/ArtDatabasePage';
+import { ArtSourceAdminPage } from './pages/ArtSourceAdminPage';
 import { FocusDatabasePage } from './pages/FocusDatabasePage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
@@ -70,6 +71,7 @@ function AppRoutes() {
           <Route path="/character/:id" element={<CharacterSheetPage />} />
           <Route path="/spells" element={<SpellDatabasePage />} />
           <Route path="/arts" element={<ArtDatabasePage />} />
+          <Route path="/admin/art-sources" element={<ArtSourceAdminPage />} />
           <Route path="/foci" element={<FocusDatabasePage />} />
         </Route>
 

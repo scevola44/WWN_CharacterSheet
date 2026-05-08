@@ -1,17 +1,33 @@
 using FluentAssertions;
+using NSubstitute;
 using WWN.Application.Services;
+using WWN.Domain.Entities;
 using WWN.Domain.Enums;
+using WWN.Domain.Interfaces;
 
 namespace WWN.Application.Tests.Services;
 
 public class LookupsServiceTests
 {
-    [Fact]
-    public void GetAll_ReturnsAllEffortCommitments()
+    private static IArtSourceRepository CreateMockArtSourceRepository()
     {
-        var svc = new LookupsService();
+        var repo = Substitute.For<IArtSourceRepository>();
+        repo.GetAllAsync(Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<IReadOnlyList<ArtSource>>(new[]
+            {
+                new ArtSource("Mage", "Mage", null, 1),
+                new ArtSource("PartialMage", "Partial Mage", null, 2)
+            }));
+        return repo;
+    }
 
-        var dto = svc.GetAll();
+    [Fact]
+    public async Task GetAllAsync_ReturnsAllEffortCommitments()
+    {
+        var mockRepo = CreateMockArtSourceRepository();
+        var svc = new LookupsService(mockRepo);
+
+        var dto = await svc.GetAllAsync();
 
         dto.EffortCommitment.Should().HaveCount(Enum.GetValues<EffortCommitment>().Length);
         dto.EffortCommitment.Select(e => e.Id).Should().BeEquivalentTo(
@@ -19,32 +35,41 @@ public class LookupsServiceTests
     }
 
     [Fact]
-    public void GetAll_ReturnsCachedReference()
+    public async Task GetAllAsync_IncludesArtSources()
     {
-        var svc = new LookupsService();
+        var mockRepo = CreateMockArtSourceRepository();
+        var svc = new LookupsService(mockRepo);
 
-        var first = svc.GetAll();
-        var second = svc.GetAll();
+        var dto = await svc.GetAllAsync();
 
-        ReferenceEquals(first, second).Should().BeTrue(
-            "the payload is process-static; callers should share the same instance");
+        dto.ArtSources.Should().HaveCount(2);
+        dto.ArtSources.Select(s => s.Code).Should().BeEquivalentTo("Mage", "PartialMage");
     }
 
     [Fact]
-    public void ETag_IsStableAcrossCalls()
+    public async Task ComputeETag_IsStableForSamePayload()
     {
-        var svc = new LookupsService();
+        var mockRepo = CreateMockArtSourceRepository();
+        var svc = new LookupsService(mockRepo);
 
-        svc.ETag.Should().Be(svc.ETag);
-        svc.ETag.Should().StartWith("\"").And.EndWith("\"");
+        var dto1 = await svc.GetAllAsync();
+        var dto2 = await svc.GetAllAsync();
+
+        var etag1 = LookupsService.ComputeETag(dto1);
+        var etag2 = LookupsService.ComputeETag(dto2);
+
+        etag1.Should().Be(etag2);
+        etag1.Should().StartWith("\"").And.EndWith("\"");
     }
 
     [Fact]
-    public void EffortCommitment_NoneEntry_HasIdZero()
+    public async Task EffortCommitment_NoneEntry_HasIdZero()
     {
-        var svc = new LookupsService();
+        var mockRepo = CreateMockArtSourceRepository();
+        var svc = new LookupsService(mockRepo);
 
-        var none = svc.GetAll().EffortCommitment.Single(v => v.Code == nameof(EffortCommitment.None));
+        var dto = await svc.GetAllAsync();
+        var none = dto.EffortCommitment.Single(v => v.Code == nameof(EffortCommitment.None));
         none.Id.Should().Be(0);
         none.DisplayName.Should().NotBeNullOrEmpty();
     }

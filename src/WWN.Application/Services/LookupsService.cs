@@ -1,28 +1,41 @@
 using WWN.Application.DTOs;
+using WWN.Domain.Interfaces;
 using WWN.Domain.Lookups;
 
 namespace WWN.Application.Services;
 
-/// <summary>
-/// Aggregates all lookup catalogs into a single DTO returned by <c>GET /api/lookups</c>.
-/// The aggregated payload never changes within a process lifetime (catalogs are static),
-/// so we cache it eagerly and hand out the same reference to every caller.
-/// </summary>
-public class LookupsService
+public class LookupsService(IArtSourceRepository artSourceRepository)
 {
-    private static readonly LookupsDto Cached = Build();
-    private static readonly string CachedETag = ComputeETag(Cached);
-
-    public LookupsDto GetAll() => Cached;
-
-    public string ETag => CachedETag;
-
-    private static LookupsDto Build() => new()
+    public async Task<LookupsDto> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        EffortCommitment = EffortCommitmentCatalog.All.Select(Map).ToArray()
-    };
+        var artSources = await artSourceRepository.GetAllAsync(cancellationToken);
+        return new LookupsDto
+        {
+            EffortCommitment = EffortCommitmentCatalog.All.Select(MapLookupValue).ToArray(),
+            ArtSources = artSources.Select(s => new LookupValueDto
+            {
+                Id = s.Id,
+                Code = s.Code,
+                DisplayName = s.DisplayName,
+                Description = s.Description,
+                SortOrder = s.SortOrder
+            }).ToArray()
+        };
+    }
 
-    private static LookupValueDto Map(LookupValue v) => new()
+    public static string ComputeETag(LookupsDto dto)
+    {
+        var payload = string.Join("|",
+            dto.EffortCommitment
+                .Select(v => $"{v.Id}:{v.Code}:{v.DisplayName}:{v.Description}:{v.SortOrder}")
+                .Concat(dto.ArtSources
+                    .Select(v => $"{v.Id}:{v.Code}:{v.DisplayName}:{v.Description}:{v.SortOrder}")));
+        var bytes = System.Text.Encoding.UTF8.GetBytes(payload);
+        var hash = System.Security.Cryptography.SHA256.HashData(bytes);
+        return $"\"{Convert.ToHexString(hash)[..16]}\"";
+    }
+
+    private static LookupValueDto MapLookupValue(LookupValue v) => new()
     {
         Id = v.Id,
         Code = v.Code,
@@ -30,15 +43,4 @@ public class LookupsService
         Description = v.Description,
         SortOrder = v.SortOrder
     };
-
-    private static string ComputeETag(LookupsDto dto)
-    {
-        // The payload is process-static; a hash of its content gives a stable ETag
-        // that changes only when the catalog content changes (i.e. across deployments).
-        var payload = string.Join("|",
-            dto.EffortCommitment.Select(v => $"{v.Id}:{v.Code}:{v.DisplayName}:{v.Description}:{v.SortOrder}"));
-        var bytes = System.Text.Encoding.UTF8.GetBytes(payload);
-        var hash = System.Security.Cryptography.SHA256.HashData(bytes);
-        return $"\"{Convert.ToHexString(hash)[..16]}\"";
-    }
 }

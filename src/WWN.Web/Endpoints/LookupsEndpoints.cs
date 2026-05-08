@@ -7,11 +7,11 @@ public static class LookupsEndpoints
 {
     public static void MapLookupsEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/api/lookups", (LookupsService svc, HttpContext ctx) =>
+        app.MapGet("/api/lookups", async (LookupsService svc, HttpContext ctx, CancellationToken ct) =>
         {
-            var etag = svc.ETag;
+            var dto = await svc.GetAllAsync(ct);
+            var etag = LookupsService.ComputeETag(dto);
 
-            // Honor If-None-Match for cheap revalidation.
             var ifNoneMatch = ctx.Request.Headers.IfNoneMatch.ToString();
             if (!string.IsNullOrEmpty(ifNoneMatch) && ifNoneMatch == etag)
             {
@@ -20,8 +20,8 @@ public static class LookupsEndpoints
             }
 
             ctx.Response.Headers[HeaderNames.ETag] = etag;
-            ctx.Response.Headers[HeaderNames.CacheControl] = "public, max-age=300";
-            return Results.Ok(svc.GetAll());
+            ctx.Response.Headers[HeaderNames.CacheControl] = "private, max-age=30";
+            return Results.Ok(dto);
         }).WithTags("Lookups");
     }
 }
