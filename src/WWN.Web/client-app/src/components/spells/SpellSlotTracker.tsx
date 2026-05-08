@@ -20,18 +20,18 @@ export function SpellSlotTracker({ character, onUpdate }: {
   };
 
   return (
-    <div style={{ marginTop: '1rem' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-        <h3>Spell Slots</h3>
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
+        <h3 style={{ margin: 0, fontSize: '1rem' }}>Spell Slots</h3>
         <button className="sm" onClick={handleRestore}>Rest</button>
       </div>
-      <div style={{ display: 'grid', gap: '0.5rem' }}>
+      <div style={{ display: 'grid', gap: '0.25rem' }}>
         {[1, 2, 3, 4, 5, 6].map(level => {
           const available = character.spellSlots!.available[level - 1];
           const used = character.spellSlots!.used[level - 1];
           const canUse = used < available;
           return (
-            <div key={level} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div key={level} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem' }}>
               <span>Level {level}: {available - used}/{available}</span>
               <button
                 className={`sm ${!canUse ? 'disabled' : ''}`}
