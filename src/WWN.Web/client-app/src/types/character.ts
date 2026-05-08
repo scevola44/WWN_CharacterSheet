@@ -33,6 +33,7 @@ export interface CharacterDetail {
   effort: EffortInfo | null;
   classAbilities: ClassAbilityInfo[];
   derivedStats: DerivedStats;
+  encumbranceSummary: EncumbranceSummary;
   notes: string | null;
 }
 
@@ -162,4 +163,11 @@ export interface KnownSpellInfo {
 export interface SpellSlotInfo {
   available: number[];
   used: number[];
+}
+
+export interface EncumbranceSummary {
+  readiedLoad: number;
+  maxReadied: number;
+  stowedLoad: number;
+  maxStowed: number;
 }

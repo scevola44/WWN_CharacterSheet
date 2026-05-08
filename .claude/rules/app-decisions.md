@@ -85,8 +85,8 @@ Format for each entry:
 **Detail**: Strain does **not** auto-decrement on rest. It is decremented manually via the `+1 / −1` controls in `StrainTracker`. `RestForDay()` does not touch `CurrentStrain`. The UI warns at max strain and labels it "Decremented manually".
 
 ### Encumbrance totals and capacity
-**Source**: Open.
-**Detail**: README lists "Total Encumbrance Display" as missing. Suggested: `MaxReadied = STR/2` (round down), `MaxStowed = STR`. Aggregate `Item.Encumbrance` per slot type. Decide whether equipped armor/weapon counts toward readied or is exempt.
+**Source**: App-specific (WWN-derived formulas, project-specific decisions below).
+**Detail**: `MaxReadied = STR_score / 2` (integer division, round down); `MaxStowed = STR_score` (separate pool). Load = `Σ(Item.Encumbrance × Item.Quantity)` per slot group. **Equipped items count toward readied load** (armor on body and weapon in hand are part of your readied carry). Over-cap is a **warning only** — no API enforcement, no hard block. Implemented in `src/WWN.Domain/Rules/EncumbranceCalculator.cs`; surfaced via `EncumbranceSummaryDto` on `CharacterDetailDto`; displayed in `InventoryPanel.tsx` with red text when over cap.
 
 ### Initiative
 **Source**: Open.
