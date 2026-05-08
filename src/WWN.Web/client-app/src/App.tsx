@@ -1,6 +1,8 @@
-import { BrowserRouter, Routes, Route, Link, NavLink, Navigate } from 'react-router-dom';
+import { useState } from 'react';
+import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/common/ProtectedRoute';
+import { Sidebar } from './components/navigation/Sidebar';
 import { CharacterListPage } from './pages/CharacterListPage';
 import { CharacterCreatePage } from './pages/CharacterCreatePage';
 import { CharacterSheetPage } from './pages/CharacterSheetPage';
@@ -12,53 +14,31 @@ import { RegisterPage } from './pages/RegisterPage';
 import { ErrorDetailModal } from './components/common/ErrorDetailModal';
 import './App.css';
 
-function NavBar() {
-  const { user, logout } = useAuth();
+function Header({ onMenuToggle }: { onMenuToggle: () => void }) {
   return (
-    <header>
+    <header className="main-header">
+      <button className="menu-toggle" onClick={onMenuToggle} aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
       <Link to="/" style={{ textDecoration: 'none' }}>
         <h1>WWN Character Sheet</h1>
       </Link>
-      <nav className="tabs">
-        {user && (
-          <>
-            <NavLink to="/" end className={({ isActive }) => isActive ? 'tab active' : 'tab'}>
-              Characters
-            </NavLink>
-            <NavLink to="/foci" className={({ isActive }) => isActive ? 'tab active' : 'tab'}>
-              Foci
-            </NavLink>
-            <NavLink to="/spells" className={({ isActive }) => isActive ? 'tab active' : 'tab'}>
-              Spells
-            </NavLink>
-            <NavLink to="/arts" className={({ isActive }) => isActive ? 'tab active' : 'tab'}>
-              Arts
-            </NavLink>
-          </>
-        )}
-        {user ? (
-          <button
-            className="tab"
-            onClick={logout}
-            style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-          >
-            Sign Out
-          </button>
-        ) : (
-          <NavLink to="/login" className={({ isActive }) => isActive ? 'tab active' : 'tab'}>
-            Sign In
-          </NavLink>
-        )}
-      </nav>
     </header>
   );
 }
 
 function AppRoutes() {
+  const { user } = useAuth();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   return (
-    <>
-      <NavBar />
-      <Routes>
+    <div className="app-layout">
+      {user && <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />}
+      <div className="app-main">
+        {user && <Header onMenuToggle={() => setSidebarOpen(!sidebarOpen)} />}
+        <Routes>
         {/* Public routes */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
@@ -75,7 +55,8 @@ function AppRoutes() {
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </>
+      </div>
+    </div>
   );
 }
 
