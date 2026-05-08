@@ -412,6 +412,7 @@ public class CharacterService(
             .ToList();
 
         var calculatedStats = CharacterSheetCalculator.Calculate(character);
+        var strScore = character.GetAttribute(AttributeName.Strength).Score.Value;
         return new CharacterDetailDto
         {
             Id = character.Id,
@@ -472,7 +473,14 @@ public class CharacterService(
             }).ToList(),
             Effort = GetEffortInfo(character),
             ClassAbilities = classAbilities,
-            DerivedStats = calculatedStats
+            DerivedStats = calculatedStats,
+            EncumbranceSummary = new EncumbranceSummaryDto
+            {
+                ReadiedLoad = EncumbranceCalculator.GetReadiedLoad(character.Inventory),
+                MaxReadied = EncumbranceCalculator.GetMaxReadied(strScore),
+                StowedLoad = EncumbranceCalculator.GetStowedLoad(character.Inventory),
+                MaxStowed = EncumbranceCalculator.GetMaxStowed(strScore)
+            }
         };
     }
 
