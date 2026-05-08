@@ -1,5 +1,5 @@
 using FluentAssertions;
-using Moq;
+using NSubstitute;
 using WWN.Application.Services;
 using WWN.Domain.Entities;
 using WWN.Domain.Enums;
@@ -9,23 +9,23 @@ namespace WWN.Application.Tests.Services;
 
 public class LookupsServiceTests
 {
-    private static Mock<IArtSourceRepository> CreateMockArtSourceRepository()
+    private static IArtSourceRepository CreateMockArtSourceRepository()
     {
-        var mock = new Mock<IArtSourceRepository>();
-        mock.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new[]
+        var repo = Substitute.For<IArtSourceRepository>();
+        repo.GetAllAsync(Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<IReadOnlyList<ArtSource>>(new[]
             {
                 new ArtSource("Mage", "Mage", null, 1),
                 new ArtSource("PartialMage", "Partial Mage", null, 2)
-            });
-        return mock;
+            }));
+        return repo;
     }
 
     [Fact]
     public async Task GetAllAsync_ReturnsAllEffortCommitments()
     {
         var mockRepo = CreateMockArtSourceRepository();
-        var svc = new LookupsService(mockRepo.Object);
+        var svc = new LookupsService(mockRepo);
 
         var dto = await svc.GetAllAsync();
 
@@ -38,7 +38,7 @@ public class LookupsServiceTests
     public async Task GetAllAsync_IncludesArtSources()
     {
         var mockRepo = CreateMockArtSourceRepository();
-        var svc = new LookupsService(mockRepo.Object);
+        var svc = new LookupsService(mockRepo);
 
         var dto = await svc.GetAllAsync();
 
@@ -50,7 +50,7 @@ public class LookupsServiceTests
     public async Task ComputeETag_IsStableForSamePayload()
     {
         var mockRepo = CreateMockArtSourceRepository();
-        var svc = new LookupsService(mockRepo.Object);
+        var svc = new LookupsService(mockRepo);
 
         var dto1 = await svc.GetAllAsync();
         var dto2 = await svc.GetAllAsync();
@@ -66,7 +66,7 @@ public class LookupsServiceTests
     public async Task EffortCommitment_NoneEntry_HasIdZero()
     {
         var mockRepo = CreateMockArtSourceRepository();
-        var svc = new LookupsService(mockRepo.Object);
+        var svc = new LookupsService(mockRepo);
 
         var dto = await svc.GetAllAsync();
         var none = dto.EffortCommitment.Single(v => v.Code == nameof(EffortCommitment.None));
@@ -74,4 +74,3 @@ public class LookupsServiceTests
         none.DisplayName.Should().NotBeNullOrEmpty();
     }
 }
-
