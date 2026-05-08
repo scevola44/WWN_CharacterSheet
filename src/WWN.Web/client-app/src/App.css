@@ -125,6 +125,10 @@ nav.tabs {
   .sheet-columns {
     flex-direction: column;
   }
+
+  div[style*="paddingBottom: 120px"] {
+    padding-bottom: 140px;
+  }
 }
 
 .attr-grid {
