@@ -3,6 +3,7 @@ import type { Art, CreateArtRequest, UpdateArtRequest } from '../types/art';
 import { artsApi } from '../api/artApi';
 import { ArtForm } from '../components/arts/ArtForm';
 import { useEffortCommitments, useArtSources, useLookups } from '../contexts/LookupsContext';
+import { ConfirmModal } from '../components/common/ConfirmModal';
 
 const ALL_FILTER = -1;
 
@@ -22,6 +23,7 @@ export function ArtDatabasePage() {
     sourceId: 1,
   });
   const [editForm, setEditForm] = useState<UpdateArtRequest | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; name: string } | null>(null);
   const effortOptions = useEffortCommitments();
   const sourceOptions = useArtSources();
   const { effortCommitmentById, artSourceById } = useLookups();
@@ -81,11 +83,8 @@ export function ArtDatabasePage() {
     setEditForm(null);
   };
 
-  const handleDelete = async (id: string) => {
-    if (confirm('Delete this art?')) {
-      await artsApi.delete(id);
-      refreshArts();
-    }
+  const handleDelete = (id: string, name: string) => {
+    setPendingDelete({ id, name });
   };
 
   const filteredArts = arts.filter(a => {
@@ -172,7 +171,7 @@ export function ArtDatabasePage() {
                     </div>
                     <div style={{ display: 'flex', gap: '0.5rem' }}>
                       <button className="sm" onClick={() => handleEditStart(art)}>Edit</button>
-                      <button className="sm danger" onClick={() => handleDelete(art.id)}>Delete</button>
+                      <button className="sm danger" onClick={() => handleDelete(art.id, art.name)}>Delete</button>
                     </div>
                   </div>
                   <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>{art.description}</p>
@@ -182,6 +181,18 @@ export function ArtDatabasePage() {
           ))}
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={pendingDelete !== null}
+        title="Delete Art"
+        message={<>Delete <strong>{pendingDelete?.name}</strong>? This cannot be undone.</>}
+        onConfirm={async () => {
+          await artsApi.delete(pendingDelete!.id);
+          setPendingDelete(null);
+          refreshArts();
+        }}
+        onCancel={() => setPendingDelete(null)}
+      />
     </div>
   );
 }

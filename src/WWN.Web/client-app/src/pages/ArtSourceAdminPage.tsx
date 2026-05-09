@@ -3,6 +3,7 @@ import type { LookupValue } from '../types/lookups';
 import { artSourceApi } from '../api/artSourceApi';
 import type { CreateArtSourceRequest, UpdateArtSourceRequest } from '../api/artSourceApi';
 import { useArtSources, useLookups } from '../contexts/LookupsContext';
+import { ConfirmModal } from '../components/common/ConfirmModal';
 
 type EditState = { id: number; displayName: string; description: string; sortOrder: number };
 type AddState = { code: string; displayName: string; description: string; sortOrder: number };
@@ -16,6 +17,7 @@ export function ArtSourceAdminPage() {
   const [adding, setAdding] = useState(false);
   const [addForm, setAddForm] = useState<AddState>(emptyAdd);
   const [error, setError] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<LookupValue | null>(null);
 
   const handleAdd = async () => {
     if (!addForm.code.trim() || !addForm.displayName.trim()) {
@@ -57,8 +59,14 @@ export function ArtSourceAdminPage() {
     }
   };
 
-  const handleDelete = async (source: LookupValue) => {
-    if (!confirm(`Delete "${source.displayName}"?`)) return;
+  const handleDelete = (source: LookupValue) => {
+    setPendingDelete(source);
+  };
+
+  const confirmDelete = async () => {
+    if (!pendingDelete) return;
+    const source = pendingDelete;
+    setPendingDelete(null);
     setError(null);
     try {
       await artSourceApi.delete(source.id);
@@ -206,6 +214,14 @@ export function ArtSourceAdminPage() {
           )}
         </tbody>
       </table>
+
+      <ConfirmModal
+        isOpen={pendingDelete !== null}
+        title="Delete Art Source"
+        message={<>Delete <strong>{pendingDelete?.displayName}</strong>? This will fail if any arts reference it.</>}
+        onConfirm={confirmDelete}
+        onCancel={() => setPendingDelete(null)}
+      />
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import type { Spell, CreateSpellRequest, UpdateSpellRequest } from '../types/spell';
 import { spellsApi } from '../api/spellApi';
 import { SpellForm } from '../components/spells/SpellForm';
+import { ConfirmModal } from '../components/common/ConfirmModal';
 
 export function SpellDatabasePage() {
   const [spells, setSpells] = useState<Spell[]>([]);
@@ -16,6 +17,7 @@ export function SpellDatabasePage() {
     summary: '',
   });
   const [editForm, setEditForm] = useState<UpdateSpellRequest | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; name: string } | null>(null);
 
   // Initial load: loading starts true; no synchronous setState in the effect body.
   useEffect(() => {
@@ -75,11 +77,8 @@ export function SpellDatabasePage() {
     setEditForm(null);
   };
 
-  const handleDelete = async (id: string) => {
-    if (confirm('Delete this spell?')) {
-      await spellsApi.delete(id);
-      refreshSpells();
-    }
+  const handleDelete = (id: string, name: string) => {
+    setPendingDelete({ id, name });
   };
 
   const filteredSpells = spells.filter(s => {
@@ -185,7 +184,7 @@ export function SpellDatabasePage() {
                     </div>
                     <div style={{ display: 'flex', gap: '0.5rem' }}>
                       <button className="sm" onClick={() => handleEditStart(spell)}>Edit</button>
-                      <button className="sm danger" onClick={() => handleDelete(spell.id)}>Delete</button>
+                      <button className="sm danger" onClick={() => handleDelete(spell.id, spell.name)}>Delete</button>
                     </div>
                   </div>
                   <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>{spell.description}</p>
@@ -195,6 +194,18 @@ export function SpellDatabasePage() {
           ))}
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={pendingDelete !== null}
+        title="Delete Spell"
+        message={<>Delete <strong>{pendingDelete?.name}</strong>? This cannot be undone.</>}
+        onConfirm={async () => {
+          await spellsApi.delete(pendingDelete!.id);
+          setPendingDelete(null);
+          refreshSpells();
+        }}
+        onCancel={() => setPendingDelete(null)}
+      />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { SectionCard } from '../layout/SectionCard';
+import { InlineConfirmButton } from '../common/InlineConfirmButton';
 import { SpellSlotTracker } from './SpellSlotTracker';
 import { SpellDatabaseModal } from './SpellDatabaseModal';
 import { SpellDetailModal } from './SpellDetailModal';
@@ -54,12 +55,12 @@ export function SpellsPanel({ character, onUpdate }: {
                   {known.spell.summary && <span style={{ fontSize: '0.7rem', marginLeft: '0.5rem', color: 'var(--primary)' }}>({known.spell.summary})</span>}
                   <span style={{ fontSize: '0.7rem', marginLeft: '0.5rem', color: 'var(--text-muted)' }}>L{known.spell.spellLevel}</span>
                 </div>
-                <button
+                <InlineConfirmButton
+                  label="Forget"
+                  confirmLabel="Forget?"
                   className="sm danger"
-                  onClick={() => handleForgetSpell(known.spellId)}
-                >
-                  Forget
-                </button>
+                  onConfirm={() => handleForgetSpell(known.spellId)}
+                />
               </div>
             ))}
           </div>

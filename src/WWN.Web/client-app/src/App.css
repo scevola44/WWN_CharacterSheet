@@ -375,6 +375,12 @@ input[type="number"] { width: 60px; text-align: center; }
 .loading { text-align: center; padding: 2rem; color: var(--text-muted); }
 .error { color: var(--primary); text-align: center; padding: 1rem; }
 
+.inline-confirm-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
 @media print {
   body { background: white; color: black; }
   .section-card { border-color: #ccc; break-inside: avoid; }

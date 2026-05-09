@@ -3,6 +3,7 @@ import { SectionCard } from '../layout/SectionCard';
 import { characterApi } from '../../api/characterApi';
 import { focusDefinitionApi } from '../../api/focusDefinitionApi';
 import { FocusDatabaseModal } from './FocusDatabaseModal';
+import { InlineConfirmButton } from '../common/InlineConfirmButton';
 import { FocusDetailModal } from './FocusDetailModal';
 import type { CharacterDetail, AddFocusRequest, FocusEffectInfo } from '../../types/character';
 import type { FocusDefinition, FocusEffectTemplate } from '../../types/focusDefinition';
@@ -104,7 +105,7 @@ export function FociPanel({ character, onUpdate }: {
                 )}
                 {' '}(Level {f.level})
               </span>
-              <button className="sm danger" onClick={() => handleRemove(f.id)}>Remove</button>
+              <InlineConfirmButton label="Remove" confirmLabel="Remove?" className="sm danger" onConfirm={() => handleRemove(f.id)} />
             </div>
             {def?.description && (
               <div className="focus-effects" style={{ fontSize: '0.875rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
