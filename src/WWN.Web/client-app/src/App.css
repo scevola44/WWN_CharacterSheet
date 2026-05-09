@@ -193,6 +193,7 @@ body {
 
   .sheet-columns {
     flex-direction: column;
+    align-items: stretch;
   }
 
   div[style*="paddingBottom: 120px"] {
