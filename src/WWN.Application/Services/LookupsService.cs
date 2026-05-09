@@ -19,17 +19,31 @@ public class LookupsService(IArtSourceRepository artSourceRepository)
                 DisplayName = s.DisplayName,
                 Description = s.Description,
                 SortOrder = s.SortOrder
-            }).ToArray()
+            }).ToArray(),
+            SkillNames = SkillNameCatalog.All.Select(MapLookupValue).ToArray(),
+            AttributeNames = AttributeNameCatalog.All.Select(MapLookupValue).ToArray(),
+            ItemSlotTypes = ItemSlotTypeCatalog.All.Select(MapLookupValue).ToArray(),
+            SaveTypes = SaveTypeCatalog.All.Select(MapLookupValue).ToArray(),
+            CharacterClasses = CharacterClassCatalog.All.Select(MapLookupValue).ToArray(),
+            PartialClasses = PartialClassCatalog.All.Select(MapLookupValue).ToArray(),
+            FocusEffectTypes = FocusEffectTypeCatalog.All.Select(MapLookupValue).ToArray(),
+            WeaponTags = WeaponTagCatalog.All.Select(MapLookupValue).ToArray(),
         };
     }
 
     public static string ComputeETag(LookupsDto dto)
     {
-        var payload = string.Join("|",
-            dto.EffortCommitment
-                .Select(v => $"{v.Id}:{v.Code}:{v.DisplayName}:{v.Description}:{v.SortOrder}")
-                .Concat(dto.ArtSources
-                    .Select(v => $"{v.Id}:{v.Code}:{v.DisplayName}:{v.Description}:{v.SortOrder}")));
+        var allValues = dto.EffortCommitment
+            .Concat(dto.ArtSources)
+            .Concat(dto.SkillNames)
+            .Concat(dto.AttributeNames)
+            .Concat(dto.ItemSlotTypes)
+            .Concat(dto.SaveTypes)
+            .Concat(dto.CharacterClasses)
+            .Concat(dto.PartialClasses)
+            .Concat(dto.FocusEffectTypes)
+            .Concat(dto.WeaponTags);
+        var payload = string.Join("|", allValues.Select(v => $"{v.Id}:{v.Code}:{v.DisplayName}:{v.Description}:{v.SortOrder}"));
         var bytes = System.Text.Encoding.UTF8.GetBytes(payload);
         var hash = System.Security.Cryptography.SHA256.HashData(bytes);
         return $"\"{Convert.ToHexString(hash)[..16]}\"";
