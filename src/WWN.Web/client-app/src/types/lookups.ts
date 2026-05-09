@@ -9,4 +9,15 @@ export interface LookupValue {
 export interface Lookups {
   effortCommitment: LookupValue[];
   artSources: LookupValue[];
+  // Phase 1
+  skillNames: LookupValue[];
+  attributeNames: LookupValue[];
+  itemSlotTypes: LookupValue[];
+  saveTypes: LookupValue[];
+  // Phase 2
+  characterClasses: LookupValue[];
+  partialClasses: LookupValue[];
+  focusEffectTypes: LookupValue[];
+  // Phase 3
+  weaponTags: LookupValue[];
 }
