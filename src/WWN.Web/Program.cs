@@ -91,7 +91,12 @@ try
     builder.Services.AddScoped<FocusDefinitionService>();
     builder.Services.AddScoped<FocusDefinitionSeeder>();
     builder.Services.AddScoped<SpellDefinitionSeeder>();
-    builder.Services.AddScoped<ArtDefinitionSeeder>();
+    builder.Services.AddScoped<ArtDefinitionSeeder>(provider =>
+        new ArtDefinitionSeeder(
+            provider.GetRequiredService<IArtRepository>(),
+            provider.GetRequiredService<IArtSourceRepository>()
+        ));
+
     builder.Services.AddScoped<ClassAbilitySeeder>();
     builder.Services.AddScoped<AdminRoleSeeder>();
     builder.Services.AddSingleton<CharacterSheetCalculator>();
