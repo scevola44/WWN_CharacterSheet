@@ -18,7 +18,7 @@ function getInitialTheme(): Theme {
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>(getInitialTheme);
-  const isManual = useRef(!!localStorage.getItem('wwn-theme'));
+  const isManual = useRef(false);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
