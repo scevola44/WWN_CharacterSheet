@@ -1,6 +1,7 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
@@ -41,6 +42,7 @@ try
         options.Password.RequireNonAlphanumeric = false;
         options.Password.RequiredLength = 6;
     })
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<WwnDbContext>();
 
     // JWT Authentication
@@ -62,7 +64,8 @@ try
             };
         });
 
-    builder.Services.AddAuthorization();
+    builder.Services.AddAuthorization(options =>
+        options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin")));
 
     // App info service for branch tracking
     var appInfo = new AppInfoService(builder.Configuration);
@@ -87,6 +90,7 @@ try
     builder.Services.AddScoped<SpellDefinitionSeeder>();
     builder.Services.AddScoped<ArtDefinitionSeeder>();
     builder.Services.AddScoped<ClassAbilitySeeder>();
+    builder.Services.AddScoped<AdminRoleSeeder>();
     builder.Services.AddSingleton<CharacterSheetCalculator>();
     builder.Services.AddMemoryCache();
     builder.Services.AddScoped<ValidationFilter>();
@@ -130,6 +134,10 @@ try
         // Seed default WWN class abilities from the Free Edition if the table is empty.
         var abilitySeeder = scope.ServiceProvider.GetRequiredService<ClassAbilitySeeder>();
         await abilitySeeder.SeedIfEmptyAsync();
+
+        // Create the Admin role and assign it to any configured AdminEmails.
+        var adminSeeder = scope.ServiceProvider.GetRequiredService<AdminRoleSeeder>();
+        await adminSeeder.SeedAsync();
     }
 
     app.UseMiddleware<ExceptionHandlingMiddleware>();
@@ -156,6 +164,7 @@ try
     root.MapDiagnosticsEndpoints();
     root.MapLookupsEndpoints();
     root.MapArtSourceEndpoints();
+    root.MapAdminEndpoints();
 
     app.MapFallbackToFile("index.html");
 

@@ -10,13 +10,16 @@ namespace WWN.Web.Endpoints;
 
 public static class AuthEndpoints
 {
+    private const string AdminRole = "Admin";
+
     public static void MapAuthEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/auth").WithTags("Auth");
 
         group.MapPost("/register", async (
             RegisterRequest req,
-            UserManager<AppUser> userManager) =>
+            UserManager<AppUser> userManager,
+            IConfiguration configuration) =>
         {
             if (string.IsNullOrWhiteSpace(req.Email) || string.IsNullOrWhiteSpace(req.Password))
                 return Results.BadRequest(new { message = "Email and password are required." });
@@ -34,6 +37,8 @@ public static class AuthEndpoints
                 return Results.BadRequest(new { message = "Registration failed.", errors });
             }
 
+            await AssignAdminRoleIfConfigured(user, userManager, configuration);
+
             return Results.Ok(new { message = "Registration successful." });
         });
 
@@ -46,7 +51,9 @@ public static class AuthEndpoints
             if (user is null || !await userManager.CheckPasswordAsync(user, req.Password))
                 return Results.Unauthorized();
 
-            var token = GenerateJwtToken(user, configuration);
+            await AssignAdminRoleIfConfigured(user, userManager, configuration);
+
+            var token = await GenerateJwtTokenAsync(user, userManager, configuration);
             return Results.Ok(new { token });
         });
 
@@ -54,21 +61,39 @@ public static class AuthEndpoints
         {
             var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier);
             var email = principal.FindFirstValue(ClaimTypes.Email);
-            return Results.Ok(new { userId, email });
+            var isAdmin = principal.IsInRole(AdminRole);
+            return Results.Ok(new { userId, email, isAdmin });
         }).RequireAuthorization();
     }
 
-    private static string GenerateJwtToken(AppUser user, IConfiguration configuration)
+    private static async Task AssignAdminRoleIfConfigured(
+        AppUser user, UserManager<AppUser> userManager, IConfiguration configuration)
+    {
+        var configured = (configuration["AdminEmails"] ?? "")
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        if (configured.Any(e => e.Equals(user.Email, StringComparison.OrdinalIgnoreCase))
+            && !await userManager.IsInRoleAsync(user, AdminRole))
+        {
+            await userManager.AddToRoleAsync(user, AdminRole);
+        }
+    }
+
+    private static async Task<string> GenerateJwtTokenAsync(
+        AppUser user, UserManager<AppUser> userManager, IConfiguration configuration)
     {
         var jwtSection = configuration.GetSection("Jwt");
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSection["Key"]!));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        var claims = new[]
+        var roles = await userManager.GetRolesAsync(user);
+
+        var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.NameIdentifier, user.Id),
-            new Claim(ClaimTypes.Email, user.Email!),
+            new(ClaimTypes.NameIdentifier, user.Id),
+            new(ClaimTypes.Email, user.Email!),
         };
+        claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
 
         var token = new JwtSecurityToken(
             issuer: jwtSection["Issuer"],

@@ -12,7 +12,18 @@ public class SpellDefinitionSeeder(ISpellRepository spellRepository)
     public async Task SeedIfEmptyAsync(CancellationToken cancellationToken = default)
     {
         if (await spellRepository.AnyAsync(cancellationToken)) return;
+        await SeedCoreAsync(cancellationToken);
+    }
 
+    public async Task ForceReseedAsync(CancellationToken cancellationToken = default)
+    {
+        foreach (var existing in await spellRepository.GetAllAsync(cancellationToken))
+            await spellRepository.DeleteAsync(existing.Id, cancellationToken);
+        await SeedCoreAsync(cancellationToken);
+    }
+
+    private async Task SeedCoreAsync(CancellationToken cancellationToken)
+    {
         foreach (var spell in CreateDefaultSpells())
             await spellRepository.AddAsync(spell, cancellationToken);
     }

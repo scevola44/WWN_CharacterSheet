@@ -14,7 +14,18 @@ public class FocusDefinitionSeeder(IFocusDefinitionRepository focusDefinitionRep
     public async Task SeedIfEmptyAsync(CancellationToken ct = default)
     {
         if (await focusDefinitionRepository.AnyAsync(ct)) return;
+        await SeedCoreAsync(ct);
+    }
 
+    public async Task ForceReseedAsync(CancellationToken ct = default)
+    {
+        foreach (var existing in await focusDefinitionRepository.GetAllAsync(ct))
+            await focusDefinitionRepository.DeleteAsync(existing.Id, ct);
+        await SeedCoreAsync(ct);
+    }
+
+    private async Task SeedCoreAsync(CancellationToken ct)
+    {
         foreach (var focusDefinition in CreateDefaultFoci())
             await focusDefinitionRepository.AddAsync(focusDefinition, ct);
     }

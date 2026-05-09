@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPeopleGroup, faHandSparkles, faHatWizard, faLeaf, faGear, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
+import { faPeopleGroup, faHandSparkles, faHatWizard, faLeaf, faGear, faRightFromBracket, faUserShield } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../../contexts/AuthContext';
 import './Sidebar.css';
 
@@ -69,6 +69,17 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 <FontAwesomeIcon icon={faGear} className="icon" />
                 Art Sources
               </NavLink>
+              {user.isAdmin && (
+                <NavLink
+                  to="/admin"
+                  end
+                  className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+                  onClick={handleNavClick}
+                >
+                  <FontAwesomeIcon icon={faUserShield} className="icon" />
+                  Admin
+                </NavLink>
+              )}
             </div>
           )}
           {user && (
