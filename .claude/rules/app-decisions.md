@@ -72,6 +72,58 @@ Format for each entry:
 **Source**: App-specific (EF Core constraint).
 **Detail**: `Character.UseSpellSlot` allocates a new array because EF Core's change tracker uses reference equality. Preserve this pattern when extending.
 
+### Multi-tenancy unit = Campaign
+**Source**: App-specific.
+**Detail**: A single concept, `Campaign`, owns membership, content scope, and character grouping. No workspace/org layer above it. See `multi-tenancy.md`.
+
+### GameMaster is a per-campaign role, not a global Identity role
+**Source**: App-specific.
+**Detail**: `CampaignMembership.Role ∈ {GameMaster, Player}`. The only global Identity role remains `Admin` (system-content authoring, operational tooling). See `multi-tenancy.md`.
+
+### A character belongs to at most one campaign at a time
+**Source**: App-specific.
+**Detail**: `Character.CampaignId Guid?`; `null` = personal. Move semantics preserve `CharacterId` (same row, just update `CampaignId`).
+
+### Personal characters are always PlayerCharacter
+**Source**: App-specific.
+**Detail**: `Character.CharacterRole` is non-nullable, defaults to `PlayerCharacter`. `GmNpc` requires `CampaignId IS NOT NULL` as a domain invariant. See `multi-tenancy.md`.
+
+### Player leaving a campaign orphans their characters back to personal
+**Source**: App-specific.
+**Detail**: On `RemoveMember`, every character of that user with the matching `CampaignId` has `CampaignId` set to `null` and role normalized to `PlayerCharacter`. GM stops seeing them from the next request.
+
+### Campaign deletion orphans GM NPCs to the former GM as personal PCs
+**Source**: App-specific.
+**Detail**: On campaign delete, `GmNpc` rows have `CampaignId = null` and role coerced to `PlayerCharacter`; `OwnerUserId` is unchanged. Symmetric with the player-leaves rule.
+
+### GM transfer leaves NPC ownership unchanged
+**Source**: App-specific.
+**Detail**: `Campaign.TransferGameMaster` only swaps roles; `Character.OwnerUserId` is not modified. New GM gets write access via the GameMaster policy. If the original GM later leaves, their NPCs orphan back to them as personal PCs.
+
+### Content gains nullable CampaignId; null = system / SRD
+**Source**: App-specific.
+**Detail**: `FocusDefinition`, `Spell`, `Art`, **and `ArtSource`** all add a nullable `CampaignId`. Existing rows pre-migration stay `NULL` and remain visible to everyone. `ArtSource` keeps its `int` Id despite the asymmetry with the others.
+
+### System-content writes are Admin-only; campaign-content writes are campaign-GM-only
+**Source**: App-specific.
+**Detail**: Phase 3 closes today's no-auth gap on `FocusDefinitionEndpoints` / `SpellEndpoints` / `ArtEndpoints` content CRUD by requiring authorization, with policy chosen by the row's `CampaignId` (`null` ⇒ Admin; set ⇒ GameMaster of that campaign).
+
+### Active campaign is a query parameter, not server state
+**Source**: App-specific.
+**Detail**: Content-browse endpoints accept `?campaignId=` (validated against the requester's memberships). Frontend tracks the active campaign in React context, persisted to `localStorage`. No cookie, no DB column.
+
+### Authorization is centralized in access policies
+**Source**: App-specific.
+**Detail**: `ICharacterAccessPolicy` / `ICampaignAccessPolicy` / `IContentAccessPolicy` (pure functions of user, target, memberships). Endpoints and services consume them; rules are not duplicated per endpoint.
+
+### Invite codes: 12-char URL-safe, 7-day default, unlimited uses, soft-revocable
+**Source**: App-specific.
+**Detail**: Alphabet `a-z2-9` (no `0/1/o/l/i`). Default `ExpiresAt = now + 7d`, default `MaxUses = null` (unlimited), revocation sets `RevokedAt` (soft). Redeeming as an existing member is an idempotent success. See `multi-tenancy.md`.
+
+### Forbidden vs Not Found on hidden characters
+**Source**: App-specific.
+**Detail**: Return `403 Forbidden` when the requester could plausibly have learned the character ID (e.g., a former campaign-mate); return `404` when the ID is structurally unknowable to them. Avoids leaking existence in the common case.
+
 ---
 
 ## Open / undecided (TODOs)

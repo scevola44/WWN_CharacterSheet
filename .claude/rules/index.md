@@ -25,6 +25,7 @@ Notes are paraphrased from the **free** rules edition of *Worlds Without Number*
 | `equipment-and-encumbrance.md` | Item slots (Stowed/Readied/Equipped), encumbrance limits, armor, shields | Inventory UI, encumbrance bar, equip rules |
 | `magic.md` | Mage spells & slots, Adventurer partial Mage, **Effort** for Arts, High/Low Magic distinction | Spell UI, slot tracker, Effort tracker, Arts |
 | `conditions-and-status.md` | HP / dying / death, **System Strain**, healing, rest cycles | HP tracker, Strain tracker, rest buttons |
+| `multi-tenancy.md` | **Not WWN.** Campaigns, memberships, invites, character/content visibility, GM vs Player vs Admin | Anything that touches campaigns, sharing, authorization, or content scoping |
 | `app-decisions.md` | Project-specific rulings, simplifications, TODOs | Always, briefly, before coding rule-heavy features |
 
 ## Common cross-links
@@ -35,6 +36,7 @@ Notes are paraphrased from the **free** rules edition of *Worlds Without Number*
 - **Magic ↔ Conditions**: spell slots and Effort scene/day commitments reset on rest (see `RestForDay()` in `Character.cs`).
 - **Skills ↔ Classes**: Expert gets extra skill picks; specific class features reference skill ranks.
 - **Conditions ↔ Equipment**: System Strain caps gear like stims/healing; encumbrance affects movement penalties.
+- **Multi-tenancy ↔ everything**: every character has a (nullable) `CampaignId`; every content row (Foci/Spells/Arts/ArtSources) has a (nullable) `CampaignId`; visibility is computed from the viewer's campaign memberships.
 
 ## Minimum files to read for task X
 
@@ -50,5 +52,6 @@ Notes are paraphrased from the **free** rules edition of *Worlds Without Number*
 | HP / Strain / rest mechanics | `conditions-and-status.md`, `magic.md` (rest resets slots/effort), `app-decisions.md` |
 | Saves / save targets | `core-resolution.md`, `classes-and-leveling.md` (specialist vs generalist), `app-decisions.md` |
 | Skill-check resolver | `core-resolution.md`, `skills.md`, `app-decisions.md` |
+| Anything campaign-scoped (membership, invites, NPC visibility, content authoring, sharing) | `multi-tenancy.md`, `app-decisions.md` |
 
 If your task is purely cosmetic (CSS, copy, refactor) you may skip the rules entirely.
