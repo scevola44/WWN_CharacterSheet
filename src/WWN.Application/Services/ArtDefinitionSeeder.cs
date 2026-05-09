@@ -57,7 +57,6 @@ public class ArtDefinitionSeeder(IArtRepository artRepository, IArtSourceReposit
         }
 
         var markdownFiles = Directory.GetFiles(artsDir, "*.md")
-            .Where(f => Path.GetFileName(f) != "Magics.md") // Skip the index file
             .OrderBy(f => Path.GetFileName(f))
             .ToList();
 
