@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
+import { SystemThemeIcon } from './components/icons/SystemThemeIcon';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { LookupsProvider } from './contexts/LookupsContext';
@@ -21,16 +22,29 @@ import { ErrorDetailModal } from './components/common/ErrorDetailModal';
 import './App.css';
 
 function ThemeToggle() {
-  const { theme, toggleTheme } = useTheme();
-  const isDark = theme === 'dark';
+  const { theme, cycleTheme } = useTheme();
+
+  const getIconAndLabel = () => {
+    switch (theme) {
+      case 'light':
+        return { icon: <FontAwesomeIcon icon={faSun} />, label: 'Switch to dark mode' };
+      case 'dark':
+        return { icon: <FontAwesomeIcon icon={faMoon} />, label: 'Switch to system mode' };
+      case 'system':
+        return { icon: <SystemThemeIcon />, label: 'Switch to light mode' };
+    }
+  };
+
+  const { icon, label } = getIconAndLabel();
+
   return (
     <button
       className="theme-toggle"
-      onClick={toggleTheme}
-      aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-      title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+      onClick={cycleTheme}
+      aria-label={label}
+      title={label}
     >
-      <FontAwesomeIcon icon={isDark ? faSun : faMoon} />
+      {icon}
     </button>
   );
 }
