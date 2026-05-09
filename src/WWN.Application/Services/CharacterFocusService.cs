@@ -1,6 +1,7 @@
 using WWN.Application.DTOs;
 using WWN.Application.Helpers;
 using WWN.Domain.Aggregates;
+using WWN.Domain.Entities;
 using WWN.Domain.Enums;
 using WWN.Domain.Interfaces;
 using WWN.Domain.ValueObjects;
