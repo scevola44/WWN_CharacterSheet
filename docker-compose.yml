@@ -3,6 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: ${IMAGE_TAG:-wwn-charactersheet:local}
     container_name: wwn-charactersheet
     ports:
       - "5000:5000"
