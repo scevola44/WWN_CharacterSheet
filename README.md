@@ -2,6 +2,8 @@
 
 A digital character sheet application for the Worlds Without Number tabletop RPG system, built with React frontend and .NET backend.
 
+If you like this project and would like to see more or support me and what I do in general, visit my [Ko-Fi page](https://ko-fi.com/scevola). 
+
 ## Overview
 
 This application provides a comprehensive web-based character sheet for managing Worlds Without Number characters, including character creation, attribute tracking, skill management, inventory, spells, and combat calculations.
