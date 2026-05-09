@@ -17,23 +17,21 @@ public class CharacterServiceTests
     private const string UserId = "user-1";
 
     private readonly ICharacterRepository _characterRepository;
-    private readonly IFocusDefinitionRepository _focusDefinitionRepository;
-    private readonly IClassAbilityRepository _classAbilityRepository;
-    private readonly CharacterService _service;
+    private readonly CharacterIdentityService _identity;
+    private readonly CharacterFocusService _focusService;
+    private readonly CharacterInventoryService _inventory;
 
     public CharacterServiceTests()
     {
         _characterRepository = Substitute.For<ICharacterRepository>();
-        _focusDefinitionRepository = Substitute.For<IFocusDefinitionRepository>();
-        _classAbilityRepository = Substitute.For<IClassAbilityRepository>();
+        var focusDefinitionRepository = Substitute.For<IFocusDefinitionRepository>();
+        var classAbilityRepository = Substitute.For<IClassAbilityRepository>();
 
-        // The mappers walk these collections; default to empty.
-        _focusDefinitionRepository.GetAllAsync(Arg.Any<CancellationToken>())
+        focusDefinitionRepository.GetAllAsync(Arg.Any<CancellationToken>())
             .Returns(Task.FromResult<IReadOnlyList<FocusDefinition>>(Array.Empty<FocusDefinition>()));
-        _classAbilityRepository.GetAllAsync(Arg.Any<CancellationToken>())
+        classAbilityRepository.GetAllAsync(Arg.Any<CancellationToken>())
             .Returns(Task.FromResult<IReadOnlyList<ClassAbilityDefinition>>(Array.Empty<ClassAbilityDefinition>()));
 
-        // ExecuteInTransactionAsync should simply invoke the action.
         _characterRepository
             .ExecuteInTransactionAsync(
                 Arg.Any<Func<Task<CharacterDetailDto>>>(),
@@ -41,11 +39,10 @@ public class CharacterServiceTests
             .Returns(ci => ci.ArgAt<Func<Task<CharacterDetailDto>>>(0)());
 
         var cache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
-        _service = new CharacterService(
-            _characterRepository,
-            _focusDefinitionRepository,
-            _classAbilityRepository,
-            cache);
+        var mapper = new CharacterDetailMapper(focusDefinitionRepository, classAbilityRepository, cache);
+        _identity = new CharacterIdentityService(_characterRepository, mapper);
+        _focusService = new CharacterFocusService(_characterRepository, mapper);
+        _inventory = new CharacterInventoryService(_characterRepository, mapper);
     }
 
     private static Dictionary<string, int> DefaultAttributeStrings() => new()
@@ -74,7 +71,7 @@ public class CharacterServiceTests
     [Fact]
     public async Task CreateCharacterAsync_HappyPath_AddsToRepositoryAndReturnsId()
     {
-        var id = await _service.CreateCharacterAsync(WarriorRequest(), UserId);
+        var id = await _identity.CreateCharacterAsync(WarriorRequest(), UserId);
 
         id.Should().NotBeEmpty();
         await _characterRepository.Received(1).AddAsync(
@@ -89,7 +86,7 @@ public class CharacterServiceTests
     {
         var request = WarriorRequest() with { Class = nameof(CharacterClass.Adventurer) };
 
-        var act = () => _service.CreateCharacterAsync(request, UserId);
+        var act = () => _identity.CreateCharacterAsync(request, UserId);
 
         await act.Should().ThrowAsync<ArgumentException>();
         await _characterRepository.DidNotReceive().AddAsync(
@@ -106,7 +103,7 @@ public class CharacterServiceTests
             PartialClassB = nameof(PartialClass.PartialMage)
         };
 
-        var act = () => _service.CreateCharacterAsync(request, UserId);
+        var act = () => _identity.CreateCharacterAsync(request, UserId);
 
         await act.Should().ThrowAsync<ArgumentException>()
             .WithMessage("*distinct*");
@@ -117,7 +114,7 @@ public class CharacterServiceTests
     {
         var request = WarriorRequest() with { Class = "Bard" };
 
-        var act = () => _service.CreateCharacterAsync(request, UserId);
+        var act = () => _identity.CreateCharacterAsync(request, UserId);
 
         await act.Should().ThrowAsync<ArgumentException>();
     }
@@ -128,7 +125,7 @@ public class CharacterServiceTests
         _characterRepository.GetByIdAsync(Arg.Any<Guid>(), UserId, Arg.Any<CancellationToken>())
             .Returns(Task.FromResult<Character?>(null));
 
-        var act = () => _service.UpdateAttributeAsync(
+        var act = () => _identity.UpdateAttributeAsync(
             Guid.NewGuid(), UserId, nameof(AttributeName.Strength), 14);
 
         await act.Should().ThrowAsync<KeyNotFoundException>();
@@ -141,7 +138,7 @@ public class CharacterServiceTests
         _characterRepository.GetByIdAsync(character.Id, UserId, Arg.Any<CancellationToken>())
             .Returns(Task.FromResult<Character?>(character));
 
-        var dto = await _service.UpdateAttributeAsync(
+        var dto = await _identity.UpdateAttributeAsync(
             character.Id, UserId, nameof(AttributeName.Strength), 16);
 
         character.GetAttribute(AttributeName.Strength).Score.Value.Should().Be(16);
@@ -156,7 +153,7 @@ public class CharacterServiceTests
         _characterRepository.GetByIdAsync(character.Id, UserId, Arg.Any<CancellationToken>())
             .Returns(Task.FromResult<Character?>(character));
 
-        await _service.UpdateSkillAsync(character.Id, UserId, nameof(SkillName.Stab), 2);
+        await _identity.UpdateSkillAsync(character.Id, UserId, nameof(SkillName.Stab), 2);
 
         character.GetSkill(SkillName.Stab).Rank.Level.Should().Be(2);
         await _characterRepository.Received(1).UpdateAsync(character, Arg.Any<CancellationToken>());
@@ -169,7 +166,7 @@ public class CharacterServiceTests
         _characterRepository.GetByIdAsync(character.Id, UserId, Arg.Any<CancellationToken>())
             .Returns(Task.FromResult<Character?>(character));
 
-        await _service.AddCustomSkillAsync(character.Id, UserId, "Alchemy", 0);
+        await _identity.AddCustomSkillAsync(character.Id, UserId, "Alchemy", 0);
 
         character.Skills.Should().Contain(s => s.CustomName == "Alchemy");
         await _characterRepository.Received(1).UpdateAsync(character, Arg.Any<CancellationToken>());
@@ -182,7 +179,7 @@ public class CharacterServiceTests
         _characterRepository.GetByIdAsync(character.Id, UserId, Arg.Any<CancellationToken>())
             .Returns(Task.FromResult<Character?>(character));
 
-        await _service.SetHpAsync(character.Id, UserId, 12, 8);
+        await _identity.SetHpAsync(character.Id, UserId, 12, 8);
 
         character.MaxHitPoints.Should().Be(12);
         character.CurrentHitPoints.Should().Be(8);
@@ -197,7 +194,7 @@ public class CharacterServiceTests
         _characterRepository.GetByIdAsync(character.Id, UserId, Arg.Any<CancellationToken>())
             .Returns(Task.FromResult<Character?>(character));
 
-        await _service.LevelUpAsync(character.Id, UserId, hpGain: 5);
+        await _identity.LevelUpAsync(character.Id, UserId, hpGain: 5);
 
         character.Level.Should().Be(startingLevel + 1);
         character.MaxHitPoints.Should().Be(startingMax + 5);
@@ -221,7 +218,7 @@ public class CharacterServiceTests
             }
         };
 
-        await _service.AddFocusAsync(character.Id, UserId, request);
+        await _focusService.AddFocusAsync(character.Id, UserId, request);
 
         character.Foci.Should().ContainSingle(f => f.Name == "Alert" && f.Level == 1);
     }
@@ -235,7 +232,7 @@ public class CharacterServiceTests
         _characterRepository.GetByIdAsync(character.Id, UserId, Arg.Any<CancellationToken>())
             .Returns(Task.FromResult<Character?>(character));
 
-        await _service.RemoveFocusAsync(character.Id, UserId, focus.Id);
+        await _focusService.RemoveFocusAsync(character.Id, UserId, focus.Id);
 
         character.Foci.Should().BeEmpty();
         await _characterRepository.Received(1).UpdateAsync(character, Arg.Any<CancellationToken>());
@@ -256,7 +253,7 @@ public class CharacterServiceTests
             SlotType = nameof(ItemSlotType.Stowed)
         };
 
-        await _service.AddItemAsync(character.Id, UserId, request);
+        await _inventory.AddItemAsync(character.Id, UserId, request);
 
         character.Inventory.Should().ContainSingle(i => i.Name == "Rope");
     }
@@ -270,7 +267,7 @@ public class CharacterServiceTests
         _characterRepository.GetByIdAsync(character.Id, UserId, Arg.Any<CancellationToken>())
             .Returns(Task.FromResult<Character?>(character));
 
-        await _service.RemoveItemAsync(character.Id, UserId, item.Id);
+        await _inventory.RemoveItemAsync(character.Id, UserId, item.Id);
 
         character.Inventory.Should().BeEmpty();
     }
@@ -280,7 +277,7 @@ public class CharacterServiceTests
     {
         var id = Guid.NewGuid();
 
-        await _service.DeleteCharacterAsync(id, UserId);
+        await _identity.DeleteCharacterAsync(id, UserId);
 
         await _characterRepository.Received(1).DeleteAsync(id, UserId, Arg.Any<CancellationToken>());
     }

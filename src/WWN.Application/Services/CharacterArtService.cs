@@ -9,7 +9,7 @@ namespace WWN.Application.Services;
 public class CharacterArtService(
     ICharacterRepository characterRepository,
     IArtRepository artRepository,
-    CharacterService characterService)
+    CharacterDetailMapper mapper)
 {
     public async Task<KnownArtDto> LearnArtAsync(
         Guid characterId,
@@ -59,7 +59,7 @@ public class CharacterArtService(
         var max = EffortPoolCalculator.CalculateMax(character);
         character.CommitEffort(kind, max, amount);
         await characterRepository.UpdateAsync(character, cancellationToken);
-        return await characterService.MapToDetailDtoAsync(character, cancellationToken);
+        return await mapper.MapToDetailDtoAsync(character, cancellationToken);
     }
 
     public async Task<CharacterDetailDto> EndSceneAsync(
@@ -70,7 +70,7 @@ public class CharacterArtService(
         var character = await GetCharacterOrThrow(characterId, userId, cancellationToken);
         character.EndScene();
         await characterRepository.UpdateAsync(character, cancellationToken);
-        return await characterService.MapToDetailDtoAsync(character, cancellationToken);
+        return await mapper.MapToDetailDtoAsync(character, cancellationToken);
     }
 
     public Task<CharacterDetailDto> RestForDayAsync(
@@ -83,7 +83,7 @@ public class CharacterArtService(
             var character = await GetCharacterOrThrow(characterId, userId, cancellationToken);
             character.RestForDay();
             await characterRepository.UpdateAsync(character, cancellationToken);
-            return await characterService.MapToDetailDtoAsync(character, cancellationToken);
+            return await mapper.MapToDetailDtoAsync(character, cancellationToken);
         }, cancellationToken);
     }
 
@@ -96,7 +96,7 @@ public class CharacterArtService(
         var character = await GetCharacterOrThrow(characterId, userId, cancellationToken);
         character.ReleaseSustainedEffort(amount);
         await characterRepository.UpdateAsync(character, cancellationToken);
-        return await characterService.MapToDetailDtoAsync(character, cancellationToken);
+        return await mapper.MapToDetailDtoAsync(character, cancellationToken);
     }
 
     private async Task<Domain.Aggregates.Character> GetCharacterOrThrow(

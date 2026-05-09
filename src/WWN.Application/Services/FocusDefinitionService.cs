@@ -37,7 +37,7 @@ public class FocusDefinitionService(IFocusDefinitionRepository focusDefinitionRe
             request.Level1Effects.Select(ParseEffect),
             request.Level2Effects.Select(ParseEffect));
         await focusDefinitionRepository.AddAsync(focusDefinition, cancellationToken);
-        cache.Remove(CharacterService.FocusDefsKey);
+        cache.Remove(CharacterDetailMapper.FocusDefsKey);
         return MapToDto(focusDefinition);
     }
 
@@ -58,14 +58,14 @@ public class FocusDefinitionService(IFocusDefinitionRepository focusDefinitionRe
             request.Level1Effects.Select(ParseEffect),
             request.Level2Effects.Select(ParseEffect));
         await focusDefinitionRepository.UpdateAsync(focusDefinition, cancellationToken);
-        cache.Remove(CharacterService.FocusDefsKey);
+        cache.Remove(CharacterDetailMapper.FocusDefsKey);
         return MapToDto(focusDefinition);
     }
 
     public async Task DeleteAsync(Guid focusId, CancellationToken cancellationToken = default)
     {
         await focusDefinitionRepository.DeleteAsync(focusId, cancellationToken);
-        cache.Remove(CharacterService.FocusDefsKey);
+        cache.Remove(CharacterDetailMapper.FocusDefsKey);
     }
 
     private static FocusEffect ParseEffect(FocusEffectDto e) => new(
