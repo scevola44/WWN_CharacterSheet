@@ -220,16 +220,22 @@ The easiest way to run the application with Docker:
    cd WWN_CharacterSheet
    ```
 
-2. **Start the application:**
+2. **Optionally configure the image tag** (default is `latest`):
    ```bash
+   cp .env.example .env
+   # Edit .env to change IMAGE_TAG if desired (e.g., beta, v1.0.0)
+   ```
+
+3. **Start the application:**
+   ```bash
+   docker-compose pull    # Pull the latest published image
    docker-compose up -d
    ```
-   This will automatically build the image and start the container.
 
-3. **Access the application:**
+4. **Access the application:**
    - Open your browser and navigate to `http://localhost:5000`
 
-4. **View logs:**
+5. **View logs:**
    ```bash
    docker-compose logs -f
    ```
@@ -263,16 +269,31 @@ The easiest way to run the application with Docker:
 
 #### Customizing Environment Variables
 
-To modify the port or other settings, create a `.env` file in the same directory as `docker-compose.yml`:
+Copy and edit the `.env` file to customize settings:
 
+```bash
+cp .env.example .env
+```
+
+Available variables:
+- **IMAGE_TAG:** Docker image tag to use (default: `latest`)
+  - `latest` — production release from main branch
+  - `beta` — development build from develop branch
+  - `sha-<hash>` — specific commit (for debugging)
+  - `v1.0.0` — specific version release
+  
+Example `.env`:
 ```env
-ASPNETCORE_URLS=http://+:8080
+IMAGE_TAG=beta
+BRANCH=develop
 ```
 
 Then run:
 ```bash
 docker-compose up -d
 ```
+
+> **To build from source locally instead:** Comment out the `image:` line in `docker-compose.yml` and uncomment the `build:` section.
 
 #### Manual Docker (Alternative)
 

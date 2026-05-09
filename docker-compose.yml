@@ -1,9 +1,11 @@
 services:
   wwn-charactersheet:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: ${IMAGE_TAG:-wwn-charactersheet:local}
+    # Pull published image from GitHub Container Registry
+    image: ghcr.io/scevola44/wwn_charactersheet:${IMAGE_TAG:-latest}
+    # To build from source instead, replace the 'image' line above with:
+    #   build:
+    #     context: .
+    #     dockerfile: Dockerfile
     container_name: wwn-charactersheet
     ports:
       - "5000:5000"
