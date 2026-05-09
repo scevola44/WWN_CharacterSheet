@@ -12,12 +12,9 @@ services:
     volumes:
       - ./data:/app/db
     environment:
-      ASPNETCORE_HTTP_PORTS: "5000"
-      ConnectionStrings__Default: "Data Source=/app/db/wwn_characters.db"
-      DataProtection__KeysPath: /app/db/keys
-      # Branch name for informational/documentation purposes
-      # Set this to match the branch you have checked out locally
-      # Example: BRANCH=main or BRANCH=develop
+      ASPNETCORE_HTTP_PORTS: ${ASPNETCORE_HTTP_PORTS:-5000}
+      ConnectionStrings__Default: ${ConnectionStrings__Default:-Data Source=/app/db/wwn_characters.db}
+      DataProtection__KeysPath: ${DataProtection__KeysPath:-/app/db/keys}
+      Jwt__Key: ${Jwt__Key}
       BRANCH: ${BRANCH:-main}
-      # Comma-separated admin email addresses (see .env.example)
       AdminEmails: ${AdminEmails:-}
