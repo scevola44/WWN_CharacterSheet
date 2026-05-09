@@ -78,7 +78,10 @@ try
     builder.Services.AddScoped<IArtSourceRepository, ArtSourceRepository>();
     builder.Services.AddScoped<IFocusDefinitionRepository, FocusDefinitionRepository>();
     builder.Services.AddScoped<IClassAbilityRepository, ClassAbilityRepository>();
-    builder.Services.AddScoped<CharacterService>();
+    builder.Services.AddScoped<CharacterDetailMapper>();
+    builder.Services.AddScoped<CharacterIdentityService>();
+    builder.Services.AddScoped<CharacterFocusService>();
+    builder.Services.AddScoped<CharacterInventoryService>();
     builder.Services.AddScoped<SpellService>();
     builder.Services.AddScoped<ArtService>();
     builder.Services.AddScoped<ArtSourceService>();
