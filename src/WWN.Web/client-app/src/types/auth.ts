@@ -11,6 +11,7 @@ export interface RegisterRequest {
 export interface AuthUser {
   userId: string;
   email: string;
+  isAdmin: boolean;
 }
 
 export interface LoginResponse {
