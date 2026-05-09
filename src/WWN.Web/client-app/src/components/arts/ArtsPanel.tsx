@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { SectionCard } from '../layout/SectionCard';
+import { InlineConfirmButton } from '../common/InlineConfirmButton';
 import { EffortTracker } from './EffortTracker';
 import { ArtDatabaseModal } from './ArtDatabaseModal';
 import { ArtDetailModal } from './ArtDetailModal';
@@ -62,12 +63,12 @@ export function ArtsPanel({ character, onUpdate }: {
                     L{known.art.minLevel} · {effortCommitmentById.get(known.art.effortCost)?.displayName ?? '—'}
                   </span>
                 </div>
-                <button
+                <InlineConfirmButton
+                  label="Forget"
+                  confirmLabel="Forget?"
                   className="sm danger"
-                  onClick={() => handleForgetArt(known.artId)}
-                >
-                  Forget
-                </button>
+                  onConfirm={() => handleForgetArt(known.artId)}
+                />
               </div>
             ))}
           </div>
