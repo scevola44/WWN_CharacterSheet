@@ -18,31 +18,25 @@ function getInitialTheme(): ThemeMode {
   return 'system';
 }
 
-function resolveTheme(mode: ThemeMode): ResolvedTheme {
-  if (mode === 'system') {
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  }
-  return mode;
-}
-
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<ThemeMode>(getInitialTheme);
-  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(resolveTheme(getInitialTheme()));
+  const [systemTheme, setSystemTheme] = useState<ResolvedTheme>(
+    window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  );
+
+  const resolvedTheme = theme === 'system' ? systemTheme : theme;
 
   useEffect(() => {
-    const resolved = resolveTheme(theme);
-    setResolvedTheme(resolved);
-    document.documentElement.setAttribute('data-theme', resolved);
+    document.documentElement.setAttribute('data-theme', resolvedTheme);
     localStorage.setItem('wwn-theme', theme);
-  }, [theme]);
+  }, [theme, resolvedTheme]);
 
   useEffect(() => {
     if (theme !== 'system') return;
 
     const mql = window.matchMedia('(prefers-color-scheme: dark)');
     const handler = (e: MediaQueryListEvent) => {
-      setResolvedTheme(e.matches ? 'dark' : 'light');
-      document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+      setSystemTheme(e.matches ? 'dark' : 'light');
     };
     mql.addEventListener('change', handler);
     return () => mql.removeEventListener('change', handler);
