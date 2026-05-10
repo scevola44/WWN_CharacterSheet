@@ -114,7 +114,7 @@ export function ArtDatabasePage() {
       )}
 
       <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
-        <div>
+        <div className="form-group">
           <label>Filter by Effort</label>
           <select value={filterEffort} onChange={e => setFilterEffort(parseInt(e.target.value))}>
             <option value={ALL_FILTER}>Any cost</option>
@@ -123,7 +123,7 @@ export function ArtDatabasePage() {
             ))}
           </select>
         </div>
-        <div>
+        <div className="form-group">
           <label>Filter by Source</label>
           <select value={filterSource} onChange={e => setFilterSource(parseInt(e.target.value))}>
             <option value={ALL_FILTER}>All sources</option>
