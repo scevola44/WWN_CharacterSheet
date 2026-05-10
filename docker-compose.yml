@@ -11,6 +11,7 @@ services:
       - "5000:5000"
     volumes:
       - ./data:/app/db
+      - ./DefaultData:/app/DefaultData
     environment:
       ASPNETCORE_HTTP_PORTS: ${ASPNETCORE_HTTP_PORTS:-5000}
       ConnectionStrings__Default: ${ConnectionStrings__Default:-Data Source=/app/db/wwn_characters.db}
