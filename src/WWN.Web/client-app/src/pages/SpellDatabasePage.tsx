@@ -141,7 +141,7 @@ export function SpellDatabasePage() {
         </div>
       )}
 
-      <div>
+      <div className="form-group">
         <label>Filter by Level</label>
         <select value={filterLevel} onChange={e => setFilterLevel(e.target.value === 'all' ? 'all' : parseInt(e.target.value))}>
           <option value="all">All Levels</option>
