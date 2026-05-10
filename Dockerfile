@@ -45,8 +45,12 @@ WORKDIR /app
 # Copy published application
 COPY --from=dotnet-builder /app/publish .
 
-# Set environment variables
-ENV ASPNETCORE_URLS=http://+:5000
+# Accept build-time arguments and expose as runtime environment variables
+ARG BRANCH=local
+ARG APP_BUILD_NUMBER=
+ENV ASPNETCORE_URLS=http://+:5000 \
+    BRANCH=${BRANCH} \
+    APP_BUILD_NUMBER=${APP_BUILD_NUMBER}
 
 EXPOSE 5000
 
