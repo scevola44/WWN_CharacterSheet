@@ -2,24 +2,32 @@ import { useEffect, useState, useCallback } from 'react';
 import type { Art, CreateArtRequest, UpdateArtRequest } from '../types/art';
 import { artsApi } from '../api/artApi';
 import { ArtForm } from '../components/arts/ArtForm';
+import { useEffortCommitments, useArtSources, useLookups } from '../contexts/LookupsContext';
+import { ConfirmModal } from '../components/common/ConfirmModal';
+
+const ALL_FILTER = -1;
 
 export function ArtDatabasePage() {
   const [arts, setArts] = useState<Art[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [filterEffort, setFilterEffort] = useState<string>('all');
+  const [filterEffort, setFilterEffort] = useState<number>(ALL_FILTER);
+  const [filterSource, setFilterSource] = useState<number>(ALL_FILTER);
   const [editingArtId, setEditingArtId] = useState<string | null>(null);
   const [form, setForm] = useState<CreateArtRequest>({
     name: '',
     description: '',
     summary: '',
     minLevel: 1,
-    effortCost: null,
-    source: 'Mage',
+    effortCost: 0,
+    sourceId: 1,
   });
   const [editForm, setEditForm] = useState<UpdateArtRequest | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; name: string } | null>(null);
+  const effortOptions = useEffortCommitments();
+  const sourceOptions = useArtSources();
+  const { effortCommitmentById, artSourceById } = useLookups();
 
-  // Initial load: loading starts true; no synchronous setState in the effect body.
   useEffect(() => {
     artsApi.list().then(setArts).finally(() => setLoading(false));
   }, []);
@@ -41,7 +49,7 @@ export function ArtDatabasePage() {
       ...form,
       summary: form.summary || undefined,
     });
-    setForm({ name: '', description: '', summary: '', minLevel: 1, effortCost: null, source: 'Mage' });
+    setForm({ name: '', description: '', summary: '', minLevel: 1, effortCost: 0, sourceId: 1 });
     setShowForm(false);
     refreshArts();
   };
@@ -54,7 +62,7 @@ export function ArtDatabasePage() {
       summary: art.summary || undefined,
       minLevel: art.minLevel,
       effortCost: art.effortCost,
-      source: art.source,
+      sourceId: art.sourceId,
     });
   };
 
@@ -75,17 +83,14 @@ export function ArtDatabasePage() {
     setEditForm(null);
   };
 
-  const handleDelete = async (id: string) => {
-    if (confirm('Delete this art?')) {
-      await artsApi.delete(id);
-      refreshArts();
-    }
+  const handleDelete = (id: string, name: string) => {
+    setPendingDelete({ id, name });
   };
 
   const filteredArts = arts.filter(a => {
-    if (filterEffort === 'all') return true;
-    if (filterEffort === 'none') return a.effortCost == null;
-    return a.effortCost === filterEffort;
+    if (filterEffort !== ALL_FILTER && a.effortCost !== filterEffort) return false;
+    if (filterSource !== ALL_FILTER && a.sourceId !== filterSource) return false;
+    return true;
   });
 
   return (
@@ -108,15 +113,25 @@ export function ArtDatabasePage() {
         </div>
       )}
 
-      <div>
-        <label>Filter by Effort</label>
-        <select value={filterEffort} onChange={e => setFilterEffort(e.target.value)}>
-          <option value="all">Any cost</option>
-          <option value="none">No effort</option>
-          <option value="Scene">Scene</option>
-          <option value="Day">Day</option>
-          <option value="Sustained">Sustained</option>
-        </select>
+      <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+        <div>
+          <label>Filter by Effort</label>
+          <select value={filterEffort} onChange={e => setFilterEffort(parseInt(e.target.value))}>
+            <option value={ALL_FILTER}>Any cost</option>
+            {effortOptions.map(o => (
+              <option key={o.id} value={o.id}>{o.displayName}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label>Filter by Source</label>
+          <select value={filterSource} onChange={e => setFilterSource(parseInt(e.target.value))}>
+            <option value={ALL_FILTER}>All sources</option>
+            {sourceOptions.map(o => (
+              <option key={o.id} value={o.id}>{o.displayName}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {loading ? (
@@ -146,7 +161,7 @@ export function ArtDatabasePage() {
                     <div>
                       <h3 style={{ margin: 0 }}>{art.name}</h3>
                       <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-                        Min Level {art.minLevel} · {art.effortCost ? `Effort: ${art.effortCost}` : 'No effort'} · {art.source}
+                        Min Level {art.minLevel} · Effort: {effortCommitmentById.get(art.effortCost)?.displayName ?? '—'} · {artSourceById.get(art.sourceId)?.displayName ?? '—'}
                       </div>
                       {art.summary && (
                         <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
@@ -156,7 +171,7 @@ export function ArtDatabasePage() {
                     </div>
                     <div style={{ display: 'flex', gap: '0.5rem' }}>
                       <button className="sm" onClick={() => handleEditStart(art)}>Edit</button>
-                      <button className="sm danger" onClick={() => handleDelete(art.id)}>Delete</button>
+                      <button className="sm danger" onClick={() => handleDelete(art.id, art.name)}>Delete</button>
                     </div>
                   </div>
                   <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>{art.description}</p>
@@ -166,6 +181,18 @@ export function ArtDatabasePage() {
           ))}
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={pendingDelete !== null}
+        title="Delete Art"
+        message={<>Delete <strong>{pendingDelete?.name}</strong>? This cannot be undone.</>}
+        onConfirm={async () => {
+          await artsApi.delete(pendingDelete!.id);
+          setPendingDelete(null);
+          refreshArts();
+        }}
+        onCancel={() => setPendingDelete(null)}
+      />
     </div>
   );
 }

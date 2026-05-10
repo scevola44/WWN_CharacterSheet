@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { SectionCard } from '../layout/SectionCard';
 import { characterApi } from '../../api/characterApi';
-import type { CharacterDetail, AddItemRequest, ItemInfo } from '../../types/character';
+import type { CharacterDetail, AddItemRequest, ItemInfo, EncumbranceSummary } from '../../types/character';
+import { InlineConfirmButton } from '../common/InlineConfirmButton';
 
 const SLOT_TYPES = ['Stowed', 'Readied', 'Equipped'] as const;
 
@@ -189,6 +190,7 @@ export function InventoryPanel({ character, onUpdate }: {
 
   return (
     <SectionCard title="Inventory">
+      <EncumbranceBar summary={character.encumbranceSummary} />
       {character.inventory.map(item => (
         editingId === item.id ? (
           <div key={item.id}>{renderItemForm(true)}</div>
@@ -218,7 +220,7 @@ export function InventoryPanel({ character, onUpdate }: {
                 {SLOT_TYPES.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
               <button className="sm" onClick={() => handleEdit(item)}>Edit</button>
-              <button className="sm danger" onClick={() => handleRemove(item.id)}>X</button>
+              <InlineConfirmButton label="X" confirmLabel="Remove?" className="sm danger" onConfirm={() => handleRemove(item.id)} />
             </div>
           </div>
         )
@@ -232,5 +234,22 @@ export function InventoryPanel({ character, onUpdate }: {
         </button>
       ) : null}
     </SectionCard>
+  );
+}
+
+function EncumbranceBar({ summary }: { summary: EncumbranceSummary }) {
+  const readiedOver = summary.readiedLoad > summary.maxReadied;
+  const stowedOver = summary.stowedLoad > summary.maxStowed;
+  return (
+    <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '0.75rem', fontSize: '0.8rem' }}>
+      <span style={{ color: readiedOver ? 'var(--danger, #e55)' : undefined }}>
+        Readied: {summary.readiedLoad} / {summary.maxReadied}
+        {readiedOver && ' (over)'}
+      </span>
+      <span style={{ color: stowedOver ? 'var(--danger, #e55)' : undefined }}>
+        Stowed: {summary.stowedLoad} / {summary.maxStowed}
+        {stowedOver && ' (over)'}
+      </span>
+    </div>
   );
 }

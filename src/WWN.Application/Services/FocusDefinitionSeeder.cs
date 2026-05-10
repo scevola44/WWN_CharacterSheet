@@ -14,9 +14,158 @@ public class FocusDefinitionSeeder(IFocusDefinitionRepository focusDefinitionRep
     public async Task SeedIfEmptyAsync(CancellationToken ct = default)
     {
         if (await focusDefinitionRepository.AnyAsync(ct)) return;
+        await SeedCoreAsync(ct);
+    }
 
-        foreach (var focusDefinition in CreateDefaultFoci())
+    public async Task ForceReseedAsync(CancellationToken ct = default)
+    {
+        foreach (var existing in await focusDefinitionRepository.GetAllAsync(ct))
+            await focusDefinitionRepository.DeleteAsync(existing.Id, ct);
+        await SeedCoreAsync(ct);
+    }
+
+    private async Task SeedCoreAsync(CancellationToken ct)
+    {
+        var foci = await TryLoadFromMarkdownAsync(ct) ?? CreateDefaultFoci().ToList();
+
+        foreach (var focusDefinition in foci)
             await focusDefinitionRepository.AddAsync(focusDefinition, ct);
+    }
+
+    private async Task<List<FocusDefinition>?> TryLoadFromMarkdownAsync(CancellationToken ct)
+    {
+        var focusFolder = Path.Combine(Directory.GetCurrentDirectory(), "DefaultData", "Foci");
+
+        if (!Directory.Exists(focusFolder))
+        {
+            Console.WriteLine($"Focus markdown folder not found at {focusFolder}, using hardcoded definitions.");
+            return null;
+        }
+
+        try
+        {
+            var markdownFiles = Directory.GetFiles(focusFolder, "*.md");
+
+            if (markdownFiles.Length == 0)
+            {
+                Console.WriteLine("No markdown files found in focus folder, using hardcoded definitions.");
+                return null;
+            }
+
+            var parsedFoci = new List<FocusDefinition>();
+            var effectsMap = GetFocusEffectsMap();
+
+            foreach (var filePath in markdownFiles)
+            {
+                var parsedData = FocusMarkdownParser.ParseFocusFile(filePath);
+                if (parsedData != null)
+                {
+                    var focusWithEffects = CreateFocusWithEffects(parsedData, effectsMap);
+                    parsedFoci.Add(focusWithEffects);
+                }
+            }
+
+            if (parsedFoci.Count == 0)
+            {
+                Console.WriteLine("Failed to parse any focus files, using hardcoded definitions.");
+                return null;
+            }
+
+            Console.WriteLine($"Successfully loaded {parsedFoci.Count} foci from markdown files.");
+            return parsedFoci;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading focus markdown files: {ex.Message}. Using hardcoded definitions.");
+            return null;
+        }
+    }
+
+    private static FocusDefinition CreateFocusWithEffects(
+        FocusDefinition parsedFocus,
+        Dictionary<string, (List<FocusEffect> level1, List<FocusEffect> level2)> effectsMap)
+    {
+        var (level1Effects, level2Effects) = effectsMap.TryGetValue(parsedFocus.Name, out var effects)
+            ? effects
+            : (new List<FocusEffect>(), new List<FocusEffect>());
+
+        return new FocusDefinition(
+            name: parsedFocus.Name,
+            level1Description: parsedFocus.Level1Description,
+            level2Description: parsedFocus.Level2Description,
+            description: parsedFocus.Description,
+            canTakeMultipleTimes: parsedFocus.CanTakeMultipleTimes,
+            level1Effects: level1Effects,
+            level2Effects: level2Effects
+        );
+    }
+
+    private static Dictionary<string, (List<FocusEffect> level1, List<FocusEffect> level2)> GetFocusEffectsMap()
+    {
+        return new Dictionary<string, (List<FocusEffect>, List<FocusEffect>)>
+        {
+            ["Alert"] = (
+                new List<FocusEffect>
+                {
+                    new FocusEffect(FocusEffectType.SkillBonus, 1, TargetSkill: SkillName.Notice)
+                },
+                new List<FocusEffect>()
+            ),
+            ["Armsmaster"] = (
+                new List<FocusEffect>
+                {
+                    new FocusEffect(FocusEffectType.SkillBonus, 1, TargetSkill: SkillName.Stab),
+                    new FocusEffect(FocusEffectType.AttackBonus, 1, Condition: FocusEffectCondition.StabWeapon),
+                    new FocusEffect(FocusEffectType.DamageBonus, 0, FocusEffectValueType.SkillLevel, FocusEffectCondition.StabWeapon, TargetSkill: SkillName.Stab)
+                },
+                new List<FocusEffect>
+                {
+                    new FocusEffect(FocusEffectType.AttackBonus, 1, Condition: FocusEffectCondition.StabWeapon),
+                    new FocusEffect(FocusEffectType.ShockBonus, 2, Condition: FocusEffectCondition.StabWeapon)
+                }
+            ),
+            ["Deadeye"] = (
+                new List<FocusEffect>
+                {
+                    new FocusEffect(FocusEffectType.SkillBonus, 1, TargetSkill: SkillName.Shoot),
+                    new FocusEffect(FocusEffectType.DamageBonus, 0, FocusEffectValueType.SkillLevel, FocusEffectCondition.ShootWeapon, TargetSkill: SkillName.Shoot)
+                },
+                new List<FocusEffect>
+                {
+                    new FocusEffect(FocusEffectType.AttackBonus, 1, Condition: FocusEffectCondition.ShootWeapon)
+                }
+            ),
+            ["Die Hard"] = (
+                new List<FocusEffect>
+                {
+                    new FocusEffect(FocusEffectType.SkillBonus, 1, TargetSkill: SkillName.Survive),
+                    new FocusEffect(FocusEffectType.HpBonus, 2, FocusEffectValueType.Level)
+                },
+                new List<FocusEffect>()
+            ),
+            ["Impervious Defense"] = (
+                new List<FocusEffect>
+                {
+                    new FocusEffect(FocusEffectType.AcBonus, 2)
+                },
+                new List<FocusEffect>
+                {
+                    new FocusEffect(FocusEffectType.AcBonus, 1)
+                }
+            ),
+            ["Nullifier"] = (
+                new List<FocusEffect>
+                {
+                    new FocusEffect(FocusEffectType.SkillBonus, 1, TargetSkill: SkillName.Notice),
+                    new FocusEffect(FocusEffectType.SaveBonus, 2)
+                },
+                new List<FocusEffect>()
+            ),
+            ["Specialist"] = (
+                new List<FocusEffect>(),
+                new List<FocusEffect>()
+            )
+        };
     }
 
     private static IEnumerable<FocusDefinition> CreateDefaultFoci()

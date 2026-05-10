@@ -4,7 +4,7 @@ namespace WWN.Web.Endpoints;
 
 public static class DiagnosticsEndpoints
 {
-    public static void MapDiagnosticsEndpoints(this WebApplication app)
+    public static void MapDiagnosticsEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/diagnostics")
             .WithName("Diagnostics");

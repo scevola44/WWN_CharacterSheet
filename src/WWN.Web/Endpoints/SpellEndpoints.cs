@@ -6,7 +6,7 @@ namespace WWN.Web.Endpoints;
 
 public static class SpellEndpoints
 {
-    public static void MapSpellEndpoints(this WebApplication app)
+    public static void MapSpellEndpoints(this IEndpointRouteBuilder app)
     {
         var spellGroup = app.MapGroup("/api/spells").WithTags("Spells");
 
@@ -45,7 +45,7 @@ public static class SpellEndpoints
             .RequireAuthorization();
 
         charSpellGroup.MapGet("/", async (Guid charId, ClaimsPrincipal principal,
-            CharacterService charSvc, CancellationToken ct) =>
+            CharacterIdentityService charSvc, CancellationToken ct) =>
         {
             var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var character = await charSvc.GetCharacterAsync(charId, userId, ct);

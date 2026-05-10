@@ -6,7 +6,7 @@ namespace WWN.Web.Endpoints;
 
 public static class ArtEndpoints
 {
-    public static void MapArtEndpoints(this WebApplication app)
+    public static void MapArtEndpoints(this IEndpointRouteBuilder app)
     {
         var artGroup = app.MapGroup("/api/arts").WithTags("Arts");
 

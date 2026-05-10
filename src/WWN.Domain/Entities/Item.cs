@@ -25,6 +25,12 @@ public class Item
 
     public virtual void Update(string name, int encumbrance, int quantity, string? description = null)
     {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentException("Item name is required.", nameof(name));
+        if (encumbrance < 0)
+            throw new ArgumentOutOfRangeException(nameof(encumbrance), "Encumbrance cannot be negative.");
+        if (quantity < 1)
+            throw new ArgumentOutOfRangeException(nameof(quantity), "Quantity must be at least 1.");
         Name = name;
         Encumbrance = encumbrance;
         Quantity = quantity;

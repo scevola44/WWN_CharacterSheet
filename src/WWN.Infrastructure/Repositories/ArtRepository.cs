@@ -15,7 +15,7 @@ public class ArtRepository(WwnDbContext dbContext) : IArtRepository
     public async Task<IReadOnlyList<Art>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         return await dbContext.Arts
-            .OrderBy(a => a.Source)
+            .OrderBy(a => a.SourceId)
             .ThenBy(a => a.MinLevel)
             .ThenBy(a => a.Name)
             .ToListAsync(cancellationToken);
@@ -46,5 +46,10 @@ public class ArtRepository(WwnDbContext dbContext) : IArtRepository
     public async Task<bool> AnyAsync(CancellationToken cancellationToken = default)
     {
         return await dbContext.Arts.AnyAsync(cancellationToken);
+    }
+
+    public async Task<bool> AnyWithSourceIdAsync(int sourceId, CancellationToken cancellationToken = default)
+    {
+        return await dbContext.Arts.AnyAsync(a => a.SourceId == sourceId, cancellationToken);
     }
 }

@@ -1,20 +1,26 @@
 import type { CharacterDetail } from '../../types/character';
-import type { EffortCommitment } from '../../types/art';
 import { artsApi } from '../../api/artApi';
+import { useLookups } from '../../contexts/LookupsContext';
 
 export function EffortTracker({ character, onUpdate }: {
   character: CharacterDetail;
   onUpdate: (c: CharacterDetail) => void;
 }) {
+  const { effortCommitmentByCode } = useLookups();
+
   if (!character.effort) return null;
 
   const { max, scene, day, sustained } = character.effort;
   const used = scene + day + sustained;
   const free = max - used;
 
-  const handleCommit = async (kind: EffortCommitment) => {
-    if (free <= 0) return;
-    const updated = await artsApi.commitEffort(character.id, kind);
+  const sceneId = effortCommitmentByCode.get('Scene')?.id;
+  const dayId = effortCommitmentByCode.get('Day')?.id;
+  const sustainedId = effortCommitmentByCode.get('Sustained')?.id;
+
+  const handleCommit = async (id: number | undefined) => {
+    if (id === undefined || free <= 0) return;
+    const updated = await artsApi.commitEffort(character.id, id);
     onUpdate(updated);
   };
 
@@ -37,15 +43,15 @@ export function EffortTracker({ character, onUpdate }: {
   const row = (
     label: string,
     count: number,
-    commit: EffortCommitment,
+    commitId: number | undefined,
     inverse: { text: string; onClick: () => void; disabled: boolean } | null,
   ) => (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem' }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem' }}>
       <span style={{ flex: 1 }}>{label}: {count}</span>
       <div style={{ display: 'flex', gap: '0.25rem' }}>
         <button
           className={`sm ${free <= 0 ? 'disabled' : ''}`}
-          onClick={() => handleCommit(commit)}
+          onClick={() => handleCommit(commitId)}
           disabled={free <= 0}
         >
           Commit
@@ -64,15 +70,15 @@ export function EffortTracker({ character, onUpdate }: {
   );
 
   return (
-    <div style={{ marginTop: '1rem' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-        <h3>Effort: {free}/{max}</h3>
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
+        <h3 style={{ margin: 0, fontSize: '1rem' }}>Effort: {free}/{max}</h3>
         <button className="sm" onClick={handleRest}>Rest</button>
       </div>
-      <div style={{ display: 'grid', gap: '0.5rem' }}>
-        {row('Scene', scene, 'Scene', { text: 'End scene', onClick: handleEndScene, disabled: scene === 0 })}
-        {row('Day', day, 'Day', null)}
-        {row('Sustained', sustained, 'Sustained', { text: 'Release', onClick: handleRelease, disabled: sustained === 0 })}
+      <div style={{ display: 'grid', gap: '0.25rem' }}>
+        {row('Scene', scene, sceneId, { text: 'End scene', onClick: handleEndScene, disabled: scene === 0 })}
+        {row('Day', day, dayId, null)}
+        {row('Sustained', sustained, sustainedId, { text: 'Release', onClick: handleRelease, disabled: sustained === 0 })}
       </div>
     </div>
   );

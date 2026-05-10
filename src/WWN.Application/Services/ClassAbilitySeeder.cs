@@ -14,7 +14,18 @@ public class ClassAbilitySeeder(IClassAbilityRepository repository)
     public async Task SeedIfEmptyAsync(CancellationToken ct = default)
     {
         if (await repository.AnyAsync(ct)) return;
+        await SeedCoreAsync(ct);
+    }
 
+    public async Task ForceReseedAsync(CancellationToken ct = default)
+    {
+        foreach (var existing in await repository.GetAllAsync(ct))
+            await repository.DeleteAsync(existing.Id, ct);
+        await SeedCoreAsync(ct);
+    }
+
+    private async Task SeedCoreAsync(CancellationToken ct)
+    {
         foreach (var ability in CreateDefaultAbilities())
             await repository.AddAsync(ability, ct);
     }

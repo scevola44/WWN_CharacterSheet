@@ -6,13 +6,13 @@ namespace WWN.Web.Endpoints;
 
 public static class CharacterEndpoints
 {
-    public static void MapCharacterEndpoints(this WebApplication app)
+    public static void MapCharacterEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/characters")
             .WithTags("Characters")
             .RequireAuthorization();
 
-        group.MapGet("/", async (ClaimsPrincipal principal, CharacterService svc, CancellationToken ct) =>
+        group.MapGet("/", async (ClaimsPrincipal principal, CharacterIdentityService svc, CancellationToken ct) =>
         {
             var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var list = await svc.ListCharactersAsync(userId, ct);
@@ -20,7 +20,7 @@ public static class CharacterEndpoints
         });
 
         group.MapPost("/", async (CreateCharacterRequest req, ClaimsPrincipal principal,
-            CharacterService svc, CancellationToken ct) =>
+            CharacterIdentityService svc, CancellationToken ct) =>
         {
             var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var id = await svc.CreateCharacterAsync(req, userId, ct);
@@ -28,7 +28,7 @@ public static class CharacterEndpoints
         });
 
         group.MapGet("/{id:guid}", async (Guid id, ClaimsPrincipal principal,
-            CharacterService svc, CancellationToken ct) =>
+            CharacterIdentityService svc, CancellationToken ct) =>
         {
             var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var dto = await svc.GetCharacterAsync(id, userId, ct);
@@ -36,7 +36,7 @@ public static class CharacterEndpoints
         });
 
         group.MapDelete("/{id:guid}", async (Guid id, ClaimsPrincipal principal,
-            CharacterService svc, CancellationToken ct) =>
+            CharacterIdentityService svc, CancellationToken ct) =>
         {
             var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier)!;
             await svc.DeleteCharacterAsync(id, userId, ct);
@@ -44,7 +44,7 @@ public static class CharacterEndpoints
         });
 
         group.MapPut("/{id:guid}/attributes/{attr}", async (Guid id, string attr,
-            UpdateAttributeRequest req, ClaimsPrincipal principal, CharacterService svc, CancellationToken ct) =>
+            UpdateAttributeRequest req, ClaimsPrincipal principal, CharacterIdentityService svc, CancellationToken ct) =>
         {
             var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var dto = await svc.UpdateAttributeAsync(id, userId, attr, req.Score, ct);
@@ -52,7 +52,7 @@ public static class CharacterEndpoints
         });
 
         group.MapPut("/{id:guid}/skills/{skill}", async (Guid id, string skill,
-            UpdateSkillRequest req, ClaimsPrincipal principal, CharacterService svc, CancellationToken ct) =>
+            UpdateSkillRequest req, ClaimsPrincipal principal, CharacterIdentityService svc, CancellationToken ct) =>
         {
             var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var dto = await svc.UpdateSkillAsync(id, userId, skill, req.Level, ct);
@@ -60,7 +60,7 @@ public static class CharacterEndpoints
         });
 
         group.MapPost("/{id:guid}/skills/custom", async (Guid id,
-            AddCustomSkillRequest req, ClaimsPrincipal principal, CharacterService svc, CancellationToken ct) =>
+            AddCustomSkillRequest req, ClaimsPrincipal principal, CharacterIdentityService svc, CancellationToken ct) =>
         {
             var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var dto = await svc.AddCustomSkillAsync(id, userId, req.Name, req.Level, ct);
@@ -68,7 +68,7 @@ public static class CharacterEndpoints
         });
 
         group.MapPut("/{id:guid}/hp", async (Guid id,
-            SetHpRequest req, ClaimsPrincipal principal, CharacterService svc, CancellationToken ct) =>
+            SetHpRequest req, ClaimsPrincipal principal, CharacterIdentityService svc, CancellationToken ct) =>
         {
             var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var dto = await svc.SetHpAsync(id, userId, req.MaxHitPoints, req.CurrentHitPoints, ct);
@@ -76,7 +76,7 @@ public static class CharacterEndpoints
         });
 
         group.MapPut("/{id:guid}/strain", async (Guid id,
-            SetStrainRequest req, ClaimsPrincipal principal, CharacterService svc, CancellationToken ct) =>
+            SetStrainRequest req, ClaimsPrincipal principal, CharacterIdentityService svc, CancellationToken ct) =>
         {
             var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var dto = await svc.SetStrainAsync(id, userId, req.CurrentStrain, ct);
@@ -84,7 +84,7 @@ public static class CharacterEndpoints
         });
 
         group.MapPut("/{id:guid}/level", async (Guid id,
-            SetLevelRequest req, ClaimsPrincipal principal, CharacterService svc, CancellationToken ct) =>
+            SetLevelRequest req, ClaimsPrincipal principal, CharacterIdentityService svc, CancellationToken ct) =>
         {
             var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var dto = await svc.SetLevelAsync(id, userId, req.Level, ct);
@@ -92,7 +92,7 @@ public static class CharacterEndpoints
         });
 
         group.MapPost("/{id:guid}/levelup", async (Guid id,
-            LevelUpRequest req, ClaimsPrincipal principal, CharacterService svc, CancellationToken ct) =>
+            LevelUpRequest req, ClaimsPrincipal principal, CharacterIdentityService svc, CancellationToken ct) =>
         {
             var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var dto = await svc.LevelUpAsync(id, userId, req.HpGain, ct);
@@ -100,7 +100,7 @@ public static class CharacterEndpoints
         });
 
         group.MapPost("/{id:guid}/foci", async (Guid id,
-            AddFocusRequest req, ClaimsPrincipal principal, CharacterService svc, CancellationToken ct) =>
+            AddFocusRequest req, ClaimsPrincipal principal, CharacterFocusService svc, CancellationToken ct) =>
         {
             var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var dto = await svc.AddFocusAsync(id, userId, req, ct);
@@ -108,7 +108,7 @@ public static class CharacterEndpoints
         });
 
         group.MapDelete("/{id:guid}/foci/{focusId:guid}", async (Guid id, Guid focusId,
-            ClaimsPrincipal principal, CharacterService svc, CancellationToken ct) =>
+            ClaimsPrincipal principal, CharacterFocusService svc, CancellationToken ct) =>
         {
             var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier)!;
             await svc.RemoveFocusAsync(id, userId, focusId, ct);
@@ -116,7 +116,7 @@ public static class CharacterEndpoints
         });
 
         group.MapPost("/{id:guid}/foci/{focusId:guid}/upgrade", async (Guid id, Guid focusId,
-            UpgradeFocusRequest req, ClaimsPrincipal principal, CharacterService svc, CancellationToken ct) =>
+            UpgradeFocusRequest req, ClaimsPrincipal principal, CharacterFocusService svc, CancellationToken ct) =>
         {
             var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var dto = await svc.UpgradeFocusAsync(id, userId, focusId, req, ct);
@@ -124,7 +124,7 @@ public static class CharacterEndpoints
         });
 
         group.MapPatch("/{id:guid}/foci/{focusId:guid}/conditional", async (Guid id, Guid focusId,
-            SetFocusConditionalRequest req, ClaimsPrincipal principal, CharacterService svc, CancellationToken ct) =>
+            SetFocusConditionalRequest req, ClaimsPrincipal principal, CharacterFocusService svc, CancellationToken ct) =>
         {
             var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var dto = await svc.SetFocusConditionalAsync(id, userId, focusId, req.Active, ct);
@@ -132,7 +132,7 @@ public static class CharacterEndpoints
         });
 
         group.MapPost("/{id:guid}/items", async (Guid id,
-            AddItemRequest req, ClaimsPrincipal principal, CharacterService svc, CancellationToken ct) =>
+            AddItemRequest req, ClaimsPrincipal principal, CharacterInventoryService svc, CancellationToken ct) =>
         {
             var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var dto = await svc.AddItemAsync(id, userId, req, ct);
@@ -140,7 +140,7 @@ public static class CharacterEndpoints
         });
 
         group.MapDelete("/{id:guid}/items/{itemId:guid}", async (Guid id, Guid itemId,
-            ClaimsPrincipal principal, CharacterService svc, CancellationToken ct) =>
+            ClaimsPrincipal principal, CharacterInventoryService svc, CancellationToken ct) =>
         {
             var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier)!;
             await svc.RemoveItemAsync(id, userId, itemId, ct);
@@ -148,7 +148,7 @@ public static class CharacterEndpoints
         });
 
         group.MapPut("/{id:guid}/items/{itemId:guid}/slot", async (Guid id, Guid itemId,
-            ChangeSlotRequest req, ClaimsPrincipal principal, CharacterService svc, CancellationToken ct) =>
+            ChangeSlotRequest req, ClaimsPrincipal principal, CharacterInventoryService svc, CancellationToken ct) =>
         {
             var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var dto = await svc.ChangeSlotAsync(id, userId, itemId, req.SlotType, ct);
@@ -156,7 +156,7 @@ public static class CharacterEndpoints
         });
 
         group.MapPut("/{id:guid}/items/{itemId:guid}", async (Guid id, Guid itemId,
-            UpdateItemRequest req, ClaimsPrincipal principal, CharacterService svc, CancellationToken ct) =>
+            UpdateItemRequest req, ClaimsPrincipal principal, CharacterInventoryService svc, CancellationToken ct) =>
         {
             var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var dto = await svc.UpdateItemAsync(id, userId, itemId, req, ct);
@@ -164,7 +164,7 @@ public static class CharacterEndpoints
         });
 
         group.MapPut("/{id:guid}/items/{itemId:guid}/attack-config", async (Guid id, Guid itemId,
-            UpdateWeaponAttackConfigRequest req, ClaimsPrincipal principal, CharacterService svc, CancellationToken ct) =>
+            UpdateWeaponAttackConfigRequest req, ClaimsPrincipal principal, CharacterInventoryService svc, CancellationToken ct) =>
         {
             var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var dto = await svc.UpdateWeaponAttackConfigAsync(id, userId, itemId, req.Skill, req.Attribute, ct);
@@ -172,7 +172,7 @@ public static class CharacterEndpoints
         });
 
         group.MapPut("/{id:guid}/notes", async (Guid id,
-            UpdateNotesRequest req, ClaimsPrincipal principal, CharacterService svc, CancellationToken ct) =>
+            UpdateNotesRequest req, ClaimsPrincipal principal, CharacterIdentityService svc, CancellationToken ct) =>
         {
             var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var dto = await svc.UpdateNotesAsync(id, userId, req.Notes, ct);

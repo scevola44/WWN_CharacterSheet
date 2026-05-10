@@ -14,7 +14,11 @@ public class ArtConfiguration : IEntityTypeConfiguration<Art>
         builder.Property(art => art.Description).IsRequired();
         builder.Property(art => art.Summary).HasMaxLength(500);
         builder.Property(art => art.MinLevel).IsRequired();
-        builder.Property(art => art.Source).HasMaxLength(50).IsRequired();
-        builder.Property(art => art.EffortCost).HasConversion<string>().HasMaxLength(20);
+        builder.Property(art => art.SourceId).IsRequired();
+        builder.Property(art => art.EffortCost).IsRequired();
+        builder.HasOne(art => art.SourceNavigation)
+            .WithMany()
+            .HasForeignKey(art => art.SourceId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

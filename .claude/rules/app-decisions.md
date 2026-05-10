@@ -60,9 +60,13 @@ Format for each entry:
 **Source**: App-specific.
 **Detail**: `SpellSlotCalculator.CalculateSlots` adds positive INT mod to the 1st-level slot count for Mages, **not** Partial Mages. **Verify against rulebook.**
 
+### All saves use 16 − level − attribute_mod
+**Source**: WWN-derived.
+**Detail**: Physical = 16−level−max(STR,CON), Evasion = 16−level−max(DEX,INT), Mental = 16−level−max(WIS,CHA). There is no "generalist" formula. The `isSpecialist` parameter has been removed from `SavingThrowCalculator`. A Luck save (16−level, no attribute mod) exists in the rulebook but is not yet modeled.
+
 ### Adventurer-with-Partial-Warrior BAB = level/2 + 1
-**Source**: App-specific (questionable).
-**Detail**: `CombatCalculator.GetBaseAttackBonus` gives this case a small edge over the default `level/2`. **Verify against rulebook.** WWN's official partial-warrior BAB rule should be checked before relying on this.
+**Source**: App-specific (confirmed project choice).
+**Detail**: `CombatCalculator.GetBaseAttackBonus` gives this case a slight edge over the baseline half-progression (`level/2`). The exact rulebook BAB table for Partial Warrior should be verified before building further level-up logic on top of this formula.
 
 ### Spell-slot usage clones the array
 **Source**: App-specific (EF Core constraint).
@@ -71,10 +75,6 @@ Format for each entry:
 ---
 
 ## Open / undecided (TODOs)
-
-### Specialist save assignment per class
-**Source**: Open.
-**Detail**: `SavingThrowCalculator.GetBaseSave` accepts `isSpecialist` as a parameter, but no class→save mapping is encoded. Decide which class is "specialist" in which save (Warrior=Physical? Expert=Evasion? Mage=Mental? Adventurer=?), then either persist it on the character or derive from class + partials.
 
 ### HP recovery on rest
 **Source**: Open.
@@ -85,8 +85,8 @@ Format for each entry:
 **Detail**: Strain does **not** auto-decrement on rest. It is decremented manually via the `+1 / −1` controls in `StrainTracker`. `RestForDay()` does not touch `CurrentStrain`. The UI warns at max strain and labels it "Decremented manually".
 
 ### Encumbrance totals and capacity
-**Source**: Open.
-**Detail**: README lists "Total Encumbrance Display" as missing. Suggested: `MaxReadied = STR/2` (round down), `MaxStowed = STR`. Aggregate `Item.Encumbrance` per slot type. Decide whether equipped armor/weapon counts toward readied or is exempt.
+**Source**: App-specific (WWN-derived formulas, project-specific decisions below).
+**Detail**: `MaxReadied = STR_score / 2` (integer division, round down); `MaxStowed = STR_score` (separate pool). Load = `Σ(Item.Encumbrance × Item.Quantity)` per slot group. **Equipped items count toward readied load** (armor on body and weapon in hand are part of your readied carry). Over-cap is a **warning only** — no API enforcement, no hard block. Implemented in `src/WWN.Domain/Rules/EncumbranceCalculator.cs`; surfaced via `EncumbranceSummaryDto` on `CharacterDetailDto`; displayed in `InventoryPanel.tsx` with red text when over cap.
 
 ### Initiative
 **Source**: Open.

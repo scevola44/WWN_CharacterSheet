@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Caching.Memory;
 using WWN.Application.DTOs;
 using WWN.Application.Helpers;
 using WWN.Domain.Entities;
@@ -7,7 +8,7 @@ using WWN.Domain.ValueObjects;
 
 namespace WWN.Application.Services;
 
-public class FocusDefinitionService(IFocusDefinitionRepository focusDefinitionRepository)
+public class FocusDefinitionService(IFocusDefinitionRepository focusDefinitionRepository, IMemoryCache cache)
 {
     public async Task<IReadOnlyList<FocusDefinitionDto>> ListAsync(CancellationToken cancellationToken = default)
     {
@@ -36,6 +37,7 @@ public class FocusDefinitionService(IFocusDefinitionRepository focusDefinitionRe
             request.Level1Effects.Select(ParseEffect),
             request.Level2Effects.Select(ParseEffect));
         await focusDefinitionRepository.AddAsync(focusDefinition, cancellationToken);
+        cache.Remove(CharacterDetailMapper.FocusDefsKey);
         return MapToDto(focusDefinition);
     }
 
@@ -56,11 +58,15 @@ public class FocusDefinitionService(IFocusDefinitionRepository focusDefinitionRe
             request.Level1Effects.Select(ParseEffect),
             request.Level2Effects.Select(ParseEffect));
         await focusDefinitionRepository.UpdateAsync(focusDefinition, cancellationToken);
+        cache.Remove(CharacterDetailMapper.FocusDefsKey);
         return MapToDto(focusDefinition);
     }
 
     public async Task DeleteAsync(Guid focusId, CancellationToken cancellationToken = default)
-        => await focusDefinitionRepository.DeleteAsync(focusId, cancellationToken);
+    {
+        await focusDefinitionRepository.DeleteAsync(focusId, cancellationToken);
+        cache.Remove(CharacterDetailMapper.FocusDefsKey);
+    }
 
     private static FocusEffect ParseEffect(FocusEffectDto e) => new(
         EnumParser.Parse<FocusEffectType>(e.Type, nameof(e.Type)),

@@ -1,5 +1,4 @@
 using WWN.Application.DTOs;
-using WWN.Application.Helpers;
 using WWN.Domain.Entities;
 using WWN.Domain.Enums;
 using WWN.Domain.Interfaces;
@@ -28,8 +27,8 @@ public class ArtService(IArtRepository artRepository)
             request.Name,
             request.Description,
             request.MinLevel,
-            request.Source,
-            ParseEffortCost(request.EffortCost),
+            request.SourceId,
+            ToEffortCommitment(request.EffortCost),
             request.Summary);
         await artRepository.AddAsync(art, cancellationToken);
         return MapToDto(art);
@@ -47,8 +46,8 @@ public class ArtService(IArtRepository artRepository)
             request.Name,
             request.Description,
             request.MinLevel,
-            request.Source,
-            ParseEffortCost(request.EffortCost),
+            request.SourceId,
+            ToEffortCommitment(request.EffortCost),
             request.Summary);
         await artRepository.UpdateAsync(art, cancellationToken);
         return MapToDto(art);
@@ -68,14 +67,18 @@ public class ArtService(IArtRepository artRepository)
             Description = art.Description,
             Summary = art.Summary,
             MinLevel = art.MinLevel,
-            EffortCost = art.EffortCost?.ToString(),
-            Source = art.Source
+            EffortCost = (int)art.EffortCost,
+            SourceId = art.SourceId
         };
     }
 
-    private static EffortCommitment? ParseEffortCost(string? value)
+    private static EffortCommitment ToEffortCommitment(int value)
     {
-        if (string.IsNullOrWhiteSpace(value)) return null;
-        return EnumParser.Parse<EffortCommitment>(value, nameof(value));
+        var enumValue = (EffortCommitment)value;
+        if (!Enum.IsDefined(enumValue))
+            throw new ArgumentException(
+                $"'{value}' is not a valid EffortCommitment id.",
+                nameof(value));
+        return enumValue;
     }
 }

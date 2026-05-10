@@ -13,6 +13,7 @@ import { SpellsPanel } from '../components/spells/SpellsPanel';
 import { ArtsPanel } from '../components/arts/ArtsPanel';
 import { NotesSection } from '../components/notes/NotesSection';
 import { ClassAbilitiesPanel } from '../components/abilities/ClassAbilitiesPanel';
+import { MobileBookmarks } from '../components/navigation/MobileBookmarks';
 
 export function CharacterSheetPage() {
   const { id } = useParams<{ id: string }>();
@@ -25,7 +26,7 @@ export function CharacterSheetPage() {
   const handleUpdate = (updated: typeof character) => setCharacter(updated);
 
   return (
-    <div>
+    <div style={{ paddingBottom: '120px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Link to="/" style={{ color: 'var(--text-muted)', textDecoration: 'none', fontSize: '0.9rem' }}>
           &larr; Back to Characters
@@ -39,34 +40,37 @@ export function CharacterSheetPage() {
         </button>
       </div>
 
-      <div className="sheet-full" style={{ marginTop: '0.5rem' }}>
+      <div className="sheet-full" style={{ marginTop: '0.5rem' }} id="identity-section">
         <IdentitySection character={character} onUpdate={handleUpdate} />
       </div>
 
       <div className="sheet-columns">
         <div className="sheet-col">
           <AttributePanel character={character} onUpdate={handleUpdate} isEditing={isEditing} />
-          <CombatStats character={character} onUpdate={handleUpdate} />
-          <HitPointTracker character={character} onUpdate={handleUpdate} />
-          <StrainTracker character={character} onUpdate={handleUpdate} />
-          <ClassAbilitiesPanel character={character} />
-          <FociPanel character={character} onUpdate={handleUpdate} />
+          <div id="combat-section">
+            <CombatStats character={character} onUpdate={handleUpdate} />
+            <HitPointTracker character={character} onUpdate={handleUpdate} />
+            <StrainTracker character={character} onUpdate={handleUpdate} />
+          </div>
+          <div id="abilities-section">
+            <ClassAbilitiesPanel character={character} />
+            <FociPanel character={character} onUpdate={handleUpdate} />
+          </div>
         </div>
         <div className="sheet-col">
           <SkillPanel character={character} onUpdate={handleUpdate} isEditing={isEditing} />
-          <InventoryPanel character={character} onUpdate={handleUpdate} />
+          <div id="inventory-section">
+            <InventoryPanel character={character} onUpdate={handleUpdate} />
+          </div>
+          <div id="magic-section">
+            <SpellsPanel character={character} onUpdate={handleUpdate} />
+            <ArtsPanel character={character} onUpdate={handleUpdate} />
+          </div>
         </div>
       </div>
 
-      <div className="sheet-full">
-        <SpellsPanel character={character} onUpdate={handleUpdate} />
-      </div>
-
-      <div className="sheet-full">
-        <ArtsPanel character={character} onUpdate={handleUpdate} />
-      </div>
-
       <NotesSection character={character} onUpdate={handleUpdate} />
+      <MobileBookmarks />
     </div>
   );
 }

@@ -24,9 +24,9 @@ public class CharacterSheetCalculator
             ArmorClass = CombatCalculator.GetArmorClass(character),
             BaseAttackBonus = CombatCalculator.GetBaseAttackBonus(
                 character.Class, character.PartialClassA, character.PartialClassB, character.Level),
-            PhysicalSave = SavingThrowCalculator.GetSaveTarget(SaveType.Physical, character, false) - saveFocusBonus - saveAbilityBonus,
-            EvasionSave = SavingThrowCalculator.GetSaveTarget(SaveType.Evasion, character, false) - saveFocusBonus - saveAbilityBonus,
-            MentalSave = SavingThrowCalculator.GetSaveTarget(SaveType.Mental, character, false) - saveFocusBonus - saveAbilityBonus,
+            PhysicalSave = SavingThrowCalculator.GetSaveTarget(SaveType.Physical, character) - saveFocusBonus - saveAbilityBonus,
+            EvasionSave = SavingThrowCalculator.GetSaveTarget(SaveType.Evasion, character) - saveFocusBonus - saveAbilityBonus,
+            MentalSave = SavingThrowCalculator.GetSaveTarget(SaveType.Mental, character) - saveFocusBonus - saveAbilityBonus,
             AttributeModifiers = Enum.GetValues<AttributeName>()
                 .ToDictionary(a => a.ToString(), a => character.GetAttribute(a).Modifier),
             WeaponAttackBonuses = character.Inventory

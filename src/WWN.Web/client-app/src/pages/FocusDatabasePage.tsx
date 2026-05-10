@@ -6,6 +6,7 @@ import type {
 } from '../types/focusDefinition';
 import { focusDefinitionApi } from '../api/focusDefinitionApi';
 import { FocusForm } from '../components/foci/FocusForm';
+import { ConfirmModal } from '../components/common/ConfirmModal';
 
 const emptyForm: CreateFocusDefinitionRequest = {
   name: '',
@@ -25,6 +26,7 @@ export function FocusDatabasePage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<CreateFocusDefinitionRequest>(emptyForm);
   const [editForm, setEditForm] = useState<UpdateFocusDefinitionRequest | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; name: string } | null>(null);
 
   // Initial load: loading starts true; no synchronous setState in the effect body.
   useEffect(() => {
@@ -94,11 +96,8 @@ export function FocusDatabasePage() {
     setEditForm(null);
   };
 
-  const handleDelete = async (id: string) => {
-    if (confirm('Delete this focus definition?')) {
-      await focusDefinitionApi.delete(id);
-      refresh();
-    }
+  const handleDelete = (id: string, name: string) => {
+    setPendingDelete({ id, name });
   };
 
   const filtered = foci.filter(f =>
@@ -157,12 +156,24 @@ export function FocusDatabasePage() {
                   />
                 </div>
               ) : (
-                <FocusCard fd={fd} onEdit={() => handleEditStart(fd)} onDelete={() => handleDelete(fd.id)} />
+                <FocusCard fd={fd} onEdit={() => handleEditStart(fd)} onDelete={() => handleDelete(fd.id, fd.name)} />
               )}
             </div>
           ))}
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={pendingDelete !== null}
+        title="Delete Focus"
+        message={<>Delete <strong>{pendingDelete?.name}</strong>? This cannot be undone.</>}
+        onConfirm={async () => {
+          await focusDefinitionApi.delete(pendingDelete!.id);
+          setPendingDelete(null);
+          refresh();
+        }}
+        onCancel={() => setPendingDelete(null)}
+      />
     </div>
   );
 }

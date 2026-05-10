@@ -1,0 +1,18 @@
+---
+tags:
+  - WWN/Art
+system: "[[Worlds Without Number]]"
+level: 3
+wwn-tradition: High Magic
+summary: A single visible living creature is smote with a hideous curse of torment.
+---
+# The Torment of Tumefaction
+A single visible living creature is smote with a hideous curse of torment. Boils erupt all over their
+body, blood weeps from their orifices, tumors engorge their flesh, and all of their hair falls out
+almost instantaneously. If they perform any vigorous physical action save mov ement they incur
+two points of damage per caster level from the effects of the curse, damage which can be suffered
+no more than once per round by a target. A creature may spend its Main Action to attempt a
+Physical save to throw off the curse and return to a glabrous normalcy, but on a failure, the curse
+remains for the rest of the scene. If the creature has fewer hit dice than the caster has levels, a
+single failed save means the curse lasts indefinitely, until dispelled or until the caster releases
+them.

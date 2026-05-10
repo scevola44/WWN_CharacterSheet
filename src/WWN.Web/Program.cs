@@ -1,6 +1,7 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
@@ -41,6 +42,7 @@ try
         options.Password.RequireNonAlphanumeric = false;
         options.Password.RequiredLength = 6;
     })
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<WwnDbContext>();
 
     // JWT Authentication
@@ -62,7 +64,8 @@ try
             };
         });
 
-    builder.Services.AddAuthorization();
+    builder.Services.AddAuthorization(options =>
+        options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin")));
 
     // App info service for branch tracking
     var appInfo = new AppInfoService(builder.Configuration);
@@ -72,19 +75,33 @@ try
     builder.Services.AddScoped<ICharacterRepository, CharacterRepository>();
     builder.Services.AddScoped<ISpellRepository, SpellRepository>();
     builder.Services.AddScoped<IArtRepository, ArtRepository>();
+    builder.Services.AddScoped<IArtSourceRepository, ArtSourceRepository>();
     builder.Services.AddScoped<IFocusDefinitionRepository, FocusDefinitionRepository>();
     builder.Services.AddScoped<IClassAbilityRepository, ClassAbilityRepository>();
-    builder.Services.AddScoped<CharacterService>();
+    builder.Services.AddScoped<CharacterDetailMapper>();
+    builder.Services.AddScoped<CharacterIdentityService>();
+    builder.Services.AddScoped<CharacterFocusService>();
+    builder.Services.AddScoped<CharacterInventoryService>();
     builder.Services.AddScoped<SpellService>();
     builder.Services.AddScoped<ArtService>();
+    builder.Services.AddScoped<ArtSourceService>();
+    builder.Services.AddScoped<LookupsService>();
     builder.Services.AddScoped<CharacterSpellService>();
     builder.Services.AddScoped<CharacterArtService>();
     builder.Services.AddScoped<FocusDefinitionService>();
     builder.Services.AddScoped<FocusDefinitionSeeder>();
     builder.Services.AddScoped<SpellDefinitionSeeder>();
-    builder.Services.AddScoped<ArtDefinitionSeeder>();
+    builder.Services.AddScoped<ArtDefinitionSeeder>(provider =>
+        new ArtDefinitionSeeder(
+            provider.GetRequiredService<IArtRepository>(),
+            provider.GetRequiredService<IArtSourceRepository>()
+        ));
+
     builder.Services.AddScoped<ClassAbilitySeeder>();
+    builder.Services.AddScoped<AdminRoleSeeder>();
     builder.Services.AddSingleton<CharacterSheetCalculator>();
+    builder.Services.AddMemoryCache();
+    builder.Services.AddScoped<ValidationFilter>();
 
     // DataProtection — persist keys to the mounted volume so they survive container restarts
     var dpKeysPath = builder.Configuration["DataProtection:KeysPath"]
@@ -125,6 +142,10 @@ try
         // Seed default WWN class abilities from the Free Edition if the table is empty.
         var abilitySeeder = scope.ServiceProvider.GetRequiredService<ClassAbilitySeeder>();
         await abilitySeeder.SeedIfEmptyAsync();
+
+        // Create the Admin role and assign it to any configured AdminEmails.
+        var adminSeeder = scope.ServiceProvider.GetRequiredService<AdminRoleSeeder>();
+        await adminSeeder.SeedAsync();
     }
 
     app.UseMiddleware<ExceptionHandlingMiddleware>();
@@ -141,12 +162,18 @@ try
 
     app.UseDefaultFiles();
     app.UseStaticFiles();
-    app.MapAuthEndpoints();
-    app.MapCharacterEndpoints();
-    app.MapSpellEndpoints();
-    app.MapArtEndpoints();
-    app.MapFocusDefinitionEndpoints();
-    app.MapDiagnosticsEndpoints();
+
+    var root = app.MapGroup("").AddEndpointFilter<ValidationFilter>();
+    root.MapAuthEndpoints();
+    root.MapCharacterEndpoints();
+    root.MapSpellEndpoints();
+    root.MapArtEndpoints();
+    root.MapFocusDefinitionEndpoints();
+    root.MapDiagnosticsEndpoints();
+    root.MapLookupsEndpoints();
+    root.MapArtSourceEndpoints();
+    root.MapAdminEndpoints();
+
     app.MapFallbackToFile("index.html");
 
     app.Run();

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { SectionCard } from '../layout/SectionCard';
+import { InlineConfirmButton } from '../common/InlineConfirmButton';
 import { SpellSlotTracker } from './SpellSlotTracker';
 import { SpellDatabaseModal } from './SpellDatabaseModal';
 import { SpellDetailModal } from './SpellDetailModal';
@@ -36,39 +37,37 @@ export function SpellsPanel({ character, onUpdate }: {
     <SectionCard title="Spells">
       <SpellSlotTracker character={character} onUpdate={onUpdate} />
 
-      <div style={{ marginTop: '1.5rem' }}>
-        <h3>Spellbook</h3>
+      <div style={{ marginTop: '0.75rem' }}>
+        <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '0.9rem' }}>Spellbook</h3>
         {character.spellbook.length === 0 ? (
-          <div style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>No spells learned</div>
+          <div style={{ color: 'var(--text-muted)', fontStyle: 'italic', fontSize: '0.9rem' }}>No spells learned</div>
         ) : (
-          <div style={{ display: 'grid', gap: '0.5rem', marginTop: '0.5rem' }}>
+          <div style={{ display: 'grid', gap: '0.25rem', marginTop: '0.25rem' }}>
             {character.spellbook.map(known => (
-              <div key={known.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem', background: 'var(--bg-subtle)', borderRadius: '0.25rem' }}>
+              <div key={known.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.25rem 0.375rem', background: 'var(--bg-subtle)', borderRadius: '0.25rem', fontSize: '0.85rem' }}>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: '500' }}>
-                    <button
-                      style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontWeight: '500', textDecoration: 'underline', color: 'inherit', fontSize: 'inherit' }}
-                      onClick={() => setSelectedSpell(known.spell)}
-                    >
-                      {known.spell.name}
-                    </button>
-                    {known.spell.summary && <span style={{ fontSize: '0.75rem', marginLeft: '0.5rem', color: 'var(--primary)' }}>{known.spell.summary}</span>}
-                  </div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Level {known.spell.spellLevel}</div>
+                  <button
+                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontWeight: '500', textDecoration: 'underline', color: 'inherit', fontSize: 'inherit' }}
+                    onClick={() => setSelectedSpell(known.spell)}
+                  >
+                    {known.spell.name}
+                  </button>
+                  {known.spell.summary && <span style={{ fontSize: '0.7rem', marginLeft: '0.5rem', color: 'var(--primary)' }}>({known.spell.summary})</span>}
+                  <span style={{ fontSize: '0.7rem', marginLeft: '0.5rem', color: 'var(--text-muted)' }}>L{known.spell.spellLevel}</span>
                 </div>
-                <button
+                <InlineConfirmButton
+                  label="Forget"
+                  confirmLabel="Forget?"
                   className="sm danger"
-                  onClick={() => handleForgetSpell(known.spellId)}
-                >
-                  Forget
-                </button>
+                  onConfirm={() => handleForgetSpell(known.spellId)}
+                />
               </div>
             ))}
           </div>
         )}
       </div>
 
-      <div style={{ marginTop: '1rem' }}>
+      <div style={{ marginTop: '0.5rem' }}>
         <button onClick={() => setShowAddModal(true)}>+ Add Spell</button>
       </div>
 

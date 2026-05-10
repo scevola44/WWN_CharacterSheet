@@ -1,5 +1,4 @@
 using WWN.Application.DTOs;
-using WWN.Application.Helpers;
 using WWN.Domain.Entities;
 using WWN.Domain.Enums;
 using WWN.Domain.Interfaces;
@@ -10,7 +9,7 @@ namespace WWN.Application.Services;
 public class CharacterArtService(
     ICharacterRepository characterRepository,
     IArtRepository artRepository,
-    CharacterService characterService)
+    CharacterDetailMapper mapper)
 {
     public async Task<KnownArtDto> LearnArtAsync(
         Guid characterId,
@@ -47,16 +46,20 @@ public class CharacterArtService(
     public async Task<CharacterDetailDto> CommitEffortAsync(
         Guid characterId,
         string userId,
-        string commitment,
+        int commitment,
         int amount,
         CancellationToken cancellationToken = default)
     {
         var character = await GetCharacterOrThrow(characterId, userId, cancellationToken);
-        var kind = EnumParser.Parse<EffortCommitment>(commitment, nameof(commitment));
+        var kind = (EffortCommitment)commitment;
+        if (!Enum.IsDefined(kind))
+            throw new ArgumentException(
+                $"'{commitment}' is not a valid EffortCommitment id.",
+                nameof(commitment));
         var max = EffortPoolCalculator.CalculateMax(character);
         character.CommitEffort(kind, max, amount);
         await characterRepository.UpdateAsync(character, cancellationToken);
-        return await characterService.MapToDetailDtoAsync(character, cancellationToken);
+        return await mapper.MapToDetailDtoAsync(character, cancellationToken);
     }
 
     public async Task<CharacterDetailDto> EndSceneAsync(
@@ -67,18 +70,21 @@ public class CharacterArtService(
         var character = await GetCharacterOrThrow(characterId, userId, cancellationToken);
         character.EndScene();
         await characterRepository.UpdateAsync(character, cancellationToken);
-        return await characterService.MapToDetailDtoAsync(character, cancellationToken);
+        return await mapper.MapToDetailDtoAsync(character, cancellationToken);
     }
 
-    public async Task<CharacterDetailDto> RestForDayAsync(
+    public Task<CharacterDetailDto> RestForDayAsync(
         Guid characterId,
         string userId,
         CancellationToken cancellationToken = default)
     {
-        var character = await GetCharacterOrThrow(characterId, userId, cancellationToken);
-        character.RestForDay();
-        await characterRepository.UpdateAsync(character, cancellationToken);
-        return await characterService.MapToDetailDtoAsync(character, cancellationToken);
+        return characterRepository.ExecuteInTransactionAsync(async () =>
+        {
+            var character = await GetCharacterOrThrow(characterId, userId, cancellationToken);
+            character.RestForDay();
+            await characterRepository.UpdateAsync(character, cancellationToken);
+            return await mapper.MapToDetailDtoAsync(character, cancellationToken);
+        }, cancellationToken);
     }
 
     public async Task<CharacterDetailDto> ReleaseSustainedAsync(
@@ -90,7 +96,7 @@ public class CharacterArtService(
         var character = await GetCharacterOrThrow(characterId, userId, cancellationToken);
         character.ReleaseSustainedEffort(amount);
         await characterRepository.UpdateAsync(character, cancellationToken);
-        return await characterService.MapToDetailDtoAsync(character, cancellationToken);
+        return await mapper.MapToDetailDtoAsync(character, cancellationToken);
     }
 
     private async Task<Domain.Aggregates.Character> GetCharacterOrThrow(

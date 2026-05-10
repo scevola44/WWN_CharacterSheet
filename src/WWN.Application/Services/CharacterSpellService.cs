@@ -7,7 +7,7 @@ namespace WWN.Application.Services;
 public class CharacterSpellService(
     ICharacterRepository characterRepository,
     ISpellRepository spellRepository,
-    CharacterService characterService)
+    CharacterDetailMapper mapper)
 {
     public async Task<KnownSpellDto> LearnSpellAsync(
         Guid characterId,
@@ -50,7 +50,7 @@ public class CharacterSpellService(
         var character = await GetCharacterOrThrow(characterId, userId, cancellationToken);
         character.UseSpellSlot(spellLevel);
         await characterRepository.UpdateAsync(character, cancellationToken);
-        return await characterService.MapToDetailDtoAsync(character, cancellationToken);
+        return await mapper.MapToDetailDtoAsync(character, cancellationToken);
     }
 
     public async Task<CharacterDetailDto> RestoreSpellSlotsAsync(
@@ -61,7 +61,7 @@ public class CharacterSpellService(
         var character = await GetCharacterOrThrow(characterId, userId, cancellationToken);
         character.RestoreAllSpellSlots();
         await characterRepository.UpdateAsync(character, cancellationToken);
-        return await characterService.MapToDetailDtoAsync(character, cancellationToken);
+        return await mapper.MapToDetailDtoAsync(character, cancellationToken);
     }
 
     private async Task<Domain.Aggregates.Character> GetCharacterOrThrow(

@@ -34,7 +34,9 @@ public class ExceptionHandlingMiddleware
         {
             KeyNotFoundException => (StatusCodes.Status404NotFound, "Not Found"),
             InvalidOperationException => (StatusCodes.Status409Conflict, "Conflict"),
+            ArgumentOutOfRangeException => (StatusCodes.Status400BadRequest, "Bad Request"),
             ArgumentException => (StatusCodes.Status400BadRequest, "Bad Request"),
+            UnauthorizedAccessException => (StatusCodes.Status403Forbidden, "Forbidden"),
             _ => (StatusCodes.Status500InternalServerError, "Internal Server Error")
         };
 

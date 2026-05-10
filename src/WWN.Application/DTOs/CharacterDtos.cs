@@ -34,7 +34,16 @@ public record CharacterDetailDto
     public EffortInfoDto? Effort { get; init; }
     public List<ClassAbilityDto> ClassAbilities { get; init; } = new();
     public DerivedStatsDto DerivedStats { get; init; } = null!;
+    public EncumbranceSummaryDto EncumbranceSummary { get; init; } = null!;
     public string? Notes { get; init; }
+}
+
+public record EncumbranceSummaryDto
+{
+    public int ReadiedLoad { get; init; }
+    public int MaxReadied { get; init; }
+    public int StowedLoad { get; init; }
+    public int MaxStowed { get; init; }
 }
 
 public record AttributeDto
@@ -139,8 +148,8 @@ public record ArtDto
     public string Description { get; init; } = string.Empty;
     public string? Summary { get; init; }
     public int MinLevel { get; init; }
-    public string? EffortCost { get; init; }
-    public string Source { get; init; } = string.Empty;
+    public int EffortCost { get; init; }
+    public int SourceId { get; init; }
 }
 
 public record KnownArtDto

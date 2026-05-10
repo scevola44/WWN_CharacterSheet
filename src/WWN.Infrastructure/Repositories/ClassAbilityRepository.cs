@@ -16,6 +16,16 @@ public class ClassAbilityRepository(WwnDbContext dbContext) : IClassAbilityRepos
         await dbContext.SaveChangesAsync(ct);
     }
 
+    public async Task DeleteAsync(Guid id, CancellationToken ct = default)
+    {
+        var entity = await dbContext.ClassAbilityDefinitions.FindAsync([id], ct);
+        if (entity is not null)
+        {
+            dbContext.ClassAbilityDefinitions.Remove(entity);
+            await dbContext.SaveChangesAsync(ct);
+        }
+    }
+
     public async Task<bool> AnyAsync(CancellationToken ct = default)
         => await dbContext.ClassAbilityDefinitions.AnyAsync(ct);
 }

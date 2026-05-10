@@ -284,6 +284,41 @@ namespace WWN.Infrastructure.Migrations
                     b.ToTable("Characters", (string)null);
                 });
 
+            modelBuilder.Entity("WWN.Domain.Entities.ArtSource", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.ToTable("ArtSources", (string)null);
+
+                    b.HasData(
+                        new { Id = 1, Code = "Mage", DisplayName = "Mage", Description = (string)null, SortOrder = 1 },
+                        new { Id = 2, Code = "PartialMage", DisplayName = "Partial Mage", Description = (string)null, SortOrder = 2 });
+                });
+
             modelBuilder.Entity("WWN.Domain.Entities.CharacterAttribute", b =>
                 {
                     b.Property<Guid>("Id")
@@ -528,9 +563,8 @@ namespace WWN.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("EffortCost")
-                        .HasMaxLength(20)
-                        .HasColumnType("TEXT");
+                    b.Property<int>("EffortCost")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("MinLevel")
                         .HasColumnType("INTEGER");
@@ -540,16 +574,16 @@ namespace WWN.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Source")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("TEXT");
+                    b.Property<int>("SourceId")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Summary")
                         .HasMaxLength(500)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("SourceId");
 
                     b.ToTable("Arts", (string)null);
                 });
@@ -658,6 +692,17 @@ namespace WWN.Infrastructure.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("WWN.Domain.Entities.Art", b =>
+                {
+                    b.HasOne("WWN.Domain.Entities.ArtSource", "SourceNavigation")
+                        .WithMany()
+                        .HasForeignKey("SourceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("SourceNavigation");
                 });
 
             modelBuilder.Entity("WWN.Domain.Entities.CharacterAttribute", b =>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { SectionCard } from '../layout/SectionCard';
+import { InlineConfirmButton } from '../common/InlineConfirmButton';
 import { EffortTracker } from './EffortTracker';
 import { ArtDatabaseModal } from './ArtDatabaseModal';
 import { ArtDetailModal } from './ArtDetailModal';
@@ -7,6 +8,7 @@ import type { CharacterDetail } from '../../types/character';
 import type { Art } from '../../types/art';
 import { artsApi } from '../../api/artApi';
 import { characterApi } from '../../api/characterApi';
+import { useLookups } from '../../contexts/LookupsContext';
 
 export function ArtsPanel({ character, onUpdate }: {
   character: CharacterDetail;
@@ -14,6 +16,7 @@ export function ArtsPanel({ character, onUpdate }: {
 }) {
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedArt, setSelectedArt] = useState<Art | null>(null);
+  const { effortCommitmentById } = useLookups();
 
   const isMage = character.class === 'Mage';
   const isPartialMage =
@@ -40,41 +43,39 @@ export function ArtsPanel({ character, onUpdate }: {
     <SectionCard title="Arts">
       <EffortTracker character={character} onUpdate={onUpdate} />
 
-      <div style={{ marginTop: '1.5rem' }}>
-        <h3>Known Arts</h3>
+      <div style={{ marginTop: '0.75rem' }}>
+        <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '0.9rem' }}>Known Arts</h3>
         {character.arts.length === 0 ? (
-          <div style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>No arts learned</div>
+          <div style={{ color: 'var(--text-muted)', fontStyle: 'italic', fontSize: '0.9rem' }}>No arts learned</div>
         ) : (
-          <div style={{ display: 'grid', gap: '0.5rem', marginTop: '0.5rem' }}>
+          <div style={{ display: 'grid', gap: '0.25rem', marginTop: '0.25rem' }}>
             {character.arts.map(known => (
-              <div key={known.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem', background: 'var(--bg-subtle)', borderRadius: '0.25rem' }}>
+              <div key={known.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.25rem 0.375rem', background: 'var(--bg-subtle)', borderRadius: '0.25rem', fontSize: '0.85rem' }}>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: '500' }}>
-                    <button
-                      style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontWeight: '500', textDecoration: 'underline', color: 'inherit', fontSize: 'inherit' }}
-                      onClick={() => setSelectedArt(known.art)}
-                    >
-                      {known.art.name}
-                    </button>
-                    {known.art.summary && <span style={{ fontSize: '0.75rem', marginLeft: '0.5rem', color: 'var(--primary)' }}>{known.art.summary}</span>}
-                  </div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                    Min Level {known.art.minLevel} · {known.art.effortCost ? `Effort: ${known.art.effortCost}` : 'No effort'}
-                  </div>
+                  <button
+                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontWeight: '500', textDecoration: 'underline', color: 'inherit', fontSize: 'inherit' }}
+                    onClick={() => setSelectedArt(known.art)}
+                  >
+                    {known.art.name}
+                  </button>
+                  {known.art.summary && <span style={{ fontSize: '0.7rem', marginLeft: '0.5rem', color: 'var(--primary)' }}>({known.art.summary})</span>}
+                  <span style={{ fontSize: '0.7rem', marginLeft: '0.5rem', color: 'var(--text-muted)' }}>
+                    L{known.art.minLevel} · {effortCommitmentById.get(known.art.effortCost)?.displayName ?? '—'}
+                  </span>
                 </div>
-                <button
+                <InlineConfirmButton
+                  label="Forget"
+                  confirmLabel="Forget?"
                   className="sm danger"
-                  onClick={() => handleForgetArt(known.artId)}
-                >
-                  Forget
-                </button>
+                  onConfirm={() => handleForgetArt(known.artId)}
+                />
               </div>
             ))}
           </div>
         )}
       </div>
 
-      <div style={{ marginTop: '1rem' }}>
+      <div style={{ marginTop: '0.5rem' }}>
         <button onClick={() => setShowAddModal(true)}>+ Add Art</button>
       </div>
 
