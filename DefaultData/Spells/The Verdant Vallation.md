@@ -4,6 +4,7 @@ tags:
 system: "[[Worlds Without Number]]"
 level: 2
 wwn-tradition: High Magic
+summary: Creates a vast wall of thick, heavy vines and other plant life that can be shaped as desired.
 ---
 # The Verdant Vallation
 A vast wall of thick, heavy vines and other plant life blooms from a visible point within one hundred

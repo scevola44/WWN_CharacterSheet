@@ -1,4 +1,5 @@
 ---
+summary: Subjects can take preparatory actions while world is frozen in time around them.
 tags:
   - WWN/Art
 system: "[[Worlds Without Number]]"

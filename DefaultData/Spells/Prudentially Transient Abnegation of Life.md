@@ -4,6 +4,7 @@ tags:
 system: "[[Worlds Without Number]]"
 level: 2
 wwn-tradition: High Magic
+summary: Target suffers dramatic death, then can revive with two hit points per caster level up to two hours later.
 ---
 # Prudentially Transient Abnegation of Life
 This spell may be cast as an Instant action, even if another spell has been cast the same round, and targets either the caster or a willing visible target. It can only be used in immediate response to an injury that reduces the target to zero hit points. When it does, the target suffers dramatic and

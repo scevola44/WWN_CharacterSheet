@@ -1,4 +1,5 @@
 ---
+summary: The caster can see into the minds of others, gaining insight into their thoughts and emotions.
 tags:
   - WWN/Art
 system: "[[Worlds Without Number]]"

@@ -1,4 +1,5 @@
 ---
+summary: Inverts the caster's internal state, potentially altering their abilities or appearance.
 tags:
   - WWN/Art
 system: "[[Worlds Without Number]]"

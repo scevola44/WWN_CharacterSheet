@@ -1,4 +1,5 @@
 ---
+summary: Summons a torrent of flames and brimstone to scorch the target area.
 tags:
   - WWN/Art
 system: "[[Worlds Without Number]]"

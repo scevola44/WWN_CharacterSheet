@@ -4,6 +4,7 @@ tags:
 system: "[[Worlds Without Number]]"
 level: 1
 wwn-tradition: High Magic
+summary: Targets within twenty feet of a designated point fall unconscious instantly.
 ---
 # The Wind of the Final Repose
 The mage designates a visible point within two hundred feet. A silent, invisible burst of soporific

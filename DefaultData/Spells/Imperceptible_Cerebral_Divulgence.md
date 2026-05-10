@@ -1,4 +1,5 @@
 ---
+summary: Allows the caster to share their knowledge or abilities with another entity without being noticed.
 tags:
   - WWN/Art
 system: "[[Worlds Without Number]]"

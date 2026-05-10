@@ -1,4 +1,5 @@
 ---
+summary: The caster gains foresight and can predict future events or outcomes.
 tags:
   - WWN/Art
 system: "[[Worlds Without Number]]"

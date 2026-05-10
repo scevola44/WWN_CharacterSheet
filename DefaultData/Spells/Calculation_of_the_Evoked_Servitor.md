@@ -1,4 +1,5 @@
 ---
+summary: Summons a servitor with the caster's abilities and knowledge.
 tags:
   - WWN/Art
 system: "[[Worlds Without Number]]"

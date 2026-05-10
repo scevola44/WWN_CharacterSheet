@@ -1,4 +1,5 @@
 ---
+summary: Temporarily elevates the caster's mental abilities, allowing them to outperform or dominate others mentally.
 tags:
   - WWN/Art
 system: "[[Worlds Without Number]]"

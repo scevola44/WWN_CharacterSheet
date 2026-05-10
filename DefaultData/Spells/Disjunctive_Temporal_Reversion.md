@@ -1,4 +1,5 @@
 ---
+summary: Temporarily reverses time for the caster and their allies, allowing them to undo recent events.
 tags:
   - WWN/Art
 system: "[[Worlds Without Number]]"

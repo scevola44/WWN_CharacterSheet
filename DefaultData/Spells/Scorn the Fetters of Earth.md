@@ -4,6 +4,7 @@ tags:
 system: "[[Worlds Without Number]]"
 level: 3
 wwn-tradition: High Magic
+summary: Grants the caster and up to one ally per level the ability to move in three dimensions.
 ---
 # Scorn the Fetters of Earth
 The caster and up to one visible ally per caster level are briefly granted the ability to move in three dimensions, being able to walk and run upward into the air as easily as along flat ground. For the rest of the scene, those affected can move in such a way, remaining suspended in the air after their

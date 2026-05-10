@@ -1,4 +1,5 @@
 ---
+summary: Removes a single spell or magical effect from a target.
 tags:
   - WWN/Art
 system: "[[Worlds Without Number]]"

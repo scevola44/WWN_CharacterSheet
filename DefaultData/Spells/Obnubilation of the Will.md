@@ -4,6 +4,7 @@ tags:
 system: "[[Worlds Without Number]]"
 level: 4
 wwn-tradition: High Magic
+summary: Helpless or restrained target becomes hopelessly subject to the caster's will.
 ---
 # Obnubilation of the Will
 This spell can only be applied to a helpless or restrained living victim, who gets a Mental savingthrow to resist it and be forever after immune to its effects. On a failure, the target becomes hopelessly subject to the caster via a series of psychic fetters, obediently carrying out their will. The

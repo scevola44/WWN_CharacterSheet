@@ -4,6 +4,7 @@ tags:
 system: "[[Worlds Without Number]]"
 level: 4
 wwn-tradition: High Magic
+summary: Conjures a fierce gust of wind or controls local weather within a quarter-mile area.
 ---
 # Sigil of Aeolian Auctoritas
 A fierce gust of wind may be conjured in a line a hundred feet long and thirty feet wide. All creatures of man-size or smaller must make Physical saves or be bowled over and blown back thirty

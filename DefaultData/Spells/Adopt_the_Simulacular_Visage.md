@@ -1,4 +1,5 @@
 ---
+summary: The caster can assume a disguise that is indistinguishable from reality.
 tags:
   - WWN/Art
 system: "[[Worlds Without Number]]"

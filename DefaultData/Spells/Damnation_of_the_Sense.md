@@ -1,4 +1,5 @@
 ---
+summary: Temporarily damages one of the target's senses, reducing their effectiveness in that area.
 tags:
   - WWN/Art
 system: "[[Worlds Without Number]]"

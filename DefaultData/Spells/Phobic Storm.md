@@ -4,6 +4,7 @@ tags:
 system: "[[Worlds Without Number]]"
 level: 3
 wwn-tradition: High Magic
+summary: Creatures within forty feet must make a Morale check or flee, suffer damage from demoralization.
 ---
 # Phobic Storm
 A wave of numbing terror sweeps over all enemies of the caster within forty feet. They must immediately make a Morale check at a -1 penalty, with failure causing flight. Those who succeed at

@@ -4,6 +4,7 @@ tags:
 system: "[[Worlds Without Number]]"
 level: 2
 wwn-tradition: High Magic
+summary: Shields the caster and up to three allies per level from elemental extremes and magical harm.
 ---
 # Visitation of the Clement Clime
 The caster and up to three visible allies per level are shielded from the excesses of ho stile

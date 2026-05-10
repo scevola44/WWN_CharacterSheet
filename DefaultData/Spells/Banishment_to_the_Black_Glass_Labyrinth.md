@@ -1,4 +1,5 @@
 ---
+summary: Banishes a creature to a labyrinth of black glass where they are trapped until the spell's duration ends.
 tags:
   - WWN/Art
 system: "[[Worlds Without Number]]"

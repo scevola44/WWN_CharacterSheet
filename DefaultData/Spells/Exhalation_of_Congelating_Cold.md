@@ -1,4 +1,5 @@
 ---
+summary: Releases a wave of freezing cold, potentially stunning or damaging enemies.
 tags:
   - WWN/Art
 system: "[[Worlds Without Number]]"

@@ -1,4 +1,5 @@
 ---
+summary: Creates an illusory eidolon that can perform tasks and fight for the caster.
 tags:
   - WWN/Art
 system: "[[Worlds Without Number]]"

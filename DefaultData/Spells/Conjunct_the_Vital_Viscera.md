@@ -1,4 +1,5 @@
 ---
+summary: Transfers the life force from one creature to another, potentially healing or enhancing the target.
 tags:
   - WWN/Art
 system: "[[Worlds Without Number]]"

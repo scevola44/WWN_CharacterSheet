@@ -4,6 +4,7 @@ tags:
 system: "[[Worlds Without Number]]"
 level: 1
 wwn-tradition: High Magic
+summary: Grants up to one willing creature per level an increased movement rate and ability to move through obstacles.
 ---
 # Velocitous Imbuement
 Unlike most spells, this one may be cast as a simple On Turn action, targeting up to one visible

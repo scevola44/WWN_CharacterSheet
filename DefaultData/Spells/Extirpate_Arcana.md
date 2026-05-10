@@ -1,4 +1,5 @@
 ---
+summary: Permanently removes a magical effect or spell from the target.
 tags:
   - WWN/Art
 system: "[[Worlds Without Number]]"

@@ -4,6 +4,7 @@ tags:
 system: "[[Worlds Without Number]]"
 level: 1
 wwn-tradition: High Magic
+summary: Grants partial immunity to physical weapons or renders a weapon harmless.
 ---
 # Wardpact Invocation
 This spell may be cast in two different forms. If it targets a creature within 200 feet, the target

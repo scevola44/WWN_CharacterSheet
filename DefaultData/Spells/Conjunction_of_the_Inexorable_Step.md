@@ -1,4 +1,5 @@
 ---
+summary: Grants the caster the ability to move through solid objects without resistance.
 tags:
   - WWN/Art
 system: "[[Worlds Without Number]]"

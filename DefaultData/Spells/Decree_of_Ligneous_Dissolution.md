@@ -1,4 +1,5 @@
 ---
+summary: Transforms a wooden object into dust or a similar form.
 tags:
   - WWN/Art
 system: "[[Worlds Without Number]]"

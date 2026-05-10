@@ -4,6 +4,7 @@ tags:
 system: "[[Worlds Without Number]]"
 level: 5
 wwn-tradition: High Magic
+summary: Creates an opaque portal to a preset target point, up to one hundred miles away.
 ---
 # Open the High Road
 The caster carves open a metadimensional gate between their present location and a preset target point. Attuning the target point requires an hour of effort, after which this spell will open an opaque portal to it from a distance of up to one hundred miles per caster level. The portal is large enough to admit a cart and wagon and will remain o pen for up to one minute per caster level, ending when they pass through it. The gate is one-way only, from caster to target. Only living

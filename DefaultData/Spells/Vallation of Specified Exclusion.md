@@ -4,6 +4,7 @@ tags:
 system: "[[Worlds Without Number]]"
 level: 3
 wwn-tradition: High Magic
+summary: Creates a line that wards off a particular target and prevents them or their powers from crossing it.
 ---
 # Vallation of Specified Exclusion
 The caster must form some sort of line as part of this spell’s invocation, either with dropped

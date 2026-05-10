@@ -4,6 +4,7 @@ tags:
 system: "[[Worlds Without Number]]"
 level: 3
 wwn-tradition: High Magic
+summary: A single visible living creature is smote with a hideous curse of torment.
 ---
 # The Torment of Tumefaction
 A single visible living creature is smote with a hideous curse of torment. Boils erupt all over their

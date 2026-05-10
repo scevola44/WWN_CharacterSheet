@@ -4,6 +4,7 @@ tags:
 system: "[[Worlds Without Number]]"
 level: 3
 wwn-tradition: High Magic
+summary: Makes a solid non-magical barrier transparent on the caster's side, optionally making it insubstantial for one round per level.
 ---
 # Touch of Elucidating Intangibility
 The caster touches a solid non-magical barrier when casting this spell. A 10 foot cube of the barrier

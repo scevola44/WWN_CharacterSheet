@@ -1,4 +1,5 @@
 ---
+summary: The caster can see the true form of arcane creatures and objects.
 tags:
   - WWN/Art
 system: "[[Worlds Without Number]]"
