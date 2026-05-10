@@ -60,15 +60,14 @@ export function FocusEffectEditor({
         <div
           key={i}
           style={{
-            display: 'grid',
-            gridTemplateColumns: 'auto auto auto 1fr auto',
+            display: 'flex',
+            flexWrap: 'wrap',
             gap: '0.4rem',
             alignItems: 'center',
             padding: '0.4rem 0.5rem',
             background: 'var(--bg)',
             borderRadius: '0.25rem',
             border: '1px solid var(--border)',
-            flexWrap: 'wrap',
           }}
         >
           {/* Type */}

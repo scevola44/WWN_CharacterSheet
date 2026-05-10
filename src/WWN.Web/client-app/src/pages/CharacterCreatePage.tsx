@@ -54,15 +54,13 @@ export function CharacterCreatePage() {
             <label>Name *</label>
             <input value={name} onChange={e => setName(e.target.value)} required style={{ width: '100%' }} />
           </div>
-          <div className="form-row">
-            <div className="form-group">
-              <label>Background</label>
-              <input value={background} onChange={e => setBackground(e.target.value)} />
-            </div>
-            <div className="form-group">
-              <label>Origin</label>
-              <input value={origin} onChange={e => setOrigin(e.target.value)} />
-            </div>
+          <div className="form-group">
+            <label>Background</label>
+            <input value={background} onChange={e => setBackground(e.target.value)} />
+          </div>
+          <div className="form-group">
+            <label>Origin</label>
+            <input value={origin} onChange={e => setOrigin(e.target.value)} />
           </div>
           <div className="form-group">
             <label>Class *</label>
