@@ -1,7 +1,7 @@
 ---
 summary: Banishes a creature to a labyrinth of black glass where they are trapped until the spell's duration ends.
 tags:
-  - WWN/Art
+  - WWN/Spell
 system: "[[Worlds Without Number]]"
 level: 5
 wwn-tradition: High Magic
