@@ -207,6 +207,7 @@ public class CharacterDetailMapper(
                 CombatSkill = weapon.CombatSkill.ToString(),
                 ShockDamage = weapon.Shock?.Damage,
                 ShockAcThreshold = weapon.Shock?.AcThreshold,
+                WeaponType = weapon.WeaponType.ToString(),
                 Tags = weapon.Tags.ToString()
             };
         }
