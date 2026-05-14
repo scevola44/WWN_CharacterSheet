@@ -26,7 +26,7 @@ Format for each entry:
 
 ### Max System Strain = current CON score
 **Source**: WWN-derived.
-**Detail**: `Character.SetStrain` validates `0 ≤ current ≤ CON.Score`. **Does not** decrement strain on rest (see Open below).
+**Detail**: `Character.SetStrain` validates `0 ≤ current ≤ CON.Score`. Strain is decremented manually (see "System Strain decay on rest" below).
 
 ### AC formula
 **Source**: WWN-derived (with project-specific shield interaction).
@@ -42,7 +42,7 @@ Format for each entry:
 
 ### Rest semantics
 **Source**: App-specific (subset of full WWN rest rules).
-**Detail**: `Character.RestForDay()` clears scene + day Effort and restores all spell slots. `EndScene()` clears scene Effort only. **Does not** heal HP or reduce strain (see Open below).
+**Detail**: `Character.RestForDay()` clears scene + day Effort and restores all spell slots. `EndScene()` clears scene Effort only. Does not heal HP (see Open) and does not reduce strain (see "System Strain decay on rest" below).
 
 ### Adventurer requires two partial classes
 **Source**: WWN-derived.
@@ -76,14 +76,6 @@ Format for each entry:
 **Source**: App-specific (EF Core constraint).
 **Detail**: `Character.UseSpellSlot` allocates a new array because EF Core's change tracker uses reference equality. Preserve this pattern when extending.
 
----
-
-## Open / undecided (TODOs)
-
-### HP recovery on rest
-**Source**: Open.
-**Detail**: `RestForDay` does not heal HP. Pick a rule: full heal? `level × 1` HP? Fraction of max? Then implement and document.
-
 ### System Strain decay on rest
 **Source**: App-specific.
 **Detail**: Strain does **not** auto-decrement on rest. It is decremented manually via the `+1 / −1` controls in `StrainTracker`. `RestForDay()` does not touch `CurrentStrain`. The UI warns at max strain and labels it "Decremented manually".
@@ -91,6 +83,14 @@ Format for each entry:
 ### Encumbrance totals and capacity
 **Source**: App-specific (WWN-derived formulas, project-specific decisions below).
 **Detail**: `MaxReadied = STR_score / 2` (integer division, round down); `MaxStowed = STR_score` (separate pool). Load = `Σ(Item.Encumbrance × Item.Quantity)` per slot group. **Equipped items count toward readied load** (armor on body and weapon in hand are part of your readied carry). Over-cap is a **warning only** — no API enforcement, no hard block. Implemented in `src/WWN.Domain/Rules/EncumbranceCalculator.cs`; surfaced via `EncumbranceSummaryDto` on `CharacterDetailDto`; displayed in `InventoryPanel.tsx` with red text when over cap.
+
+---
+
+## Open / undecided (TODOs)
+
+### HP recovery on rest
+**Source**: Open.
+**Detail**: `RestForDay` does not heal HP. Pick a rule: full heal? `level × 1` HP? Fraction of max? Then implement and document.
 
 ### Initiative
 **Source**: Open.
