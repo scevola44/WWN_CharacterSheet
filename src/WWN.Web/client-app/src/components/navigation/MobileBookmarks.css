@@ -10,6 +10,11 @@
   gap: 0;
   justify-content: space-around;
   z-index: 50;
+  transition: transform 0.25s ease-in-out;
+}
+
+.mobile-bookmarks--hidden {
+  transform: translateY(100%);
 }
 
 @media (max-width: 768px) {
