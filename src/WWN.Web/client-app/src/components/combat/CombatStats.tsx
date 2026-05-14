@@ -1,9 +1,46 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { SectionCard } from '../layout/SectionCard';
 import { characterApi } from '../../api/characterApi';
 import type { CharacterDetail } from '../../types/character';
+import { useWeaponTags } from '../../contexts/LookupsContext';
+import type { LookupValue } from '../../types/lookups';
 
 const ALL_ATTRIBUTES = ['Strength', 'Dexterity', 'Intelligence', 'Wisdom', 'Charisma', 'Constitution'];
+
+function WeaponTagBadge({ tag }: { tag: LookupValue }) {
+  const [open, setOpen] = useState(false);
+  const hasTooltip = !!tag.description;
+
+  useEffect(() => {
+    if (!open) return;
+    const close = () => setOpen(false);
+    document.addEventListener('click', close);
+    return () => document.removeEventListener('click', close);
+  }, [open]);
+
+  return (
+    <span
+      className={`weapon-tag-badge${hasTooltip ? ' weapon-tag-badge--interactive' : ''}`}
+      onMouseEnter={hasTooltip ? () => setOpen(true) : undefined}
+      onMouseLeave={hasTooltip ? () => setOpen(false) : undefined}
+      onClick={hasTooltip ? e => {
+        // Only handle tap on touch devices; mouse hover already handles desktop
+        if ((e.nativeEvent as PointerEvent).pointerType !== 'mouse') {
+          e.stopPropagation();
+          setOpen(o => !o);
+        }
+      } : undefined}
+    >
+      {tag.abbreviation ?? tag.code}
+      {open && tag.description && (
+        <span className="weapon-tag-tooltip">
+          <strong>{tag.displayName}</strong>
+          {tag.description}
+        </span>
+      )}
+    </span>
+  );
+}
 
 export function CombatStats({ character, onUpdate }: {
   character: CharacterDetail;
@@ -11,6 +48,11 @@ export function CombatStats({ character, onUpdate }: {
 }) {
   const { derivedStats } = character;
   const [updating, setUpdating] = useState<string | null>(null);
+  const allWeaponTags = useWeaponTags();
+  const tagByCode = useMemo(
+    () => new Map(allWeaponTags.map(t => [t.code, t])),
+    [allWeaponTags]
+  );
 
   const handleWeaponConfigChange = async (weaponId: string, skill: string, attribute: string) => {
     setUpdating(weaponId);
@@ -78,6 +120,11 @@ export function CombatStats({ character, onUpdate }: {
               ? `${w.damageDie}${dmgBonus > 0 ? `+${dmgBonus}` : dmgBonus}`
               : w.damageDie;
 
+            const resolvedTags = (w.tags ?? '')
+              .split(',')
+              .map(c => tagByCode.get(c.trim()))
+              .filter((t): t is LookupValue => t !== undefined);
+
             return (
               <div key={w.id} className="item-row" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <div className="item-info">
@@ -90,6 +137,13 @@ export function CombatStats({ character, onUpdate }: {
                       return ` | Shock ${totalShock}/${w.isArmorPiercing ? 'AP' : w.shockAcThreshold}`;
                     })()}
                   </div>
+                  {resolvedTags.length > 0 && (
+                    <div className="weapon-tag-list">
+                      {resolvedTags.map(tag => (
+                        <WeaponTagBadge key={tag.id} tag={tag} />
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div style={{ display: 'flex', gap: '0.5rem', fontSize: '0.75rem' }}>
                   <div style={{ flex: 1 }}>

@@ -5,5 +5,6 @@ public sealed record LookupValue(
     string Code,
     string DisplayName,
     string? Description,
-    int SortOrder
+    int SortOrder,
+    string? Abbreviation = null
 ) : ILookupValue;
