@@ -4,6 +4,7 @@ import { characterApi } from '../../api/characterApi';
 import type { CharacterDetail, AddItemRequest, ItemInfo, EncumbranceSummary } from '../../types/character';
 import { InlineConfirmButton } from '../common/InlineConfirmButton';
 import { ItemNoteModal } from './ItemNoteModal';
+import { useWeaponTags } from '../../contexts/LookupsContext';
 
 const SLOT_TYPES = ['Stowed', 'Readied', 'Equipped'] as const;
 
@@ -11,6 +12,7 @@ export function InventoryPanel({ character, onUpdate }: {
   character: CharacterDetail;
   onUpdate: (c: CharacterDetail) => void;
 }) {
+  const weaponTags = useWeaponTags();
   const [showAdd, setShowAdd] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [viewingNoteId, setViewingNoteId] = useState<string | null>(null);
@@ -138,20 +140,30 @@ export function InventoryPanel({ character, onUpdate }: {
               <option>Charisma</option>
             </select>
           </div>
-          <div className="form-group">
+          <div className="form-group" style={{ gridColumn: '1 / -1' }}>
             <label>Tags</label>
-            <select value={form.tags ?? 'Melee'}
-              onChange={e => setForm({ ...form, tags: e.target.value })}>
-              <option value="Melee">Melee</option>
-              <option value="Ranged">Ranged</option>
-              <option value="Melee, TwoHanded">Melee + Two-Handed</option>
-              <option value="Melee, AP">Melee + AP</option>
-              <option value="Ranged, AP">Ranged + AP</option>
-              <option value="Ranged, Reload">Ranged + Reload</option>
-              <option value="Ranged, Thrown">Thrown</option>
-              <option value="Melee, Subtle">Melee + Subtle</option>
-              <option value="Melee, Long">Melee + Long (Reach)</option>
-            </select>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.25rem' }}>
+              {weaponTags.map(tag => {
+                const selectedTags = (form.tags ?? '').split(',').map(t => t.trim()).filter(Boolean);
+                const checked = selectedTags.includes(tag.code);
+                return (
+                  <label key={tag.id} style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() => {
+                        const current = (form.tags ?? '').split(',').map(t => t.trim()).filter(Boolean);
+                        const next = checked
+                          ? current.filter(t => t !== tag.code)
+                          : [...current, tag.code];
+                        setForm({ ...form, tags: next.length > 0 ? next.join(', ') : undefined });
+                      }}
+                    />
+                    {tag.displayName}
+                  </label>
+                );
+              })}
+            </div>
           </div>
           <div className="form-group">
             <label>Shock Dmg</label>
