@@ -18,6 +18,7 @@ public class WeaponConfiguration : IEntityTypeConfiguration<Weapon>
             s.Property(damageDie => damageDie.Damage).HasColumnName("ShockDamage");
             s.Property(damageDie => damageDie.AcThreshold).HasColumnName("ShockAcThreshold");
         });
+        builder.Property(weapon => weapon.WeaponType).HasConversion<int>();
         builder.Property(weapon => weapon.Tags).HasConversion<int>();
         builder.Property(weapon => weapon.AttributeModifier).HasConversion<string>().HasMaxLength(20);
         builder.Property(weapon => weapon.CombatSkill).HasConversion<string>().HasMaxLength(20);

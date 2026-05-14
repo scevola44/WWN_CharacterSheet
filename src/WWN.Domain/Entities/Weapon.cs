@@ -9,17 +9,19 @@ public class Weapon : Item
     public AttributeName AttributeModifier { get; private set; }
     public SkillName CombatSkill { get; private set; }
     public ShockInfo? Shock { get; private set; }
+    public WeaponType WeaponType { get; private set; }
     public WeaponTag Tags { get; private set; }
 
     public Weapon(string name, int encumbrance, DamageDie damageDie,
-        AttributeName attributeModifier, SkillName combatSkill, WeaponTag tags,
-        ShockInfo? shock = null, ItemSlotType slotType = ItemSlotType.Stowed,
-        string? description = null)
+        AttributeName attributeModifier, SkillName combatSkill, WeaponType weaponType,
+        WeaponTag tags = WeaponTag.None, ShockInfo? shock = null,
+        ItemSlotType slotType = ItemSlotType.Stowed, string? description = null)
         : base(name, encumbrance, slotType, 1, description)
     {
         DamageDie = damageDie;
         AttributeModifier = attributeModifier;
         CombatSkill = combatSkill;
+        WeaponType = weaponType;
         Tags = tags;
         Shock = shock;
     }
@@ -31,13 +33,14 @@ public class Weapon : Item
     }
 
     public void Update(string name, int encumbrance, DamageDie damageDie,
-        AttributeName attributeModifier, SkillName combatSkill, WeaponTag tags,
-        ShockInfo? shock = null, string? description = null)
+        AttributeName attributeModifier, SkillName combatSkill, WeaponType weaponType,
+        WeaponTag tags = WeaponTag.None, ShockInfo? shock = null, string? description = null)
     {
         base.Update(name, encumbrance, 1, description);
         DamageDie = damageDie;
         AttributeModifier = attributeModifier;
         CombatSkill = combatSkill;
+        WeaponType = weaponType;
         Tags = tags;
         Shock = shock;
     }

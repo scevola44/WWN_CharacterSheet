@@ -19,5 +19,6 @@ export interface Lookups {
   partialClasses: LookupValue[];
   focusEffectTypes: LookupValue[];
   // Phase 3
+  weaponTypes: LookupValue[];
   weaponTags: LookupValue[];
 }

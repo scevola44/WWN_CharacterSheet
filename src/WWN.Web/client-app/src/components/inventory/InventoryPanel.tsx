@@ -16,11 +16,11 @@ export function InventoryPanel({ character, onUpdate }: {
   const [viewingNoteId, setViewingNoteId] = useState<string | null>(null);
   const [itemType, setItemType] = useState('Item');
   const [form, setForm] = useState<AddItemRequest>({
-    name: '', encumbrance: 1, itemType: 'Item', quantity: 1, combatSkill: 'Stab',
+    name: '', encumbrance: 1, itemType: 'Item', quantity: 1, combatSkill: 'Stab', weaponType: 'Melee',
   });
 
   const resetForm = () => {
-    setForm({ name: '', encumbrance: 1, itemType: 'Item', quantity: 1, combatSkill: 'Stab' });
+    setForm({ name: '', encumbrance: 1, itemType: 'Item', quantity: 1, combatSkill: 'Stab', weaponType: 'Melee' });
     setItemType('Item');
   };
 
@@ -48,6 +48,7 @@ export function InventoryPanel({ character, onUpdate }: {
       combatSkill: item.combatSkill ?? undefined,
       shockDamage: item.shockDamage ?? undefined,
       shockAcThreshold: item.shockAcThreshold ?? undefined,
+      weaponType: item.weaponType ?? 'Melee',
       tags: item.tags ?? undefined,
       acBonus: item.acBonus ?? undefined,
       isShield: item.isShield ?? undefined,
@@ -139,18 +140,25 @@ export function InventoryPanel({ character, onUpdate }: {
             </select>
           </div>
           <div className="form-group">
-            <label>Tags</label>
-            <select value={form.tags ?? 'Melee'}
-              onChange={e => setForm({ ...form, tags: e.target.value })}>
+            <label>Weapon Type</label>
+            <select value={form.weaponType ?? 'Melee'}
+              onChange={e => setForm({ ...form, weaponType: e.target.value })}>
               <option value="Melee">Melee</option>
               <option value="Ranged">Ranged</option>
-              <option value="Melee, TwoHanded">Melee + Two-Handed</option>
-              <option value="Melee, AP">Melee + AP</option>
-              <option value="Ranged, AP">Ranged + AP</option>
-              <option value="Ranged, Reload">Ranged + Reload</option>
-              <option value="Ranged, Thrown">Thrown</option>
-              <option value="Melee, Subtle">Melee + Subtle</option>
-              <option value="Melee, Long">Melee + Long (Reach)</option>
+            </select>
+          </div>
+          <div className="form-group">
+            <label>Tags</label>
+            <select value={form.tags ?? ''}
+              onChange={e => setForm({ ...form, tags: e.target.value || undefined })}>
+              <option value="">None</option>
+              <option value="TwoHanded">Two-Handed</option>
+              <option value="Subtle">Subtle</option>
+              <option value="Long">Long (Reach)</option>
+              <option value="Thrown">Thrown</option>
+              <option value="AP">Armor-Piercing</option>
+              <option value="Reload">Reload</option>
+              <option value="TwoHanded, AP">Two-Handed + AP</option>
             </select>
           </div>
           <div className="form-group">
