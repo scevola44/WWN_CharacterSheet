@@ -4,7 +4,7 @@ import { characterApi } from '../../api/characterApi';
 import type { CharacterDetail, AddItemRequest, ItemInfo, EncumbranceSummary } from '../../types/character';
 import { InlineConfirmButton } from '../common/InlineConfirmButton';
 import { ItemNoteModal } from './ItemNoteModal';
-import { useWeaponTags } from '../../contexts/LookupsContext';
+import { useWeaponTags, useWeaponTypes } from '../../contexts/LookupsContext';
 
 const SLOT_TYPES = ['Stowed', 'Readied', 'Equipped'] as const;
 
@@ -13,16 +13,17 @@ export function InventoryPanel({ character, onUpdate }: {
   onUpdate: (c: CharacterDetail) => void;
 }) {
   const weaponTags = useWeaponTags();
+  const weaponTypes = useWeaponTypes();
   const [showAdd, setShowAdd] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [viewingNoteId, setViewingNoteId] = useState<string | null>(null);
   const [itemType, setItemType] = useState('Item');
   const [form, setForm] = useState<AddItemRequest>({
-    name: '', encumbrance: 1, itemType: 'Item', quantity: 1, combatSkill: 'Stab',
+    name: '', encumbrance: 1, itemType: 'Item', quantity: 1, combatSkill: 'Stab', weaponType: 'Melee',
   });
 
   const resetForm = () => {
-    setForm({ name: '', encumbrance: 1, itemType: 'Item', quantity: 1, combatSkill: 'Stab' });
+    setForm({ name: '', encumbrance: 1, itemType: 'Item', quantity: 1, combatSkill: 'Stab', weaponType: 'Melee' });
     setItemType('Item');
   };
 
@@ -50,6 +51,7 @@ export function InventoryPanel({ character, onUpdate }: {
       combatSkill: item.combatSkill ?? undefined,
       shockDamage: item.shockDamage ?? undefined,
       shockAcThreshold: item.shockAcThreshold ?? undefined,
+      weaponType: item.weaponType ?? 'Melee',
       tags: item.tags ?? undefined,
       acBonus: item.acBonus ?? undefined,
       isShield: item.isShield ?? undefined,
@@ -138,6 +140,15 @@ export function InventoryPanel({ character, onUpdate }: {
               <option>Intelligence</option>
               <option>Wisdom</option>
               <option>Charisma</option>
+            </select>
+          </div>
+          <div className="form-group">
+            <label>Weapon Type</label>
+            <select value={form.weaponType ?? 'Melee'}
+              onChange={e => setForm({ ...form, weaponType: e.target.value })}>
+              {weaponTypes.map(t => (
+                <option key={t.id} value={t.code}>{t.displayName}</option>
+              ))}
             </select>
           </div>
           <div className="form-group" style={{ gridColumn: '1 / -1' }}>

@@ -93,6 +93,7 @@ public record AddItemRequest
     public string? CombatSkill { get; init; }
     public int? ShockDamage { get; init; }
     public int? ShockAcThreshold { get; init; }
+    public string? WeaponType { get; init; }
     public string? Tags { get; init; }
 
     // Armor fields
@@ -118,6 +119,7 @@ public record UpdateItemRequest
     public string? CombatSkill { get; init; }
     public int? ShockDamage { get; init; }
     public int? ShockAcThreshold { get; init; }
+    public string? WeaponType { get; init; }
     public string? Tags { get; init; }
 
     // Armor fields
