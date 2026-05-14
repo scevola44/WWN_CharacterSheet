@@ -2,11 +2,16 @@ import { useState, useEffect, useRef } from 'react';
 
 export function useScrollDirection() {
   const [scrollingDown, setScrollingDown] = useState(false);
-  const lastScrollY = useRef(window.scrollY);
+  const lastScrollY = useRef(0);
 
   useEffect(() => {
+    const scrollContainer = document.querySelector('.app-main') as HTMLElement | null;
+    if (!scrollContainer) return;
+
+    lastScrollY.current = scrollContainer.scrollTop;
+
     const handleScroll = () => {
-      const currentY = window.scrollY;
+      const currentY = scrollContainer.scrollTop;
       const delta = currentY - lastScrollY.current;
 
       if (Math.abs(delta) < 10) return;
@@ -15,8 +20,8 @@ export function useScrollDirection() {
       lastScrollY.current = currentY;
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+    return () => scrollContainer.removeEventListener('scroll', handleScroll);
   }, []);
 
   return scrollingDown;
