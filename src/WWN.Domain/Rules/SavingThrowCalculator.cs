@@ -22,6 +22,7 @@ public static class SavingThrowCalculator
             SaveType.Mental => Math.Max(
                 character.GetAttribute(AttributeName.Wisdom).Modifier,
                 character.GetAttribute(AttributeName.Charisma).Modifier),
+            SaveType.Luck => 0,
             _ => throw new ArgumentOutOfRangeException(nameof(type))
         };
     }

@@ -8,6 +8,9 @@ obj/
 *.db
 *.db-journal
 
+## ASP.NET Data Protection keys (runtime secrets, never commit)
+**/keys/*.xml
+
 ## NuGet
 **/[Pp]ackages/*
 !**/[Pp]ackages/build/

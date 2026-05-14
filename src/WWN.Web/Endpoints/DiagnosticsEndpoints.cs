@@ -20,9 +20,17 @@ public static class DiagnosticsEndpoints
         return Results.Ok(new InfoResponse(
             appInfo.Branch,
             appInfo.Environment,
-            appInfo.StartupTime
+            appInfo.StartupTime,
+            appInfo.Version,
+            appInfo.Channel
         ));
     }
 
-    public record InfoResponse(string Branch, string Environment, DateTime StartupTime);
+    public record InfoResponse(
+        string Branch,
+        string Environment,
+        DateTime StartupTime,
+        string Version,
+        string Channel
+    );
 }

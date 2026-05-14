@@ -25,6 +25,12 @@ public static class SaveTypeCatalog
                 DisplayName: "Mental",
                 Description: "Resist mental assault, compulsion, and fear. Uses max(WIS mod, CHA mod). Target = 16 − level − modifier.",
                 SortOrder: 2),
+            [SaveType.Luck] = new(
+                Id: (int)SaveType.Luck,
+                Code: nameof(SaveType.Luck),
+                DisplayName: "Luck",
+                Description: "Pure fortune. No attribute modifier. Target = 16 − level.",
+                SortOrder: 3),
         };
 
     public static IReadOnlyList<LookupValue> All { get; } = Entries.Values

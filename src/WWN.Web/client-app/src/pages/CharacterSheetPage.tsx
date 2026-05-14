@@ -25,6 +25,11 @@ export function CharacterSheetPage() {
 
   const handleUpdate = (updated: typeof character) => setCharacter(updated);
 
+  const hasMagic =
+    character.class === 'Mage' ||
+    character.partialClassA === 'PartialMage' ||
+    character.partialClassB === 'PartialMage';
+
   return (
     <div style={{ paddingBottom: '120px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -70,7 +75,7 @@ export function CharacterSheetPage() {
       </div>
 
       <NotesSection character={character} onUpdate={handleUpdate} />
-      <MobileBookmarks />
+      <MobileBookmarks hasMagic={hasMagic} />
     </div>
   );
 }

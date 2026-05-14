@@ -4,5 +4,6 @@ public enum SaveType
 {
     Physical,
     Evasion,
-    Mental
+    Mental,
+    Luck
 }

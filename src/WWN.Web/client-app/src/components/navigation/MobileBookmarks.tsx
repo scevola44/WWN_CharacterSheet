@@ -8,6 +8,7 @@ import {
   faPersonHiking,
   faWandSparkles,
 } from '@fortawesome/free-solid-svg-icons';
+import { useScrollDirection } from '../../hooks/useScrollDirection';
 
 interface Bookmark {
   label: string;
@@ -43,7 +44,13 @@ const BOOKMARKS: Bookmark[] = [
   },
 ];
 
-export function MobileBookmarks() {
+interface Props {
+  hasMagic: boolean;
+}
+
+export function MobileBookmarks({ hasMagic }: Props) {
+  const scrollingDown = useScrollDirection();
+
   const handleScroll = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
@@ -51,9 +58,13 @@ export function MobileBookmarks() {
     }
   };
 
+  const visibleBookmarks = hasMagic
+    ? BOOKMARKS
+    : BOOKMARKS.filter(b => b.sectionId !== 'magic-section');
+
   return (
-    <nav className="mobile-bookmarks">
-      {BOOKMARKS.map((bookmark) => (
+    <nav className={`mobile-bookmarks${scrollingDown ? ' mobile-bookmarks--hidden' : ''}`}>
+      {visibleBookmarks.map((bookmark) => (
         <button
           key={bookmark.sectionId}
           className="bookmark-button"
