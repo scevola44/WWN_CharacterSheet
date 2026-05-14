@@ -21,7 +21,7 @@ jobs:
         run: |
           gh release create "beta-${{ github.run_number }}" \
             --title "Beta #${{ github.run_number }}" \
-            --notes "Beta build — commit ${{ github.sha }}" \
+            --generate-notes \
             --prerelease
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -31,7 +31,7 @@ jobs:
         run: |
           gh release create "stable-${{ github.run_number }}" \
             --title "Stable #${{ github.run_number }}" \
-            --notes "Stable release — commit ${{ github.sha }}"
+            --generate-notes
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
