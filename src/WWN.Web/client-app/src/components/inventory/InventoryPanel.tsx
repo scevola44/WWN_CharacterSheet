@@ -3,6 +3,7 @@ import { SectionCard } from '../layout/SectionCard';
 import { characterApi } from '../../api/characterApi';
 import type { CharacterDetail, AddItemRequest, ItemInfo, EncumbranceSummary } from '../../types/character';
 import { InlineConfirmButton } from '../common/InlineConfirmButton';
+import { ItemNoteModal } from './ItemNoteModal';
 
 const SLOT_TYPES = ['Stowed', 'Readied', 'Equipped'] as const;
 
@@ -12,6 +13,7 @@ export function InventoryPanel({ character, onUpdate }: {
 }) {
   const [showAdd, setShowAdd] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [viewingNoteId, setViewingNoteId] = useState<string | null>(null);
   const [itemType, setItemType] = useState('Item');
   const [form, setForm] = useState<AddItemRequest>({
     name: '', encumbrance: 1, itemType: 'Item', quantity: 1, combatSkill: 'Stab',
@@ -92,6 +94,15 @@ export function InventoryPanel({ character, onUpdate }: {
           <input type="number" value={form.encumbrance}
             onChange={e => setForm({ ...form, encumbrance: +e.target.value })} />
         </div>
+      </div>
+      <div className="form-group">
+        <label>Note</label>
+        <textarea
+          rows={3}
+          placeholder="Optional note…"
+          value={form.description ?? ''}
+          onChange={e => setForm({ ...form, description: e.target.value || undefined })}
+        />
       </div>
 
       {itemType === 'Weapon' && (
@@ -188,7 +199,12 @@ export function InventoryPanel({ character, onUpdate }: {
     </div>
   );
 
+  const viewingNoteItem = viewingNoteId
+    ? character.inventory.find(i => i.id === viewingNoteId) ?? null
+    : null;
+
   return (
+    <>
     <SectionCard title="Inventory">
       <EncumbranceBar summary={character.encumbranceSummary} />
       {character.inventory.map(item => (
@@ -210,6 +226,17 @@ export function InventoryPanel({ character, onUpdate }: {
                 {item.itemType === 'Weapon' && ` | ${item.damageDie} dmg`}
                 {item.itemType === 'Armor' && ` | AC +${item.acBonus}${item.isShield ? ' (Shield)' : ''}`}
               </div>
+              {item.description && (
+                <div
+                  className="item-note-preview"
+                  onClick={() => setViewingNoteId(item.id)}
+                  title="Click to view full note"
+                >
+                  {item.description.length > 60
+                    ? item.description.slice(0, 60) + '…'
+                    : item.description}
+                </div>
+              )}
             </div>
             <div className="item-actions">
               <select
@@ -234,6 +261,16 @@ export function InventoryPanel({ character, onUpdate }: {
         </button>
       ) : null}
     </SectionCard>
+
+    {viewingNoteItem && (
+      <ItemNoteModal
+        item={viewingNoteItem}
+        characterId={character.id}
+        onClose={() => setViewingNoteId(null)}
+        onSaved={updated => { onUpdate(updated); setViewingNoteId(null); }}
+      />
+    )}
+    </>
   );
 }
 
