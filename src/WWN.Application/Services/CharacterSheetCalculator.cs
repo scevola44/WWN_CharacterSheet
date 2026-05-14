@@ -27,6 +27,7 @@ public class CharacterSheetCalculator
             PhysicalSave = SavingThrowCalculator.GetSaveTarget(SaveType.Physical, character) - saveFocusBonus - saveAbilityBonus,
             EvasionSave = SavingThrowCalculator.GetSaveTarget(SaveType.Evasion, character) - saveFocusBonus - saveAbilityBonus,
             MentalSave = SavingThrowCalculator.GetSaveTarget(SaveType.Mental, character) - saveFocusBonus - saveAbilityBonus,
+            LuckSave = SavingThrowCalculator.GetSaveTarget(SaveType.Luck, character) - saveFocusBonus - saveAbilityBonus,
             AttributeModifiers = Enum.GetValues<AttributeName>()
                 .ToDictionary(a => a.ToString(), a => character.GetAttribute(a).Modifier),
             WeaponAttackBonuses = character.Inventory

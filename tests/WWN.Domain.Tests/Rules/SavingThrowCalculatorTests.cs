@@ -52,6 +52,23 @@ public class SavingThrowCalculatorTests
         SavingThrowCalculator.GetSaveTarget(SaveType.Physical, character).Should().Be(13);
     }
 
+    [Fact]
+    public void Luck_ModifierIsZero()
+    {
+        // Luck has no attribute modifier regardless of stats
+        var character = CreateCharacter(str: 18, dex: 18, con: 18, intel: 18, wis: 18, cha: 18);
+        SavingThrowCalculator.GetSaveModifier(SaveType.Luck, character).Should().Be(0);
+    }
+
+    [Fact]
+    public void Luck_SaveTarget_IsBaseSaveOnly()
+    {
+        // Level 5: base = 16 - 5 = 11, no modifier -> target 11
+        var character = CreateCharacter();
+        character.SetLevel(5);
+        SavingThrowCalculator.GetSaveTarget(SaveType.Luck, character).Should().Be(11);
+    }
+
     private static Character CreateCharacter(
         int str = 10, int dex = 10, int con = 10,
         int intel = 10, int wis = 10, int cha = 10)

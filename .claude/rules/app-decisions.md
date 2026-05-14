@@ -62,7 +62,11 @@ Format for each entry:
 
 ### All saves use 16 − level − attribute_mod
 **Source**: WWN-derived.
-**Detail**: Physical = 16−level−max(STR,CON), Evasion = 16−level−max(DEX,INT), Mental = 16−level−max(WIS,CHA). There is no "generalist" formula. The `isSpecialist` parameter has been removed from `SavingThrowCalculator`. A Luck save (16−level, no attribute mod) exists in the rulebook but is not yet modeled.
+**Detail**: Physical = 16−level−max(STR,CON), Evasion = 16−level−max(DEX,INT), Mental = 16−level−max(WIS,CHA). There is no "generalist" formula. The `isSpecialist` parameter has been removed from `SavingThrowCalculator`.
+
+### Luck save = 16 − level (no attribute modifier)
+**Source**: WWN-derived.
+**Detail**: `SaveType.Luck` returns modifier `0` from `SavingThrowCalculator.GetSaveModifier`; target is simply the base save. Generic `SaveBonus` focus/ability effects apply as they do for other saves. Surfaced as `LuckSave` in `DerivedStatsDto` and displayed alongside Physical/Evasion/Mental in `CombatStats.tsx`.
 
 ### Adventurer-with-Partial-Warrior BAB = level/2 + 1
 **Source**: App-specific (confirmed project choice).

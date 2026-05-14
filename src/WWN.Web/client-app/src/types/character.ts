@@ -101,6 +101,7 @@ export interface DerivedStats {
   physicalSave: number;
   evasionSave: number;
   mentalSave: number;
+  luckSave: number;
   attributeModifiers: Record<string, number>;
   weaponAttackBonuses: Record<string, number>;
   weaponDamageBonuses: Record<string, number>;

@@ -58,6 +58,10 @@ export function CombatStats({ character, onUpdate }: {
           <div className="label">Mental</div>
           <div className="value">{derivedStats.mentalSave}+</div>
         </div>
+        <div className="stat-box">
+          <div className="label">Luck</div>
+          <div className="value">{derivedStats.luckSave}+</div>
+        </div>
       </div>
 
       {equippedWeapons.length > 0 && (
