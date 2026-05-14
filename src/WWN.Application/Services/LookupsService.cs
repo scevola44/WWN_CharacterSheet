@@ -43,7 +43,7 @@ public class LookupsService(IArtSourceRepository artSourceRepository)
             .Concat(dto.PartialClasses)
             .Concat(dto.FocusEffectTypes)
             .Concat(dto.WeaponTags);
-        var payload = string.Join("|", allValues.Select(v => $"{v.Id}:{v.Code}:{v.DisplayName}:{v.Description}:{v.SortOrder}"));
+        var payload = string.Join("|", allValues.Select(v => $"{v.Id}:{v.Code}:{v.DisplayName}:{v.Description}:{v.SortOrder}:{v.Abbreviation}"));
         var bytes = System.Text.Encoding.UTF8.GetBytes(payload);
         var hash = System.Security.Cryptography.SHA256.HashData(bytes);
         return $"\"{Convert.ToHexString(hash)[..16]}\"";
@@ -55,6 +55,7 @@ public class LookupsService(IArtSourceRepository artSourceRepository)
         Code = v.Code,
         DisplayName = v.DisplayName,
         Description = v.Description,
-        SortOrder = v.SortOrder
+        SortOrder = v.SortOrder,
+        Abbreviation = v.Abbreviation
     };
 }

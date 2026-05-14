@@ -4,6 +4,7 @@ export interface LookupValue {
   displayName: string;
   description: string | null;
   sortOrder: number;
+  abbreviation: string | null;
 }
 
 export interface Lookups {

@@ -7,6 +7,7 @@ public record LookupValueDto
     public string DisplayName { get; init; } = string.Empty;
     public string? Description { get; init; }
     public int SortOrder { get; init; }
+    public string? Abbreviation { get; init; }
 }
 
 public record LookupsDto
