@@ -16,11 +16,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4.1.7
 
+      - name: Read version base
+        id: version
+        run: |
+          BASE=$(jq -r '.Version.Base' src/WWN.Web/appsettings.json)
+          echo "tag=v${BASE}.${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+          echo "name=${BASE}.${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+
       - name: Create beta release
         if: github.ref == 'refs/heads/develop'
         run: |
-          gh release create "beta-${{ github.run_number }}" \
-            --title "Beta #${{ github.run_number }}" \
+          gh release create "${{ steps.version.outputs.tag }}-beta" \
+            --title "${{ steps.version.outputs.name }} Beta" \
             --generate-notes \
             --prerelease
         env:
@@ -29,8 +36,8 @@ jobs:
       - name: Create stable release
         if: github.ref == 'refs/heads/main'
         run: |
-          gh release create "stable-${{ github.run_number }}" \
-            --title "Stable #${{ github.run_number }}" \
+          gh release create "${{ steps.version.outputs.tag }}" \
+            --title "${{ steps.version.outputs.name }}" \
             --generate-notes
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
