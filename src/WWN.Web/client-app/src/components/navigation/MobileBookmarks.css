@@ -45,6 +45,10 @@
   transform: scale(1.05);
 }
 
+.bookmark-button--active {
+  color: var(--primary);
+}
+
 .bookmark-icon {
   font-size: 1.5rem;
   color: inherit;
