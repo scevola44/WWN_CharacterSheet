@@ -21,7 +21,7 @@ export function RegisterPage() {
     setIsSubmitting(true);
     try {
       await register({ email, password });
-      navigate('/login', { state: { message: 'Account created! Please sign in.' } });
+      navigate('/login', { state: { message: 'Account created — please check your email to confirm your account before signing in.' } });
     } catch (err: unknown) {
       const data = (err as { response?: { data?: { errors?: string[] } } }).response?.data;
       setError(data?.errors?.join(' ') ?? 'Registration failed. Please try again.');

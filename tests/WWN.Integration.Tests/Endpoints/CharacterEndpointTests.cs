@@ -16,6 +16,7 @@ using WWN.Infrastructure.Persistence;
 
 namespace WWN.Integration.Tests.Endpoints;
 
+[Collection("WebHostShared")]
 public class CharacterEndpointTests : IClassFixture<CharacterEndpointTests.CustomFactory>, IDisposable
 {
     private class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
