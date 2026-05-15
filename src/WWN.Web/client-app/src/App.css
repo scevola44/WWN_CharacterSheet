@@ -418,7 +418,7 @@ input[type="number"] { width: 60px; text-align: center; }
 }
 
 .weapon-tag-badge--interactive {
-  cursor: help;
+  cursor: pointer;
 }
 
 .weapon-tag-badge--interactive:hover {
