@@ -14,8 +14,13 @@ function WeaponTagBadge({ tag }: { tag: LookupValue }) {
   useEffect(() => {
     if (!open) return;
     const close = () => setOpen(false);
-    document.addEventListener('click', close);
-    return () => document.removeEventListener('click', close);
+    // Defer so iOS's synthesized click from the same tap doesn't immediately
+    // trigger this listener and close the tooltip we just opened.
+    const timer = setTimeout(() => document.addEventListener('click', close), 0);
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('click', close);
+    };
   }, [open]);
 
   return (
