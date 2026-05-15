@@ -1,4 +1,5 @@
 import './MobileBookmarks.css';
+import { useMemo } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import {
@@ -9,6 +10,7 @@ import {
   faWandSparkles,
 } from '@fortawesome/free-solid-svg-icons';
 import { useScrollDirection } from '../../hooks/useScrollDirection';
+import { useActiveSection } from '../../hooks/useActiveSection';
 
 interface Bookmark {
   label: string;
@@ -51,6 +53,16 @@ interface Props {
 export function MobileBookmarks({ hasMagic }: Props) {
   const scrollingDown = useScrollDirection();
 
+  const visibleBookmarks = hasMagic
+    ? BOOKMARKS
+    : BOOKMARKS.filter(b => b.sectionId !== 'magic-section');
+
+  const sectionIds = useMemo(
+    () => visibleBookmarks.map(b => b.sectionId),
+    [visibleBookmarks]
+  );
+  const activeSection = useActiveSection(sectionIds);
+
   const handleScroll = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
@@ -58,16 +70,12 @@ export function MobileBookmarks({ hasMagic }: Props) {
     }
   };
 
-  const visibleBookmarks = hasMagic
-    ? BOOKMARKS
-    : BOOKMARKS.filter(b => b.sectionId !== 'magic-section');
-
   return (
     <nav className={`mobile-bookmarks${scrollingDown ? ' mobile-bookmarks--hidden' : ''}`}>
       {visibleBookmarks.map((bookmark) => (
         <button
           key={bookmark.sectionId}
-          className="bookmark-button"
+          className={`bookmark-button${activeSection === bookmark.sectionId ? ' bookmark-button--active' : ''}`}
           onClick={() => handleScroll(bookmark.sectionId)}
           title={bookmark.label}
           aria-label={`Jump to ${bookmark.label}`}
