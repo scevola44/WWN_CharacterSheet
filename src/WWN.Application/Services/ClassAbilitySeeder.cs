@@ -13,13 +13,13 @@ public class ClassAbilitySeeder(IClassAbilityRepository repository)
 {
     public async Task SeedIfEmptyAsync(CancellationToken ct = default)
     {
-        if (await repository.AnyAsync(ct)) return;
+        if (await repository.AnyGlobalAsync(ct)) return;
         await SeedCoreAsync(ct);
     }
 
     public async Task ForceReseedAsync(CancellationToken ct = default)
     {
-        foreach (var existing in await repository.GetAllAsync(ct))
+        foreach (var existing in await repository.GetGlobalAsync(ct))
             await repository.DeleteAsync(existing.Id, ct);
         await SeedCoreAsync(ct);
     }

@@ -20,5 +20,7 @@ public class ArtConfiguration : IEntityTypeConfiguration<Art>
             .WithMany()
             .HasForeignKey(art => art.SourceId)
             .OnDelete(DeleteBehavior.Restrict);
+        builder.Property(art => art.OwnerId).HasMaxLength(450);
+        builder.HasIndex(art => art.OwnerId);
     }
 }

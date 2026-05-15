@@ -10,22 +10,28 @@ namespace WWN.Application.Services;
 
 public class FocusDefinitionService(IFocusDefinitionRepository focusDefinitionRepository, IMemoryCache cache)
 {
-    public async Task<IReadOnlyList<FocusDefinitionDto>> ListAsync(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<FocusDefinitionDto>> ListAsync(
+        string? userId = null,
+        CancellationToken cancellationToken = default)
     {
-        var foci = await focusDefinitionRepository.GetAllAsync(cancellationToken);
+        var foci = await focusDefinitionRepository.GetVisibleToUserAsync(userId, cancellationToken);
         return foci.Select(MapToDto).ToList();
     }
 
     public async Task<FocusDefinitionDto?> GetAsync(
         Guid focusId,
+        string? userId = null,
         CancellationToken cancellationToken = default)
     {
         var focusDefinition = await focusDefinitionRepository.GetByIdAsync(focusId, cancellationToken);
-        return focusDefinition is null ? null : MapToDto(focusDefinition);
+        if (focusDefinition is null) return null;
+        if (focusDefinition.OwnerId is not null && focusDefinition.OwnerId != userId) return null;
+        return MapToDto(focusDefinition);
     }
 
     public async Task<FocusDefinitionDto> CreateAsync(
         CreateFocusDefinitionRequest request,
+        string? ownerId = null,
         CancellationToken cancellationToken = default)
     {
         var focusDefinition = new FocusDefinition(
@@ -35,7 +41,8 @@ public class FocusDefinitionService(IFocusDefinitionRepository focusDefinitionRe
             request.Description,
             request.CanTakeMultipleTimes,
             request.Level1Effects.Select(ParseEffect),
-            request.Level2Effects.Select(ParseEffect));
+            request.Level2Effects.Select(ParseEffect),
+            ownerId);
         await focusDefinitionRepository.AddAsync(focusDefinition, cancellationToken);
         cache.Remove(CharacterDetailMapper.FocusDefsKey);
         return MapToDto(focusDefinition);
@@ -44,10 +51,13 @@ public class FocusDefinitionService(IFocusDefinitionRepository focusDefinitionRe
     public async Task<FocusDefinitionDto?> UpdateAsync(
         Guid focusId,
         UpdateFocusDefinitionRequest request,
+        string? userId,
+        bool isAdmin,
         CancellationToken cancellationToken = default)
     {
         var focusDefinition = await focusDefinitionRepository.GetByIdAsync(focusId, cancellationToken);
         if (focusDefinition is null) return null;
+        EnsureCanMutate(focusDefinition.OwnerId, userId, isAdmin);
 
         focusDefinition.Update(
             request.Name,
@@ -62,10 +72,26 @@ public class FocusDefinitionService(IFocusDefinitionRepository focusDefinitionRe
         return MapToDto(focusDefinition);
     }
 
-    public async Task DeleteAsync(Guid focusId, CancellationToken cancellationToken = default)
+    public async Task DeleteAsync(
+        Guid focusId,
+        string? userId,
+        bool isAdmin,
+        CancellationToken cancellationToken = default)
     {
+        var focusDefinition = await focusDefinitionRepository.GetByIdAsync(focusId, cancellationToken);
+        if (focusDefinition is null) return;
+        EnsureCanMutate(focusDefinition.OwnerId, userId, isAdmin);
         await focusDefinitionRepository.DeleteAsync(focusId, cancellationToken);
         cache.Remove(CharacterDetailMapper.FocusDefsKey);
+    }
+
+    private static void EnsureCanMutate(string? ownerId, string? userId, bool isAdmin)
+    {
+        if (isAdmin) return;
+        if (ownerId is null)
+            throw new UnauthorizedAccessException("Only an admin can modify built-in foci.");
+        if (ownerId != userId)
+            throw new UnauthorizedAccessException("You can only modify foci you created.");
     }
 
     private static FocusEffect ParseEffect(FocusEffectDto e) => new(
@@ -99,5 +125,6 @@ public class FocusDefinitionService(IFocusDefinitionRepository focusDefinitionRe
         CanTakeMultipleTimes = fd.CanTakeMultipleTimes,
         Level1Effects = fd.Level1Effects.Select(MapEffectDto).ToList(),
         Level2Effects = fd.Level2Effects.Select(MapEffectDto).ToList(),
+        IsCustom = fd.OwnerId is not null,
     };
 }

@@ -18,5 +18,7 @@ public class FocusDefinitionConfiguration : IEntityTypeConfiguration<FocusDefini
         builder.Property(focus => focus.CanTakeMultipleTimes).IsRequired();
         builder.OwnsMany(fd => fd.Level1Effects, e => { e.ToJson(); });
         builder.OwnsMany(fd => fd.Level2Effects, e => { e.ToJson(); });
+        builder.Property(fd => fd.OwnerId).HasMaxLength(450);
+        builder.HasIndex(fd => fd.OwnerId);
     }
 }

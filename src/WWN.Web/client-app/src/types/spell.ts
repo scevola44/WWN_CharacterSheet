@@ -4,6 +4,7 @@ export interface Spell {
   spellLevel: number;
   description: string;
   summary: string | null;
+  isCustom: boolean;
 }
 
 export interface KnownSpell {

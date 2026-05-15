@@ -1,10 +1,20 @@
 import { useState, useEffect, useMemo } from 'react';
-import type { Art } from '../../types/art';
+import type { Art, CreateArtRequest } from '../../types/art';
 import type { CharacterDetail } from '../../types/character';
 import { artsApi } from '../../api/artApi';
-import { useEffortCommitments, useLookups } from '../../contexts/LookupsContext';
+import { useEffortCommitments, useLookups, useArtSources } from '../../contexts/LookupsContext';
+import { ArtForm } from './ArtForm';
 
 const ALL_FILTER = -1;
+
+const EMPTY_FORM: CreateArtRequest = {
+  name: '',
+  description: '',
+  summary: '',
+  minLevel: 1,
+  effortCost: 0,
+  sourceId: 1,
+};
 
 export function ArtDatabaseModal({ character, onLearn, onClose }: {
   character: CharacterDetail;
@@ -17,6 +27,13 @@ export function ArtDatabaseModal({ character, onLearn, onClose }: {
   const [loading, setLoading] = useState(true);
   const effortOptions = useEffortCommitments();
   const { effortCommitmentById } = useLookups();
+  const sourceOptions = useArtSources();
+  const [creating, setCreating] = useState(false);
+  const [createForm, setCreateForm] = useState<CreateArtRequest>(() => ({
+    ...EMPTY_FORM,
+    sourceId: sourceOptions[0]?.id ?? 1,
+  }));
+  const [createError, setCreateError] = useState<string | null>(null);
 
   useEffect(() => {
     artsApi.list().then(setArts).finally(() => setLoading(false));
@@ -39,6 +56,25 @@ export function ArtDatabaseModal({ character, onLearn, onClose }: {
     onLearn();
   };
 
+  const handleCreate = async () => {
+    if (!createForm.name.trim() || !createForm.description.trim()) {
+      setCreateError('Name and description are required.');
+      return;
+    }
+    setCreateError(null);
+    try {
+      const created = await artsApi.create({
+        ...createForm,
+        summary: createForm.summary || undefined,
+      });
+      setArts(prev => [...prev, created]);
+      setCreateForm({ ...EMPTY_FORM, sourceId: sourceOptions[0]?.id ?? 1 });
+      setCreating(false);
+    } catch (e) {
+      setCreateError(e instanceof Error ? e.message : 'Failed to create art.');
+    }
+  };
+
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ background: 'var(--bg-card)', padding: '1.5rem', borderRadius: '0.5rem', maxWidth: '600px', maxHeight: '80vh', overflow: 'auto', minWidth: '400px' }}>
@@ -46,6 +82,26 @@ export function ArtDatabaseModal({ character, onLearn, onClose }: {
           <h2>Add Art</h2>
           <button className="sm danger" onClick={onClose}>✕</button>
         </div>
+
+        {creating ? (
+          <div style={{ border: '1px solid var(--border)', borderRadius: '0.25rem', padding: '0.75rem', marginBottom: '1rem' }}>
+            <h3 style={{ marginTop: 0 }}>New Custom Art</h3>
+            {createError && (
+              <div style={{ color: 'var(--danger)', fontSize: '0.875rem', marginBottom: '0.5rem' }}>{createError}</div>
+            )}
+            <ArtForm
+              values={createForm}
+              onChange={setCreateForm}
+              onSubmit={handleCreate}
+              onCancel={() => { setCreating(false); setCreateError(null); }}
+              submitLabel="Create & Add to Library"
+            />
+          </div>
+        ) : (
+          <div style={{ marginBottom: '1rem' }}>
+            <button className="sm" onClick={() => setCreating(true)}>+ Create custom art</button>
+          </div>
+        )}
 
         <div className="form-group">
           <label>Search Name</label>
@@ -77,7 +133,10 @@ export function ArtDatabaseModal({ character, onLearn, onClose }: {
               <div key={art.id} style={{ border: '1px solid var(--border)', padding: '0.75rem', borderRadius: '0.25rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 'bold' }}>{art.name}</div>
+                    <div style={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      {art.name}
+                      {art.isCustom && <CustomBadge />}
+                    </div>
                     <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
                       Min Level {art.minLevel} · Effort: {effortCommitmentById.get(art.effortCost)?.displayName ?? '—'}
                     </div>
@@ -96,5 +155,20 @@ export function ArtDatabaseModal({ character, onLearn, onClose }: {
         )}
       </div>
     </div>
+  );
+}
+
+function CustomBadge() {
+  return (
+    <span style={{
+      fontSize: '0.7rem',
+      padding: '0.1rem 0.4rem',
+      borderRadius: '0.2rem',
+      background: 'var(--accent)',
+      color: 'var(--bg)',
+      fontWeight: 'normal',
+    }}>
+      Custom
+    </span>
   );
 }

@@ -10,9 +10,10 @@ public class ClassAbilityDefinition
     public int MinLevel { get; private set; }
     public string ClassOwner { get; private set; } = string.Empty;
     public List<ClassAbilityEffect> Effects { get; private set; } = new();
+    public string? OwnerId { get; private set; }
 
     public ClassAbilityDefinition(string name, string description, int minLevel, string classOwner,
-        IEnumerable<ClassAbilityEffect>? effects = null)
+        IEnumerable<ClassAbilityEffect>? effects = null, string? ownerId = null)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Ability name is required.", nameof(name));
@@ -29,6 +30,7 @@ public class ClassAbilityDefinition
         MinLevel = minLevel;
         ClassOwner = classOwner;
         Effects = effects?.ToList() ?? new List<ClassAbilityEffect>();
+        OwnerId = string.IsNullOrWhiteSpace(ownerId) ? null : ownerId;
     }
 
     public void SetEffects(IEnumerable<ClassAbilityEffect> effects)

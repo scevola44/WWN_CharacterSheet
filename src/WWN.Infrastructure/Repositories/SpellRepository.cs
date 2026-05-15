@@ -17,6 +17,14 @@ public class SpellRepository(WwnDbContext dbContext) : ISpellRepository
         return await dbContext.Spells.OrderBy(s => s.SpellLevel).ThenBy(s => s.Name).ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<Spell>> GetVisibleToUserAsync(string? userId, CancellationToken cancellationToken = default)
+    {
+        return await dbContext.Spells
+            .Where(s => s.OwnerId == null || s.OwnerId == userId)
+            .OrderBy(s => s.SpellLevel).ThenBy(s => s.Name)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task AddAsync(Spell spell, CancellationToken cancellationToken = default)
     {
         await dbContext.Spells.AddAsync(spell, cancellationToken);
@@ -42,5 +50,17 @@ public class SpellRepository(WwnDbContext dbContext) : ISpellRepository
     public async Task<bool> AnyAsync(CancellationToken cancellationToken = default)
     {
         return await dbContext.Spells.AnyAsync(cancellationToken);
+    }
+
+    public async Task<bool> AnyGlobalAsync(CancellationToken cancellationToken = default)
+    {
+        return await dbContext.Spells.AnyAsync(s => s.OwnerId == null, cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<Spell>> GetGlobalAsync(CancellationToken cancellationToken = default)
+    {
+        return await dbContext.Spells
+            .Where(s => s.OwnerId == null)
+            .ToListAsync(cancellationToken);
     }
 }

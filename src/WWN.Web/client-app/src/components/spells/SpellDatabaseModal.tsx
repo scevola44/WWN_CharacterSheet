@@ -1,7 +1,15 @@
 import { useState, useEffect, useMemo } from 'react';
-import type { Spell } from '../../types/spell';
+import type { Spell, CreateSpellRequest } from '../../types/spell';
 import type { CharacterDetail } from '../../types/character';
 import { spellsApi } from '../../api/spellApi';
+import { SpellForm } from './SpellForm';
+
+const EMPTY_FORM: CreateSpellRequest = {
+  name: '',
+  spellLevel: 1,
+  description: '',
+  summary: '',
+};
 
 export function SpellDatabaseModal({ character, onLearn, onClose }: {
   character: CharacterDetail;
@@ -12,6 +20,9 @@ export function SpellDatabaseModal({ character, onLearn, onClose }: {
   const [filterLevel, setFilterLevel] = useState<number | 'all'>('all');
   const [searchName, setSearchName] = useState('');
   const [loading, setLoading] = useState(true);
+  const [creating, setCreating] = useState(false);
+  const [createForm, setCreateForm] = useState<CreateSpellRequest>(EMPTY_FORM);
+  const [createError, setCreateError] = useState<string | null>(null);
 
   useEffect(() => {
     spellsApi.list().then(setSpells).finally(() => setLoading(false));
@@ -34,6 +45,27 @@ export function SpellDatabaseModal({ character, onLearn, onClose }: {
     onLearn();
   };
 
+  const handleCreate = async () => {
+    if (!createForm.name.trim() || !createForm.description.trim()) {
+      setCreateError('Name and description are required.');
+      return;
+    }
+    setCreateError(null);
+    try {
+      const created = await spellsApi.create({
+        name: createForm.name,
+        spellLevel: createForm.spellLevel,
+        description: createForm.description,
+        summary: createForm.summary || undefined,
+      });
+      setSpells(prev => [...prev, created]);
+      setCreateForm(EMPTY_FORM);
+      setCreating(false);
+    } catch (e) {
+      setCreateError(e instanceof Error ? e.message : 'Failed to create spell.');
+    }
+  };
+
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ background: 'var(--bg-card)', padding: '1.5rem', borderRadius: '0.5rem', maxWidth: '600px', maxHeight: '80vh', overflow: 'auto', minWidth: '400px' }}>
@@ -41,6 +73,26 @@ export function SpellDatabaseModal({ character, onLearn, onClose }: {
           <h2>Add Spell</h2>
           <button className="sm danger" onClick={onClose}>✕</button>
         </div>
+
+        {creating ? (
+          <div style={{ border: '1px solid var(--border)', borderRadius: '0.25rem', padding: '0.75rem', marginBottom: '1rem' }}>
+            <h3 style={{ marginTop: 0 }}>New Custom Spell</h3>
+            {createError && (
+              <div style={{ color: 'var(--danger)', fontSize: '0.875rem', marginBottom: '0.5rem' }}>{createError}</div>
+            )}
+            <SpellForm
+              values={createForm}
+              onChange={setCreateForm}
+              onSubmit={handleCreate}
+              onCancel={() => { setCreating(false); setCreateError(null); }}
+              submitLabel="Create & Add to Library"
+            />
+          </div>
+        ) : (
+          <div style={{ marginBottom: '1rem' }}>
+            <button className="sm" onClick={() => setCreating(true)}>+ Create custom spell</button>
+          </div>
+        )}
 
         <div className="form-group">
           <label>Search Name</label>
@@ -70,8 +122,9 @@ export function SpellDatabaseModal({ character, onLearn, onClose }: {
               <div key={spell.id} style={{ border: '1px solid var(--border)', padding: '0.75rem', borderRadius: '0.25rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 'bold' }}>
+                    <div style={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                       {spell.name}
+                      {spell.isCustom && <CustomBadge />}
                     </div>
                     <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Level {spell.spellLevel}</div>
                     {spell.summary && (
@@ -89,5 +142,20 @@ export function SpellDatabaseModal({ character, onLearn, onClose }: {
         )}
       </div>
     </div>
+  );
+}
+
+function CustomBadge() {
+  return (
+    <span style={{
+      fontSize: '0.7rem',
+      padding: '0.1rem 0.4rem',
+      borderRadius: '0.2rem',
+      background: 'var(--accent)',
+      color: 'var(--bg)',
+      fontWeight: 'normal',
+    }}>
+      Custom
+    </span>
   );
 }

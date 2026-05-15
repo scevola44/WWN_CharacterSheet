@@ -8,4 +8,6 @@ public interface IClassAbilityRepository
     Task AddAsync(ClassAbilityDefinition ability, CancellationToken ct = default);
     Task DeleteAsync(Guid id, CancellationToken ct = default);
     Task<bool> AnyAsync(CancellationToken ct = default);
+    Task<bool> AnyGlobalAsync(CancellationToken ct = default);
+    Task<IReadOnlyList<ClassAbilityDefinition>> GetGlobalAsync(CancellationToken ct = default);
 }

@@ -6,39 +6,48 @@ namespace WWN.Web.Endpoints;
 
 public static class ArtEndpoints
 {
+    private const string AdminRole = "Admin";
+
     public static void MapArtEndpoints(this IEndpointRouteBuilder app)
     {
         var artGroup = app.MapGroup("/api/arts").WithTags("Arts");
 
-        artGroup.MapGet("/", async (ArtService svc, CancellationToken ct) =>
+        artGroup.MapGet("/", async (ClaimsPrincipal principal, ArtService svc, CancellationToken ct) =>
         {
-            var arts = await svc.ListArtsAsync(ct);
+            var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+            var arts = await svc.ListArtsAsync(userId, ct);
             return Results.Ok(arts);
         });
 
-        artGroup.MapGet("/{id:guid}", async (Guid id, ArtService svc, CancellationToken ct) =>
+        artGroup.MapGet("/{id:guid}", async (Guid id, ClaimsPrincipal principal, ArtService svc, CancellationToken ct) =>
         {
-            var art = await svc.GetArtAsync(id, ct);
+            var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+            var art = await svc.GetArtAsync(id, userId, ct);
             return art is not null ? Results.Ok(art) : Results.NotFound();
         });
 
-        artGroup.MapPost("/", async (CreateArtRequest req, ArtService svc, CancellationToken ct) =>
+        artGroup.MapPost("/", async (CreateArtRequest req, ClaimsPrincipal principal, ArtService svc, CancellationToken ct) =>
         {
-            var dto = await svc.CreateArtAsync(req, ct);
+            var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var dto = await svc.CreateArtAsync(req, userId, ct);
             return Results.Created($"/api/arts/{dto.Id}", dto);
-        });
+        }).RequireAuthorization();
 
-        artGroup.MapPut("/{id:guid}", async (Guid id, UpdateArtRequest req, ArtService svc, CancellationToken ct) =>
+        artGroup.MapPut("/{id:guid}", async (Guid id, UpdateArtRequest req, ClaimsPrincipal principal, ArtService svc, CancellationToken ct) =>
         {
-            var dto = await svc.UpdateArtAsync(id, req, ct);
+            var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var isAdmin = principal.IsInRole(AdminRole);
+            var dto = await svc.UpdateArtAsync(id, req, userId, isAdmin, ct);
             return dto is not null ? Results.Ok(dto) : Results.NotFound();
-        });
+        }).RequireAuthorization();
 
-        artGroup.MapDelete("/{id:guid}", async (Guid id, ArtService svc, CancellationToken ct) =>
+        artGroup.MapDelete("/{id:guid}", async (Guid id, ClaimsPrincipal principal, ArtService svc, CancellationToken ct) =>
         {
-            await svc.DeleteArtAsync(id, ct);
+            var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var isAdmin = principal.IsInRole(AdminRole);
+            await svc.DeleteArtAsync(id, userId, isAdmin, ct);
             return Results.NoContent();
-        });
+        }).RequireAuthorization();
 
         var charArtGroup = app.MapGroup("/api/characters/{charId:guid}/arts")
             .WithTags("Character Arts")

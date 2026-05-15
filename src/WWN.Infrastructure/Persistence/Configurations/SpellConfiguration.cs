@@ -14,5 +14,7 @@ public class SpellConfiguration : IEntityTypeConfiguration<Spell>
         builder.Property(spell => spell.SpellLevel).IsRequired();
         builder.Property(spell => spell.Description).IsRequired();
         builder.Property(spell => spell.Summary).HasMaxLength(500);
+        builder.Property(spell => spell.OwnerId).HasMaxLength(450);
+        builder.HasIndex(spell => spell.OwnerId);
     }
 }

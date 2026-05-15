@@ -1,8 +1,19 @@
 import { useState, useEffect, useMemo } from 'react';
-import type { FocusDefinition, FocusEffectTemplate } from '../../types/focusDefinition';
+import type { FocusDefinition, FocusEffectTemplate, CreateFocusDefinitionRequest } from '../../types/focusDefinition';
 import type { CharacterDetail } from '../../types/character';
 import { focusDefinitionApi } from '../../api/focusDefinitionApi';
 import { characterApi } from '../../api/characterApi';
+import { FocusForm } from './FocusForm';
+
+const EMPTY_FORM: CreateFocusDefinitionRequest = {
+  name: '',
+  description: '',
+  level1Description: '',
+  level2Description: '',
+  canTakeMultipleTimes: false,
+  level1Effects: [],
+  level2Effects: [],
+};
 
 function formatEffect(e: FocusEffectTemplate): string {
   const conditionLabel: Record<string, string> = {
@@ -34,6 +45,9 @@ export function FocusDatabaseModal({ character, onAdd, onClose }: {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [levelSelections, setLevelSelections] = useState<Record<string, 1 | 2>>({});
   const [error, setError] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [createForm, setCreateForm] = useState<CreateFocusDefinitionRequest>(EMPTY_FORM);
+  const [createError, setCreateError] = useState<string | null>(null);
 
   useEffect(() => {
     focusDefinitionApi.list().then(setFoci).finally(() => setLoading(false));
@@ -52,9 +66,9 @@ export function FocusDatabaseModal({ character, onAdd, onClose }: {
   const isAvailable = (fd: FocusDefinition): boolean => {
     const currentLevel = getCharacterFocusLevel(fd.name);
     if (fd.canTakeMultipleTimes) return true;
-    if (currentLevel === 0) return true;           // can take at level 1
-    if (currentLevel === 1 && fd.hasLevel2) return true; // can upgrade to level 2
-    return false;                                   // already at max
+    if (currentLevel === 0) return true;
+    if (currentLevel === 1 && fd.hasLevel2) return true;
+    return false;
   };
 
   const getDefaultLevel = (fd: FocusDefinition): 1 | 2 => {
@@ -75,7 +89,6 @@ export function FocusDatabaseModal({ character, onAdd, onClose }: {
       );
 
       if (existingFocus && level === 2 && existingFocus.level === 1) {
-        // Upgrade existing L1 focus to L2 in-place
         const updated = await characterApi.upgradeFocus(
           character.id,
           existingFocus.id,
@@ -83,7 +96,6 @@ export function FocusDatabaseModal({ character, onAdd, onClose }: {
         );
         onAdd(updated);
       } else {
-        // Add fresh focus with effects for the selected level
         const effects = level === 2
           ? [...fd.level1Effects, ...fd.level2Effects]
           : fd.level1Effects;
@@ -99,6 +111,26 @@ export function FocusDatabaseModal({ character, onAdd, onClose }: {
     }
   };
 
+  const handleCreate = async () => {
+    if (!createForm.name.trim() || !createForm.level1Description.trim()) {
+      setCreateError('Name and Level 1 description are required.');
+      return;
+    }
+    setCreateError(null);
+    try {
+      const created = await focusDefinitionApi.create({
+        ...createForm,
+        description: createForm.description || undefined,
+        level2Description: createForm.level2Description || undefined,
+      });
+      setFoci(prev => [...prev, created].sort((a, b) => a.name.localeCompare(b.name)));
+      setCreateForm(EMPTY_FORM);
+      setCreating(false);
+    } catch (e) {
+      setCreateError(e instanceof Error ? e.message : 'Failed to create focus.');
+    }
+  };
+
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
       <div style={{ background: 'var(--bg-card)', padding: '1.5rem', borderRadius: '0.5rem', maxWidth: '640px', width: '100%', maxHeight: '85vh', overflow: 'auto' }}>
@@ -109,6 +141,26 @@ export function FocusDatabaseModal({ character, onAdd, onClose }: {
 
         {error && (
           <div style={{ color: 'var(--danger)', marginBottom: '0.5rem', fontSize: '0.875rem' }}>{error}</div>
+        )}
+
+        {creating ? (
+          <div style={{ border: '1px solid var(--border)', borderRadius: '0.25rem', padding: '0.75rem', marginBottom: '1rem' }}>
+            <h3 style={{ marginTop: 0 }}>New Custom Focus</h3>
+            {createError && (
+              <div style={{ color: 'var(--danger)', fontSize: '0.875rem', marginBottom: '0.5rem' }}>{createError}</div>
+            )}
+            <FocusForm
+              values={createForm}
+              onChange={v => setCreateForm(v as CreateFocusDefinitionRequest)}
+              onSubmit={handleCreate}
+              onCancel={() => { setCreating(false); setCreateError(null); }}
+              submitLabel="Create & Add to Library"
+            />
+          </div>
+        ) : (
+          <div style={{ marginBottom: '1rem' }}>
+            <button className="sm" onClick={() => setCreating(true)}>+ Create custom focus</button>
+          </div>
         )}
 
         <div className="form-group">
@@ -144,14 +196,16 @@ export function FocusDatabaseModal({ character, onAdd, onClose }: {
                     opacity: available ? 1 : 0.5,
                   }}
                 >
-                  {/* Header row */}
                   <div
                     style={{ padding: '0.75rem', cursor: 'pointer', background: 'var(--bg)' }}
                     onClick={() => setExpandedId(isExpanded ? null : fd.id)}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
                       <div>
-                        <div style={{ fontWeight: 'bold' }}>{fd.name}</div>
+                        <div style={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          {fd.name}
+                          {fd.isCustom && <CustomBadge />}
+                        </div>
                         <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.125rem', display: 'flex', gap: '0.75rem' }}>
                           {fd.hasLevel2 ? <span>Levels 1–2</span> : <span>Level 1 only</span>}
                           {fd.canTakeMultipleTimes && <span style={{ color: 'var(--accent)' }}>Can take multiple times</span>}
@@ -172,7 +226,6 @@ export function FocusDatabaseModal({ character, onAdd, onClose }: {
                     </div>
                   </div>
 
-                  {/* Expanded details + add controls */}
                   {isExpanded && (
                     <div style={{ padding: '0.75rem', borderTop: '1px solid var(--border)' }}>
                       <div style={{ marginBottom: '0.75rem', display: 'grid', gap: '0.5rem' }}>
@@ -243,5 +296,20 @@ export function FocusDatabaseModal({ character, onAdd, onClose }: {
         )}
       </div>
     </div>
+  );
+}
+
+function CustomBadge() {
+  return (
+    <span style={{
+      fontSize: '0.7rem',
+      padding: '0.1rem 0.4rem',
+      borderRadius: '0.2rem',
+      background: 'var(--accent)',
+      color: 'var(--bg)',
+      fontWeight: 'normal',
+    }}>
+      Custom
+    </span>
   );
 }

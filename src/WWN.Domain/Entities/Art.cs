@@ -12,9 +12,10 @@ public class Art
     public EffortCommitment EffortCost { get; private set; }
     public int SourceId { get; private set; }
     public ArtSource? SourceNavigation { get; private set; } // EF Core navigation
+    public string? OwnerId { get; private set; }
 
     public Art(string name, string description, int minLevel, int sourceId,
-        EffortCommitment effortCost = EffortCommitment.None, string? summary = null)
+        EffortCommitment effortCost = EffortCommitment.None, string? summary = null, string? ownerId = null)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Art name is required.", nameof(name));
@@ -34,6 +35,7 @@ public class Art
         SourceId = sourceId;
         EffortCost = effortCost;
         Summary = summary;
+        OwnerId = string.IsNullOrWhiteSpace(ownerId) ? null : ownerId;
     }
 
     public void Update(string name, string description, int minLevel, int sourceId,

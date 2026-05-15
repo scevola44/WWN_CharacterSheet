@@ -6,8 +6,11 @@ public interface ISpellRepository
 {
     Task<Spell?> GetByIdAsync(Guid spellId, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Spell>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Spell>> GetVisibleToUserAsync(string? userId, CancellationToken cancellationToken = default);
     Task AddAsync(Spell spell, CancellationToken cancellationToken = default);
     Task UpdateAsync(Spell spell, CancellationToken cancellationToken = default);
     Task DeleteAsync(Guid spellId, CancellationToken cancellationToken = default);
     Task<bool> AnyAsync(CancellationToken cancellationToken = default);
+    Task<bool> AnyGlobalAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Spell>> GetGlobalAsync(CancellationToken cancellationToken = default);
 }

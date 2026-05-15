@@ -15,13 +15,13 @@ public class ArtDefinitionSeeder(IArtRepository artRepository, IArtSourceReposit
 
     public async Task SeedIfEmptyAsync(CancellationToken cancellationToken = default)
     {
-        if (await artRepository.AnyAsync(cancellationToken)) return;
+        if (await artRepository.AnyGlobalAsync(cancellationToken)) return;
         await SeedCoreAsync(cancellationToken);
     }
 
     public async Task ForceReseedAsync(CancellationToken cancellationToken = default)
     {
-        foreach (var existing in await artRepository.GetAllAsync(cancellationToken))
+        foreach (var existing in await artRepository.GetGlobalAsync(cancellationToken))
             await artRepository.DeleteAsync(existing.Id, cancellationToken);
         await SeedCoreAsync(cancellationToken);
     }

@@ -6,39 +6,48 @@ namespace WWN.Web.Endpoints;
 
 public static class SpellEndpoints
 {
+    private const string AdminRole = "Admin";
+
     public static void MapSpellEndpoints(this IEndpointRouteBuilder app)
     {
         var spellGroup = app.MapGroup("/api/spells").WithTags("Spells");
 
-        spellGroup.MapGet("/", async (SpellService svc, CancellationToken ct) =>
+        spellGroup.MapGet("/", async (ClaimsPrincipal principal, SpellService svc, CancellationToken ct) =>
         {
-            var spells = await svc.ListSpellsAsync(ct);
+            var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+            var spells = await svc.ListSpellsAsync(userId, ct);
             return Results.Ok(spells);
         });
 
-        spellGroup.MapGet("/{id:guid}", async (Guid id, SpellService svc, CancellationToken ct) =>
+        spellGroup.MapGet("/{id:guid}", async (Guid id, ClaimsPrincipal principal, SpellService svc, CancellationToken ct) =>
         {
-            var spell = await svc.GetSpellAsync(id, ct);
+            var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+            var spell = await svc.GetSpellAsync(id, userId, ct);
             return spell is not null ? Results.Ok(spell) : Results.NotFound();
         });
 
-        spellGroup.MapPost("/", async (CreateSpellRequest req, SpellService svc, CancellationToken ct) =>
+        spellGroup.MapPost("/", async (CreateSpellRequest req, ClaimsPrincipal principal, SpellService svc, CancellationToken ct) =>
         {
-            var dto = await svc.CreateSpellAsync(req, ct);
+            var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var dto = await svc.CreateSpellAsync(req, userId, ct);
             return Results.Created($"/api/spells/{dto.Id}", dto);
-        });
+        }).RequireAuthorization();
 
-        spellGroup.MapPut("/{id:guid}", async (Guid id, UpdateSpellRequest req, SpellService svc, CancellationToken ct) =>
+        spellGroup.MapPut("/{id:guid}", async (Guid id, UpdateSpellRequest req, ClaimsPrincipal principal, SpellService svc, CancellationToken ct) =>
         {
-            var dto = await svc.UpdateSpellAsync(id, req, ct);
+            var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var isAdmin = principal.IsInRole(AdminRole);
+            var dto = await svc.UpdateSpellAsync(id, req, userId, isAdmin, ct);
             return dto is not null ? Results.Ok(dto) : Results.NotFound();
-        });
+        }).RequireAuthorization();
 
-        spellGroup.MapDelete("/{id:guid}", async (Guid id, SpellService svc, CancellationToken ct) =>
+        spellGroup.MapDelete("/{id:guid}", async (Guid id, ClaimsPrincipal principal, SpellService svc, CancellationToken ct) =>
         {
-            await svc.DeleteSpellAsync(id, ct);
+            var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var isAdmin = principal.IsInRole(AdminRole);
+            await svc.DeleteSpellAsync(id, userId, isAdmin, ct);
             return Results.NoContent();
-        });
+        }).RequireAuthorization();
 
         var charSpellGroup = app.MapGroup("/api/characters/{charId:guid}/spells")
             .WithTags("Character Spells")

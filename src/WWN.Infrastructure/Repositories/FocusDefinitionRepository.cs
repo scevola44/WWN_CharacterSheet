@@ -13,6 +13,12 @@ public class FocusDefinitionRepository(WwnDbContext dbContext) : IFocusDefinitio
     public async Task<IReadOnlyList<FocusDefinition>> GetAllAsync(CancellationToken cancellationToken = default)
         => await dbContext.FocusDefinitions.OrderBy(f => f.Name).ToListAsync(cancellationToken);
 
+    public async Task<IReadOnlyList<FocusDefinition>> GetVisibleToUserAsync(string? userId, CancellationToken cancellationToken = default)
+        => await dbContext.FocusDefinitions
+            .Where(f => f.OwnerId == null || f.OwnerId == userId)
+            .OrderBy(f => f.Name)
+            .ToListAsync(cancellationToken);
+
     public async Task AddAsync(FocusDefinition focusDefinition, CancellationToken cancellationToken = default)
     {
         await dbContext.FocusDefinitions.AddAsync(focusDefinition, cancellationToken);
@@ -37,4 +43,10 @@ public class FocusDefinitionRepository(WwnDbContext dbContext) : IFocusDefinitio
 
     public async Task<bool> AnyAsync(CancellationToken cancellationToken = default)
         => await dbContext.FocusDefinitions.AnyAsync(cancellationToken);
+
+    public async Task<bool> AnyGlobalAsync(CancellationToken cancellationToken = default)
+        => await dbContext.FocusDefinitions.AnyAsync(f => f.OwnerId == null, cancellationToken);
+
+    public async Task<IReadOnlyList<FocusDefinition>> GetGlobalAsync(CancellationToken cancellationToken = default)
+        => await dbContext.FocusDefinitions.Where(f => f.OwnerId == null).ToListAsync(cancellationToken);
 }

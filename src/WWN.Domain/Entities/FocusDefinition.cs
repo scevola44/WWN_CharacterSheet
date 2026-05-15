@@ -13,6 +13,7 @@ public class FocusDefinition
     public bool CanTakeMultipleTimes { get; private set; }
     public List<FocusEffect> Level1Effects { get; private set; } = new();
     public List<FocusEffect> Level2Effects { get; private set; } = new();
+    public string? OwnerId { get; private set; }
 
     public FocusDefinition(
         string name,
@@ -21,7 +22,8 @@ public class FocusDefinition
         string? description = null,
         bool canTakeMultipleTimes = false,
         IEnumerable<FocusEffect>? level1Effects = null,
-        IEnumerable<FocusEffect>? level2Effects = null)
+        IEnumerable<FocusEffect>? level2Effects = null,
+        string? ownerId = null)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Focus name is required.", nameof(name));
@@ -37,6 +39,7 @@ public class FocusDefinition
         CanTakeMultipleTimes = canTakeMultipleTimes;
         Level1Effects = level1Effects?.ToList() ?? new();
         Level2Effects = level2Effects?.ToList() ?? new();
+        OwnerId = string.IsNullOrWhiteSpace(ownerId) ? null : ownerId;
     }
 
     public void Update(

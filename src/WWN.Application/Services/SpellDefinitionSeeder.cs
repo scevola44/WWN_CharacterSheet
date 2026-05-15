@@ -13,13 +13,13 @@ public class SpellDefinitionSeeder(ISpellRepository spellRepository)
 
     public async Task SeedIfEmptyAsync(CancellationToken cancellationToken = default)
     {
-        if (await spellRepository.AnyAsync(cancellationToken)) return;
+        if (await spellRepository.AnyGlobalAsync(cancellationToken)) return;
         await SeedCoreAsync(cancellationToken);
     }
 
     public async Task ForceReseedAsync(CancellationToken cancellationToken = default)
     {
-        foreach (var existing in await spellRepository.GetAllAsync(cancellationToken))
+        foreach (var existing in await spellRepository.GetGlobalAsync(cancellationToken))
             await spellRepository.DeleteAsync(existing.Id, cancellationToken);
         await SeedCoreAsync(cancellationToken);
     }

@@ -10,6 +10,7 @@ export interface Art {
   minLevel: number;
   effortCost: number;
   sourceId: number;
+  isCustom: boolean;
 }
 
 export interface KnownArt {

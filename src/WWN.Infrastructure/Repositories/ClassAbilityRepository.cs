@@ -28,4 +28,10 @@ public class ClassAbilityRepository(WwnDbContext dbContext) : IClassAbilityRepos
 
     public async Task<bool> AnyAsync(CancellationToken ct = default)
         => await dbContext.ClassAbilityDefinitions.AnyAsync(ct);
+
+    public async Task<bool> AnyGlobalAsync(CancellationToken ct = default)
+        => await dbContext.ClassAbilityDefinitions.AnyAsync(a => a.OwnerId == null, ct);
+
+    public async Task<IReadOnlyList<ClassAbilityDefinition>> GetGlobalAsync(CancellationToken ct = default)
+        => await dbContext.ClassAbilityDefinitions.Where(a => a.OwnerId == null).ToListAsync(ct);
 }

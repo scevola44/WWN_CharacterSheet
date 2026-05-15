@@ -18,6 +18,7 @@ export interface FocusDefinition {
   canTakeMultipleTimes: boolean;
   level1Effects: FocusEffectTemplate[];
   level2Effects: FocusEffectTemplate[];
+  isCustom: boolean;
 }
 
 export interface CreateFocusDefinitionRequest {

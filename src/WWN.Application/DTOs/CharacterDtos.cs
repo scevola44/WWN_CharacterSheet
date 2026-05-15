@@ -118,6 +118,7 @@ public record FocusDefinitionDto
     public bool CanTakeMultipleTimes { get; init; }
     public List<FocusEffectDto> Level1Effects { get; init; } = new();
     public List<FocusEffectDto> Level2Effects { get; init; } = new();
+    public bool IsCustom { get; init; }
 }
 
 public record SpellDto
@@ -127,6 +128,7 @@ public record SpellDto
     public int SpellLevel { get; init; }
     public string Description { get; init; } = string.Empty;
     public string? Summary { get; init; }
+    public bool IsCustom { get; init; }
 }
 
 public record KnownSpellDto
@@ -151,6 +153,7 @@ public record ArtDto
     public int MinLevel { get; init; }
     public int EffortCost { get; init; }
     public int SourceId { get; init; }
+    public bool IsCustom { get; init; }
 }
 
 public record KnownArtDto

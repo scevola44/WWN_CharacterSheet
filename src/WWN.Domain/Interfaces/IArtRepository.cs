@@ -6,9 +6,12 @@ public interface IArtRepository
 {
     Task<Art?> GetByIdAsync(Guid artId, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Art>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Art>> GetVisibleToUserAsync(string? userId, CancellationToken cancellationToken = default);
     Task AddAsync(Art art, CancellationToken cancellationToken = default);
     Task UpdateAsync(Art art, CancellationToken cancellationToken = default);
     Task DeleteAsync(Guid artId, CancellationToken cancellationToken = default);
     Task<bool> AnyAsync(CancellationToken cancellationToken = default);
+    Task<bool> AnyGlobalAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Art>> GetGlobalAsync(CancellationToken cancellationToken = default);
     Task<bool> AnyWithSourceIdAsync(int sourceId, CancellationToken cancellationToken = default);
 }

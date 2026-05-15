@@ -7,8 +7,9 @@ public class Spell
     public int SpellLevel { get; private set; }
     public string Description { get; private set; } = string.Empty;
     public string? Summary { get; private set; }
+    public string? OwnerId { get; private set; }
 
-    public Spell(string name, int spellLevel, string description, string? summary = null)
+    public Spell(string name, int spellLevel, string description, string? summary = null, string? ownerId = null)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Spell name is required.", nameof(name));
@@ -22,6 +23,7 @@ public class Spell
         SpellLevel = spellLevel;
         Description = description;
         Summary = summary;
+        OwnerId = string.IsNullOrWhiteSpace(ownerId) ? null : ownerId;
     }
 
     public void Update(string name, int spellLevel, string? summary, string description)
