@@ -426,6 +426,23 @@ input[type="number"] { width: 60px; text-align: center; }
   color: var(--text);
 }
 
+.weapon-tag-badge--toggle {
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 0.2rem 0.5rem;
+}
+
+.weapon-tag-badge--toggle:hover {
+  border-color: var(--primary);
+  color: var(--text);
+}
+
+.weapon-tag-badge--selected {
+  border-color: var(--primary);
+  color: var(--text);
+  background: var(--primary-glow);
+}
+
 .weapon-tag-tooltip {
   position: absolute;
   bottom: calc(100% + 8px);

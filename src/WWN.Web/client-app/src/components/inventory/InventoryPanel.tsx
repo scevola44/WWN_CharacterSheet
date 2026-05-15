@@ -153,27 +153,38 @@ export function InventoryPanel({ character, onUpdate }: {
           </div>
           <div className="form-group" style={{ gridColumn: '1 / -1' }}>
             <label>Tags</label>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.25rem' }}>
-              {weaponTags.map(tag => {
+            <div className="weapon-tag-list" style={{ marginTop: '0.25rem' }}>
+              {(() => {
                 const selectedTags = (form.tags ?? '').split(',').map(t => t.trim()).filter(Boolean);
-                const checked = selectedTags.includes(tag.code);
-                return (
-                  <label key={tag.id} style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', cursor: 'pointer' }}>
-                    <input
-                      type="checkbox"
-                      checked={checked}
-                      onChange={() => {
-                        const current = (form.tags ?? '').split(',').map(t => t.trim()).filter(Boolean);
-                        const next = checked
-                          ? current.filter(t => t !== tag.code)
-                          : [...current, tag.code];
+                return weaponTags.map(tag => {
+                  const selected = selectedTags.includes(tag.code);
+                  return (
+                    <span
+                      key={tag.id}
+                      role="button"
+                      tabIndex={0}
+                      className={`weapon-tag-badge weapon-tag-badge--toggle${selected ? ' weapon-tag-badge--selected' : ''}`}
+                      onClick={() => {
+                        const next = selected
+                          ? selectedTags.filter(t => t !== tag.code)
+                          : [...selectedTags, tag.code];
                         setForm({ ...form, tags: next.length > 0 ? next.join(', ') : undefined });
                       }}
-                    />
-                    {tag.displayName}
-                  </label>
-                );
-              })}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          const next = selected
+                            ? selectedTags.filter(t => t !== tag.code)
+                            : [...selectedTags, tag.code];
+                          setForm({ ...form, tags: next.length > 0 ? next.join(', ') : undefined });
+                        }
+                      }}
+                    >
+                      {tag.displayName}
+                    </span>
+                  );
+                });
+              })()}
             </div>
           </div>
           <div className="form-group">
