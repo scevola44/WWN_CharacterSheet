@@ -27,7 +27,10 @@ public class SmtpEmailSender : IEmailSender
         message.Body = new BodyBuilder { HtmlBody = htmlBody }.ToMessageBody();
 
         using var client = new SmtpClient();
-        var socketOption = _options.EnableSsl ? SecureSocketOptions.StartTlsWhenAvailable : SecureSocketOptions.None;
+        // Auto lets MailKit pick the right TLS mode based on port:
+        // 465 → SslOnConnect (implicit TLS/SMTPS), 587 → StartTls (explicit STARTTLS).
+        // Falling back to None when EnableSsl=false keeps plaintext/dev setups working.
+        var socketOption = _options.EnableSsl ? SecureSocketOptions.Auto : SecureSocketOptions.None;
         await client.ConnectAsync(_options.Host, _options.Port, socketOption, cancellationToken);
 
         if (!string.IsNullOrEmpty(_options.Username))
