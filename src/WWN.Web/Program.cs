@@ -5,8 +5,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
+using WWN.Application.Email;
 using WWN.Application.Services;
 using WWN.Domain.Interfaces;
+using WWN.Infrastructure.Email;
 using WWN.Infrastructure.Identity;
 using WWN.Infrastructure.Persistence;
 using WWN.Infrastructure.Repositories;
@@ -41,9 +43,17 @@ try
         options.Password.RequireUppercase = false;
         options.Password.RequireNonAlphanumeric = false;
         options.Password.RequiredLength = 6;
+        options.SignIn.RequireConfirmedEmail = true;
+        options.User.RequireUniqueEmail = true;
     })
     .AddRoles<IdentityRole>()
-    .AddEntityFrameworkStores<WwnDbContext>();
+    .AddEntityFrameworkStores<WwnDbContext>()
+    .AddDefaultTokenProviders();
+
+    // Email + URL config for confirmation/reset links
+    builder.Services.Configure<SmtpOptions>(builder.Configuration.GetSection("Email:Smtp"));
+    builder.Services.Configure<AppUrlsOptions>(builder.Configuration.GetSection("AppUrls"));
+    builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
 
     // JWT Authentication
     var jwtKey = builder.Configuration["Jwt:Key"]
