@@ -23,6 +23,8 @@ interface LookupsContextValue {
   partialClassByCode: Map<string, LookupValue>;
   focusEffectTypeById: Map<number, LookupValue>;
   focusEffectTypeByCode: Map<string, LookupValue>;
+  weaponTypeById: Map<number, LookupValue>;
+  weaponTypeByCode: Map<string, LookupValue>;
   weaponTagById: Map<number, LookupValue>;
   weaponTagByCode: Map<string, LookupValue>;
   refresh: () => void;
@@ -65,6 +67,8 @@ export function LookupsProvider({ children }: { children: ReactNode }) {
       partialClassByCode: new Map(lookups.partialClasses.map(v => [v.code, v])),
       focusEffectTypeById: new Map(lookups.focusEffectTypes.map(v => [v.id, v])),
       focusEffectTypeByCode: new Map(lookups.focusEffectTypes.map(v => [v.code, v])),
+      weaponTypeById: new Map(lookups.weaponTypes.map(v => [v.id, v])),
+      weaponTypeByCode: new Map(lookups.weaponTypes.map(v => [v.code, v])),
       weaponTagById: new Map(lookups.weaponTags.map(v => [v.id, v])),
       weaponTagByCode: new Map(lookups.weaponTags.map(v => [v.code, v])),
       refresh,
@@ -172,6 +176,16 @@ export function useFocusEffectTypes(): LookupValue[] {
 // eslint-disable-next-line react-refresh/only-export-components
 export function useFocusEffectType(id: number): LookupValue | undefined {
   return useLookups().focusEffectTypeById.get(id);
+}
+
+// eslint-disable-next-line react-refresh/only-export-components
+export function useWeaponTypes(): LookupValue[] {
+  return useLookups().lookups.weaponTypes;
+}
+
+// eslint-disable-next-line react-refresh/only-export-components
+export function useWeaponType(id: number): LookupValue | undefined {
+  return useLookups().weaponTypeById.get(id);
 }
 
 // eslint-disable-next-line react-refresh/only-export-components

@@ -255,7 +255,7 @@ public class CharacterEndpointTests : IClassFixture<CharacterEndpointTests.Custo
                 DamageDieCount = 1,
                 DamageDieSides = 8,
                 AttributeModifier = "Strength",
-                Tags = "Melee"
+                WeaponType = "Melee"
             });
         addResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         var dto = await addResponse.Content.ReadFromJsonAsync<CharacterDetailDto>();

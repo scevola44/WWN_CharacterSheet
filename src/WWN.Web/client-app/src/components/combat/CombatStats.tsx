@@ -1,9 +1,58 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { SectionCard } from '../layout/SectionCard';
 import { characterApi } from '../../api/characterApi';
 import type { CharacterDetail } from '../../types/character';
+import { useWeaponTags } from '../../contexts/LookupsContext';
+import type { LookupValue } from '../../types/lookups';
 
 const ALL_ATTRIBUTES = ['Strength', 'Dexterity', 'Intelligence', 'Wisdom', 'Charisma', 'Constitution'];
+
+function WeaponTagBadge({ tag }: { tag: LookupValue }) {
+  const [tooltipOpen, setTooltipOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const hasDescription = !!tag.description;
+
+  useEffect(() => {
+    if (!modalOpen) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setModalOpen(false); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [modalOpen]);
+
+  return (
+    <>
+      <span
+        className={`weapon-tag-badge${hasDescription ? ' weapon-tag-badge--interactive' : ''}`}
+        onMouseEnter={hasDescription ? () => setTooltipOpen(true) : undefined}
+        onMouseLeave={hasDescription ? () => setTooltipOpen(false) : undefined}
+        onClick={hasDescription ? e => { e.stopPropagation(); setModalOpen(true); } : undefined}
+      >
+        {tag.abbreviation ?? tag.code}
+        {tooltipOpen && tag.description && (
+          <span className="weapon-tag-tooltip">
+            <strong>{tag.displayName}</strong>
+            {tag.description}
+          </span>
+        )}
+      </span>
+      {modalOpen && tag.description && (
+        <div className="modal-overlay" onClick={() => setModalOpen(false)}>
+          <div
+            className="modal"
+            style={{ minWidth: 'min(280px, 90vw)', maxWidth: '360px' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <h3>{tag.displayName}</h3>
+            <p style={{ margin: 0, lineHeight: 1.5 }}>{tag.description}</p>
+            <div className="modal-actions">
+              <button onClick={() => setModalOpen(false)}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
 
 export function CombatStats({ character, onUpdate }: {
   character: CharacterDetail;
@@ -11,6 +60,11 @@ export function CombatStats({ character, onUpdate }: {
 }) {
   const { derivedStats } = character;
   const [updating, setUpdating] = useState<string | null>(null);
+  const allWeaponTags = useWeaponTags();
+  const tagByCode = useMemo(
+    () => new Map(allWeaponTags.map(t => [t.code, t])),
+    [allWeaponTags]
+  );
 
   const handleWeaponConfigChange = async (weaponId: string, skill: string, attribute: string) => {
     setUpdating(weaponId);
@@ -78,6 +132,11 @@ export function CombatStats({ character, onUpdate }: {
               ? `${w.damageDie}${dmgBonus > 0 ? `+${dmgBonus}` : dmgBonus}`
               : w.damageDie;
 
+            const resolvedTags = (w.tags ?? '')
+              .split(',')
+              .map(c => tagByCode.get(c.trim()))
+              .filter((t): t is LookupValue => t !== undefined);
+
             return (
               <div key={w.id} className="item-row" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <div className="item-info">
@@ -90,6 +149,13 @@ export function CombatStats({ character, onUpdate }: {
                       return ` | Shock ${totalShock}/${w.isArmorPiercing ? 'AP' : w.shockAcThreshold}`;
                     })()}
                   </div>
+                  {resolvedTags.length > 0 && (
+                    <div className="weapon-tag-list">
+                      {resolvedTags.map(tag => (
+                        <WeaponTagBadge key={tag.id} tag={tag} />
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div style={{ display: 'flex', gap: '0.5rem', fontSize: '0.75rem' }}>
                   <div style={{ flex: 1 }}>

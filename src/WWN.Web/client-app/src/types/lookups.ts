@@ -4,6 +4,7 @@ export interface LookupValue {
   displayName: string;
   description: string | null;
   sortOrder: number;
+  abbreviation: string | null;
 }
 
 export interface Lookups {
@@ -19,5 +20,6 @@ export interface Lookups {
   partialClasses: LookupValue[];
   focusEffectTypes: LookupValue[];
   // Phase 3
+  weaponTypes: LookupValue[];
   weaponTags: LookupValue[];
 }

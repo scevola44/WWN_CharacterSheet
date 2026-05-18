@@ -80,8 +80,8 @@ public static class CombatCalculator
 
     public static SkillName GetCombatSkillForWeapon(Weapon weapon)
     {
-        return weapon.Tags.HasFlag(WeaponTag.Ranged) 
-            ? SkillName.Shoot 
+        return weapon.WeaponType == WeaponType.Ranged
+            ? SkillName.Shoot
             : SkillName.Stab;
     }
 

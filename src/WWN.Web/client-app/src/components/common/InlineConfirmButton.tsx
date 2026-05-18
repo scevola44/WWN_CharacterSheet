@@ -45,8 +45,8 @@ export function InlineConfirmButton({
 
   return (
     <span className="inline-confirm-group" ref={groupRef} onBlur={handleBlur}>
-      <button className="sm danger" autoFocus onClick={handleConfirm}>{confirmLabel}</button>
-      <button className="sm secondary" onClick={() => setConfirming(false)}>Cancel</button>
+      <button className="sm danger" autoFocus onMouseDown={(e) => e.preventDefault()} onClick={handleConfirm}>{confirmLabel}</button>
+      <button className="sm secondary" onMouseDown={(e) => e.preventDefault()} onClick={() => setConfirming(false)}>Cancel</button>
     </span>
   );
 }

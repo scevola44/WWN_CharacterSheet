@@ -21,25 +21,27 @@ This application provides a comprehensive web-based character sheet for managing
 #### Attributes & Skills
 - Six core attributes (Strength, Dexterity, Constitution, Intelligence, Wisdom, Charisma)
 - Attribute modifier calculations
-- 16 base skills plus custom skill support
-- Individual skill rank tracking
+- 21 base skills plus custom skill support
+- Individual skill rank tracking (−1 untrained through 4)
 
 #### Combat System
 - Armor Class calculation
 - Base Attack Bonus (BAB) computation
-- Three saving throw types (Physical, Evasion, Mental)
+- Four saving throw types (Physical, Evasion, Mental, Luck)
 - Weapon attack and damage bonus calculations
 - Shock damage mechanics with AC thresholds
 - Armor piercing weapon support
 - Conditional weapon configuration (skill and attribute assignment)
+- System Strain tracking (current/max equal to CON score, manual increment/decrement, max-strain warning)
 
 #### Equipment & Inventory
 - Multiple item types (General Item, Weapon, Armor)
 - Equipment slot management (Stowed, Readied, Equipped)
 - Individual item encumbrance tracking
+- Total encumbrance display: readied load vs. max (½ STR) and stowed load vs. max (STR), with over-capacity warning
 - Weapon tags and properties
 - Armor AC bonuses and shield support
-- Item editing and deletion
+- Item notes and editing
 
 #### Character Abilities
 - Class abilities with automatic level-based filtering
@@ -60,6 +62,12 @@ This application provides a comprehensive web-based character sheet for managing
 - Spell slot usage tracking
 - Learn/forget spell mechanics
 
+#### Arts & Effort (Low Magic)
+- Effort pool calculation (1 + INT mod + Magic rank, minimum 1)
+- Scene, Day, and Sustained Effort commitment tracking
+- Known Arts management (learn/remove)
+- Rest controls: End Scene (clears scene Effort), Rest for Day (clears day Effort + restores spell slots)
+
 #### Quality of Life
 - Character list with quick status summary
 - Hit point tracker with +/- buttons
@@ -69,19 +77,7 @@ This application provides a comprehensive web-based character sheet for managing
 
 ### Missing Features
 
-#### High Priority
-- **System Strain Tracking** - Core WWN mechanic for non-magical healing penalties
-  - No max strain tracking (should equal CON score)
-  - No current strain display
-  - No strain recovery mechanics for rest
-
 #### Medium Priority
-- **Total Encumbrance Display**
-  - No total carrying weight calculation
-  - No max capacity display (based on STR score)
-  - No visual encumbrance status warnings
-  - No distinction between slot-specific encumbrance impact
-
 - **Attack Roll Bonus Breakdown**
   - No detailed formula display for attack bonuses
   - No clear breakdown showing (attribute mod + skill mod + BAB + item bonuses)
@@ -94,7 +90,7 @@ This application provides a comprehensive web-based character sheet for managing
 #### Low Priority
 - **Proficiency/Skill Point Economy**
   - No tracking of available vs. spent skill points
-  - No Expert class skill point restrictions enforcement
+  - No per-class skill point grants or cost-per-rank table
   - No attribute improvement tracking via skill points
 
 - **Wealth/Treasure Tracking**
@@ -105,9 +101,11 @@ This application provides a comprehensive web-based character sheet for managing
   - Limited shock damage threshold visibility
   - Could enhance armor piercing weapon indication
 
-- **Attribute-to-Skill Relationships**
-  - No visual indicators of which attributes apply to skills
-  - Could improve clarity of modified skill checks
+- **HP Recovery on Rest**
+  - Rest for Day does not automatically heal HP (rule not yet chosen)
+
+- **Death and Dying**
+  - HP clamps at 0 with no mortal-wound or stabilization state
 
 ## Technology Stack
 
@@ -124,8 +122,8 @@ This application provides a comprehensive web-based character sheet for managing
 ## Getting Started
 
 ### Prerequisites
-- Node.js 18+
-- .NET 8+
+- Node.js 20+
+- .NET 10
 
 ### Installation
 
@@ -134,21 +132,21 @@ This application provides a comprehensive web-based character sheet for managing
 cd src/WWN.Web/client-app
 npm install
 
-# Install backend dependencies
+# Restore backend dependencies (from repo root)
 cd ../../..
 dotnet restore
 ```
 
 ### Development
 
-```bash
-# Start frontend dev server
-cd src/WWN.Web/client-app
-npm run dev
+Run these in two separate terminals from the repo root:
 
-# Start backend
-cd ..
-dotnet run
+```bash
+# Terminal 1 — frontend dev server (proxies API to port 5000)
+cd src/WWN.Web/client-app && npm run dev
+
+# Terminal 2 — backend API
+dotnet run --project src/WWN.Web
 ```
 
 ## Self-Hosting

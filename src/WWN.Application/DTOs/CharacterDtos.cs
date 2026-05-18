@@ -98,6 +98,7 @@ public record ItemDto
     public int? ShockDamage { get; init; }
     public int? ShockAcThreshold { get; init; }
     public bool? IsArmorPiercing { get; init; }
+    public string? WeaponType { get; init; }
     public string? Tags { get; init; }
     public int? AttackBonus { get; init; }
 

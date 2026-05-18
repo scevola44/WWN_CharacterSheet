@@ -27,11 +27,16 @@ Partial classes: **Partial Warrior**, **Partial Expert**, **Partial Mage**. An A
 
 > **App-specific note**: the `+1` for Partial-Warrior Adventurers is a code choice. WWN partial classes typically grant Partial Warrior the full BAB progression. **Verify against the rulebook** before relying on this — see `app-decisions.md`.
 
-## Saves: specialist vs generalist
+## Saves
 
-- Generalist save target = `15 − floor(level/2)`.
-- Specialist save target = `16 − level` (improves faster with level).
-- Which save each class is "specialist" in is a per-class design decision; the codebase passes `isSpecialist` as a parameter and does not currently bind specialist saves to specific classes. **Tracked as TODO** in `app-decisions.md`.
+All saves use a single formula: `16 − level − attribute_mod`. The `isSpecialist` parameter has been removed; there is no class-gated specialist/generalist split in the current implementation.
+
+- Physical: `16 − level − max(STR mod, CON mod)`
+- Evasion: `16 − level − max(DEX mod, INT mod)`
+- Mental: `16 − level − max(WIS mod, CHA mod)`
+- Luck: `16 − level` (no attribute modifier)
+
+See `src/WWN.Domain/Rules/SavingThrowCalculator.cs` and `app-decisions.md`.
 
 ## XP and level cap
 
@@ -66,8 +71,6 @@ Partial classes: **Partial Warrior**, **Partial Expert**, **Partial Mage**. An A
 - For Adventurers, render both partial-class names and inherited features clearly.
 
 ## Open questions / ambiguities
-
-- Specialist-save mapping per class is unimplemented (see `app-decisions.md`).
 - Partial-Warrior BAB: confirm `+1` choice against rulebook (could be a regression of the generalist `level/2` formula).
 - Level-up cadence for foci/skills is not encoded — currently free-form.
 - Multiclassing beyond Adventurer is not supported by the rules and is intentionally absent from the model.

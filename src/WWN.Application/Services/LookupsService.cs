@@ -27,6 +27,7 @@ public class LookupsService(IArtSourceRepository artSourceRepository)
             CharacterClasses = CharacterClassCatalog.All.Select(MapLookupValue).ToArray(),
             PartialClasses = PartialClassCatalog.All.Select(MapLookupValue).ToArray(),
             FocusEffectTypes = FocusEffectTypeCatalog.All.Select(MapLookupValue).ToArray(),
+            WeaponTypes = WeaponTypeCatalog.All.Select(MapLookupValue).ToArray(),
             WeaponTags = WeaponTagCatalog.All.Select(MapLookupValue).ToArray(),
         };
     }
@@ -42,8 +43,9 @@ public class LookupsService(IArtSourceRepository artSourceRepository)
             .Concat(dto.CharacterClasses)
             .Concat(dto.PartialClasses)
             .Concat(dto.FocusEffectTypes)
+            .Concat(dto.WeaponTypes)
             .Concat(dto.WeaponTags);
-        var payload = string.Join("|", allValues.Select(v => $"{v.Id}:{v.Code}:{v.DisplayName}:{v.Description}:{v.SortOrder}"));
+        var payload = string.Join("|", allValues.Select(v => $"{v.Id}:{v.Code}:{v.DisplayName}:{v.Description}:{v.SortOrder}:{v.Abbreviation}"));
         var bytes = System.Text.Encoding.UTF8.GetBytes(payload);
         var hash = System.Security.Cryptography.SHA256.HashData(bytes);
         return $"\"{Convert.ToHexString(hash)[..16]}\"";
@@ -55,6 +57,7 @@ public class LookupsService(IArtSourceRepository artSourceRepository)
         Code = v.Code,
         DisplayName = v.DisplayName,
         Description = v.Description,
-        SortOrder = v.SortOrder
+        SortOrder = v.SortOrder,
+        Abbreviation = v.Abbreviation
     };
 }

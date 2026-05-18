@@ -392,6 +392,107 @@ input[type="number"] { width: 60px; text-align: center; }
   gap: 0.25rem;
 }
 
+.weapon-tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.3rem;
+}
+
+.weapon-tag-badge {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  font-family: monospace;
+  letter-spacing: 0.04em;
+  padding: 0.1rem 0.3rem;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--text-muted);
+  cursor: default;
+  user-select: none;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.weapon-tag-badge--interactive {
+  cursor: pointer;
+}
+
+.weapon-tag-badge--interactive:hover {
+  border-color: var(--primary);
+  color: var(--text);
+}
+
+.weapon-tag-badge--toggle {
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 0.2rem 0.5rem;
+}
+
+.weapon-tag-badge--toggle:hover {
+  border-color: var(--primary);
+  color: var(--text);
+}
+
+.weapon-tag-badge--selected {
+  border-color: var(--primary);
+  color: var(--text);
+  background: var(--primary-glow);
+}
+
+.weapon-tag-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 220px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.5rem 0.6rem;
+  font-size: 0.75rem;
+  font-family: inherit;
+  font-weight: normal;
+  letter-spacing: normal;
+  color: var(--text);
+  white-space: normal;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  z-index: 200;
+  pointer-events: none;
+  text-align: left;
+  line-height: 1.4;
+}
+
+/* Downward arrow */
+.weapon-tag-tooltip::before {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: var(--border);
+}
+
+.weapon-tag-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-1px);
+  border: 5px solid transparent;
+  border-top-color: var(--surface);
+}
+
+.weapon-tag-tooltip strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--primary);
+}
+
 @media print {
   body { background: white; color: black; }
   .section-card { border-color: #ccc; break-inside: avoid; }

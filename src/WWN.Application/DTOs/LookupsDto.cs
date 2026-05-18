@@ -7,6 +7,7 @@ public record LookupValueDto
     public string DisplayName { get; init; } = string.Empty;
     public string? Description { get; init; }
     public int SortOrder { get; init; }
+    public string? Abbreviation { get; init; }
 }
 
 public record LookupsDto
@@ -23,5 +24,6 @@ public record LookupsDto
     public IReadOnlyList<LookupValueDto> PartialClasses { get; init; } = Array.Empty<LookupValueDto>();
     public IReadOnlyList<LookupValueDto> FocusEffectTypes { get; init; } = Array.Empty<LookupValueDto>();
     // Phase 3
+    public IReadOnlyList<LookupValueDto> WeaponTypes { get; init; } = Array.Empty<LookupValueDto>();
     public IReadOnlyList<LookupValueDto> WeaponTags { get; init; } = Array.Empty<LookupValueDto>();
 }

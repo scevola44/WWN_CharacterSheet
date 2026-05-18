@@ -19,8 +19,9 @@ A character at creation has:
 
 - The factory `Character.Create()` (see `src/WWN.Domain/Aggregates/Character.cs:81`) already enforces:
   - Adventurer ⇒ both partial slots set; non-Adventurer ⇒ neither set.
+  - Adventurer's two partial classes must be **distinct** (duplicate pair rejected).
   - All six attributes provided.
-  - 16 default skills initialized at rank −1 (Custom is excluded).
+  - 21 default skills initialized at rank −1 (Custom is excluded).
   - Default `MaxHitPoints = 1` if not given.
 - The current chargen page is `client-app/src/pages/CharacterCreatePage.tsx`; level is fixed at 1 by the factory.
 - We do **not** currently support automated background skill rolls or starter foci selection — these are entered manually.
@@ -33,12 +34,11 @@ A character at creation has:
 ## UI implications
 
 - A guided-chargen flow needs steps: attributes → class & partials → background → starting foci → starting skills → HP roll → review. Each step should validate before advancing.
-- Highlight that Adventurer requires two **different** partial classes (the domain enforces both-set but does not enforce distinct — see open questions).
+- Adventurer requires two **different** partial classes; the domain enforces both the presence and distinctness of the pair.
 - "Custom skill" must be available for backgrounds that grant niche skills.
 
 ## Open questions / ambiguities
 
-- Domain currently does not enforce that `PartialClassA != PartialClassB`. Should it? Confirm the rules: WWN expects the two partials to be different.
 - No starting-skill/free-focus wizard yet; likely belongs in Application layer as a `CharacterCreationService`.
 - Attribute generation method is a UI concern — choose: manual entry only, optional in-app roller, or both.
 - HP at level 1 is currently passed in by the caller; there is no helper to compute the level-1 max from die + CON. Worth adding if we build a chargen wizard.

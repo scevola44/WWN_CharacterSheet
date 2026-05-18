@@ -89,6 +89,7 @@ export interface ItemInfo {
   shockDamage: number | null;
   shockAcThreshold: number | null;
   isArmorPiercing: boolean | null;
+  weaponType: string | null;
   tags: string | null;
   attackBonus: number | null;
   acBonus: number | null;
@@ -136,6 +137,7 @@ export interface AddItemRequest {
   combatSkill?: string;
   shockDamage?: number;
   shockAcThreshold?: number;
+  weaponType?: string;
   tags?: string;
   acBonus?: number;
   isShield?: boolean;
