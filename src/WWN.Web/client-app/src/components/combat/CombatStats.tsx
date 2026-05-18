@@ -8,37 +8,49 @@ import type { LookupValue } from '../../types/lookups';
 const ALL_ATTRIBUTES = ['Strength', 'Dexterity', 'Intelligence', 'Wisdom', 'Charisma', 'Constitution'];
 
 function WeaponTagBadge({ tag }: { tag: LookupValue }) {
-  const [open, setOpen] = useState(false);
-  const hasTooltip = !!tag.description;
+  const [tooltipOpen, setTooltipOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const hasDescription = !!tag.description;
 
   useEffect(() => {
-    if (!open) return;
-    const close = () => setOpen(false);
-    document.addEventListener('click', close);
-    return () => document.removeEventListener('click', close);
-  }, [open]);
+    if (!modalOpen) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setModalOpen(false); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [modalOpen]);
 
   return (
-    <span
-      className={`weapon-tag-badge${hasTooltip ? ' weapon-tag-badge--interactive' : ''}`}
-      onMouseEnter={hasTooltip ? () => setOpen(true) : undefined}
-      onMouseLeave={hasTooltip ? () => setOpen(false) : undefined}
-      onClick={hasTooltip ? e => {
-        // Only handle tap on touch devices; mouse hover already handles desktop
-        if ((e.nativeEvent as PointerEvent).pointerType !== 'mouse') {
-          e.stopPropagation();
-          setOpen(o => !o);
-        }
-      } : undefined}
-    >
-      {tag.abbreviation ?? tag.code}
-      {open && tag.description && (
-        <span className="weapon-tag-tooltip">
-          <strong>{tag.displayName}</strong>
-          {tag.description}
-        </span>
+    <>
+      <span
+        className={`weapon-tag-badge${hasDescription ? ' weapon-tag-badge--interactive' : ''}`}
+        onMouseEnter={hasDescription ? () => setTooltipOpen(true) : undefined}
+        onMouseLeave={hasDescription ? () => setTooltipOpen(false) : undefined}
+        onClick={hasDescription ? e => { e.stopPropagation(); setModalOpen(true); } : undefined}
+      >
+        {tag.abbreviation ?? tag.code}
+        {tooltipOpen && tag.description && (
+          <span className="weapon-tag-tooltip">
+            <strong>{tag.displayName}</strong>
+            {tag.description}
+          </span>
+        )}
+      </span>
+      {modalOpen && tag.description && (
+        <div className="modal-overlay" onClick={() => setModalOpen(false)}>
+          <div
+            className="modal"
+            style={{ minWidth: 'min(280px, 90vw)', maxWidth: '360px' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <h3>{tag.displayName}</h3>
+            <p style={{ margin: 0, lineHeight: 1.5 }}>{tag.description}</p>
+            <div className="modal-actions">
+              <button onClick={() => setModalOpen(false)}>Close</button>
+            </div>
+          </div>
+        </div>
       )}
-    </span>
+    </>
   );
 }
 
